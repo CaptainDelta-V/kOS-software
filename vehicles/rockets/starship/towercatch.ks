@@ -2,7 +2,9 @@
 Wait Until Ship:Unpacked.
 RUNONCEPATH("../../../common/landing/sites").
 RUNONCEPATH("../../../common/infos").
+RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
+RUNONCEPATH("../../../common/landing/mechazillaCatchArmsModel").
 RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("constants").
@@ -10,36 +12,51 @@ RUNONCEPATH("constants").
 ClearScreen.
 
 Set Ship:Name to TOWER_VESSEL_NAME.
-Local MECHAZILLA to Ship:PartsTagged(MECHAZILLA_TAG)[0].
-Local MECHAZILLA_ANIMATE_MODULE to MECHAZILLA:GetModule("ModuleSLEAnimate").
-Local MECHAZILLA_CONTROLLER_MODULE to MECHAZILLA:GetModule("ModuleSLEController").
+Local Mechazilla to Ship:PartsTagged(MECHAZILLA_TAG)[0].
+Local MechazillaAnimModule to Mechazilla:GetModule("ModuleSLEAnimate").
+Local MechazillaControllerModule to Mechazilla:GetModule("ModuleSLEController").
+Local ActiveBooster to Ship. // default self
 
-Local flightStatus to FlightStatusModel("STARTOWER CATCH Control", "WAITING For CATCH COMMAND").
+If (not HasVessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME)) {
+    Print "No target booster detected. Probably still launching.".    
+    Wait Until False.
+}
+
+Set ActiveBooster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+
+Local flightStatus to FlightStatusModel("STARTOWER CATCH CONTROL", "WAITING FOR CATCH COMMAND").
 RunFlightStatusScreen(flightStatus).
+
+Local mechazillaCatchArms to MechazillaCatchArmsModel(Mechazilla, MechazillaControllerModule).
+
+WAIT 2.
+mechazillaCatchArms:ArmForCatch().  
 
 Until false { 
     If Not Ship:Messages:Empty { 
-        Local MESSAGE to Ship:Messages:Pop:Content.
+        Local message to Ship:Messages:Pop:Content.
 
-        If MESSAGE = TOWER_CATCH_MESSAGE {                 
-            flightStatus:Update("CLOSING MECHAZILLA GRABBY").
+        If message = TOWER_CATCH_MESSAGE {                 
+            flightStatus:Update("CLOSING MECHAZILLA").
             Local CLOSE_ARMS_SUFFIX to "close arms".
-            If MECHAZILLA_CONTROLLER_MODULE:HASEVENT(CLOSE_ARMS_SUFFIX) { 
-                MECHAZILLA_CONTROLLER_MODULE:DoEvent(CLOSE_ARMS_SUFFIX).             
+            Local headingToTarget to HeadingOfVector(ActiveBooster:Geoposition:Position - Ship:Geoposition:Position).
+            mechazillaCatchArms:AlignToHeading(headingToTarget).              
+            If MechazillaControllerModule:HasEvent(CLOSE_ARMS_SUFFIX) { 
+                MechazillaControllerModule:DoEvent(CLOSE_ARMS_SUFFIX).             
             }
         }
-        Else If MESSAGE = TOWER_PRECATCH_MESSAGE { 
-            flightStatus:Update("MECHAZILLA CLOSING").
-            MECHAZILLA_CONTROLLER_MODULE:SETFIELD("arms open angle", 40).
+        Else If message = TOWER_PRECATCH_MESSAGE { 
+            flightStatus:Update("MECHAZILLA PRECATCH").
+            Local headingToTarget to HeadingOfVector(ActiveBooster:Geoposition:Position - Ship:Geoposition:Position).           
+            mechazillaCatchArms:AlignToHeading(headingToTarget).              
         }
-        Else If MESSAGE = TOWER_CATCH_DAMPEN_MESSAGE {
-            MECHAZILLA_ANIMATE_MODULE:SETFIELD("target extension", 6).
-            Wait 1.9.
-            MECHAZILLA_ANIMATE_MODULE:SETFIELD("target speed", 1).
-            MECHAZILLA_ANIMATE_MODULE:SETFIELD("target extension", 8).            
-            Wait 1.
-            MECHAZILLA_ANIMATE_MODULE:SETFIELD("target speed", 0.5).
-            MECHAZILLA_ANIMATE_MODULE:SETFIELD("target extension", 9).                        
+        Else If message = TOWER_ARMS_ALIGN_MESSAGE { 
+            flightStatus:Update("ARMS ALIGNMENT").
+            Local headingToTarget to HeadingOfVector(ActiveBooster:Geoposition:Position - Ship:Geoposition:Position).
+            mechazillaCatchArms:AlignToHeading(headingToTarget).              
+        }
+        Else If message = TOWER_CATCH_DAMPEN_MESSAGE {
+            mechazillaCatchArms:LowerLandingRails().
 
             Set Core:BootFilename to "".
             SHUTDOWN.

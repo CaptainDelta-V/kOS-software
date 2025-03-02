@@ -1,6 +1,6 @@
 RUNONCEPATH("1:common/exceptions"). 
 
-Function GET_LAUNCH_CONFIRMATION { 
+Function GetLaunchConfirmation { 
     Parameter TITLE.
 
     ClearScreen.

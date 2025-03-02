@@ -75,7 +75,9 @@ Function LandingStatusModel {
     }
 
     Function ErrorVector {
-        Return GetImpact():Position - _landingSite:AltitudePosition(_targetAltitude).        
+        // todo: this should probably compare at exactly the same altitude
+        // Return GetImpact():Position - _landingSite:AltitudePosition(_targetAltitude).        
+        Return GetImpact():AltitudePosition(_targetAltitude) - _landingSite:AltitudePosition(_targetAltitude).        
     }
 
     Function ErrorVectorAtHorizon { 

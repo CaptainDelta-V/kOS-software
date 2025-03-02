@@ -72,6 +72,8 @@ Function LandingSteeringModel {
                             + Tan(_minAoA) * errorVector:Normalized.
         }
 
+        Set _targetAoACapped to VectorAngle(result, referenceVector).
+
         return result.
     }
 
@@ -93,6 +95,8 @@ Function LandingSteeringModel {
                             + Tan(_minAoA) * errorVector:Normalized.
         }
 
+        Set _targetAoACapped to VectorAngle(result, referenceVector).
+
         // Local rotate to AngleAxis(-180, Ship:Facing:UpVector).
         // Set result to result * rotate.
         // flip horizontally
@@ -101,7 +105,6 @@ Function LandingSteeringModel {
         return result.
     }
 
-    // not very useful
     Function SteeringRadialOutCrossVector { 
         Local radialOut to (Ship:Body:Position - Ship:Position):Normalized. 
         Local targetDirection to (LandingModel:GetLandingSite():Position - Ship:Position):Normalized.

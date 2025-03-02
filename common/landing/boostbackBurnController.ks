@@ -37,7 +37,7 @@ Function BoostbackBurnController {
 
                 // Local minThrottle to 0.15.
                 Local cutoffThrottle to Throttle - 0.01.
-                If ((errorCurrent > previousErrorMeters OR Throttle < cutoffThrottle) AND errorCurrent < MinimumError) 
+                If ((errorCurrent > previousErrorMeters OR Throttle < cutoffThrottle) and errorCurrent < MinimumError) 
                     or Ship:Altitude < AbortAltitude {    
                     Lock Throttle to 0.
                     Set courseCorrectionIdx to courseCorrectionIdx + 1.

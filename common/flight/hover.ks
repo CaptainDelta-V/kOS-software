@@ -33,24 +33,25 @@ Global Function RunVerticalSpeedHold {
     Parameter kI to 0.
     Parameter kD to 0.       
     Parameter MinVal to 0.
-    Parameter MaxVal to 1.
+    Parameter GetMaxVal to { Return 1. }.
     Parameter GetActual to { Return Ship:VerticalSpeed. }.
     Parameter Terminator to { Return false. }.    
     
     Declare Local calcThrottle to .5.
     Lock Throttle to calcThrottle.                                  
 
-    Declare Local pid to PidLoop(kP, kI, kD, MinVal, MaxVal).    
+    Declare Local pid to PidLoop(kP, kI, kD, MinVal, GetMaxVal()).    
     Set pid:SetPoint to GetVsTarget(). 
      
-    Local TimeEnd to Time:Seconds + Duration.    
+    Local timeEnd to Time:Seconds + Duration.    
     
     Set calcThrottle to pid:Update(Time:Seconds, GetActual:Call()).         
-    Until Time:Seconds > TimeEnd OR Terminator:Call() {                         
+    Until Time:Seconds > timeEnd OR Terminator:Call() {                         
 
         Set pid:SetPoint to GetVsTarget(). 
-        
+        Set pid:MaxOutput to GetMaxVal().        
         Set calcThrottle to pid:Update(Time:Seconds, GetActual:Call()).         
+
         Wait 0.01.
     }
 }

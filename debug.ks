@@ -4,21 +4,28 @@ RUNONCEPATH("common/orbit/circularizationController").
 RUNONCEPATH("common/nav").
 RUNONCEPATH("common/landing/sites").
 
-Set DEBUG_OUT_FILE to "logs/out.txt".
-DeletePath(DEBUG_OUT_FILE).
+Set LogFilepath to "logs/out.txt".
+DeletePath(LogFilepath).
 
-function testIt { 
-    return 3.
-}
 
-Local gate to testIt@.
 
-print testIt:SuffixNames.
-print testIt:typename.
+// Local pos to Ship:PartsTagged("TOWER_BASE")[0].
+// Local geoPos to Body:GeoPositionOf(pos:Position).
+// print geoPos.
+// Log geoPos to LogFilepath.
 
-for suff in testIt:suffixnames { 
-    print suff.
-}
+
+
+Local mechazilla to Ship:PartsTagged("MECHAZILLA")[0]. 
+DescribePartItemToFile(mechazilla, LogFilepath).
+
+
+
+mechazilla:getmodulebyindex(7):SetField("arms open angle", 20).
+
+
+// Print HeadingOfVector(Target:Geoposition:Position - Ship:Geoposition:Position).
+// Print HeadingOfVector(Ship:Geoposition:Position - Target:Geoposition:Position).
 
 // Local cmdPart to Ship:PartsTagged("STARTOWER_COMMAND")[0].
 

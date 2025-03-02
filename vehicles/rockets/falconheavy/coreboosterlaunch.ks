@@ -30,7 +30,7 @@ flightStatus:AddField("Alt SCALED", LAUNCH_PROFILE:AltitudeScaled@).
 
 Lock PitchTarget to LAUNCH_PROFILE:PitchTarget@.
 
-GET_LAUNCH_CONFIRMATION(flightStatus:GetTitle()).
+GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
 
 Wait 1. 

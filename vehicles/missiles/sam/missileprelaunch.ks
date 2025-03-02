@@ -14,7 +14,7 @@ Local TARGET_VESSEL_NAME to "KBN-DS Just Add Moar Boosters".
 
 Set TARGET to Vessel(TARGET_VESSEL_NAME).
 
-GET_LAUNCH_CONFIRMATION(flightStatus:GetTitle()).
+GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.5).
 
 flightStatus:AddField("STATUS", "AWAITING INITIATION").

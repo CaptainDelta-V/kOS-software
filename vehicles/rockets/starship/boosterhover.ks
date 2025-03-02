@@ -30,7 +30,7 @@ Local landingSteering to LandingSteeringModel(landingSite).
 Local flightStatus to FlightStatusModel("SUPER HEAVY Booster HOVER TEST").
 Local STARTOWER_Core to Processor(TOWER_CPU_NAME).
 
-GET_LAUNCH_CONFIRMATION(flightStatus:GetTitle()).
+GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.5).
 
 Wait 2.

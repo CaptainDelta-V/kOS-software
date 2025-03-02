@@ -3,7 +3,15 @@
 Function FlightStatusModel {
     
     Parameter ScreenTitle to "FLIGHT OPERATION".
-    Parameter FlightStatus to "UNKNOWN".        
+    Parameter FlightStatus to "UNKNOWN".    
+    Parameter RecordLogs to true.
+
+    Local LogFilePath is "0:logs/flight-" + ScreenTitle + "-" + Time:Hour + "-" + Time:Minute + "-" + Time:Second + ".txt".
+
+    If (RecordLogs) { 
+        // DeletePath(LogFilePath).    
+        Log "[" + Time:Seconds + "]" + "INIT: " + ScreenTitle To LogFilePath.
+    }
 
     Local _flightStatusFields to Lexicon().
 
@@ -18,6 +26,10 @@ Function FlightStatusModel {
     Function Update { 
         Parameter newStatus.
         Set FlightStatus to newStatus.
+
+        If (RecordLogs) { 
+            Log "[" + Time:Seconds + "]" + FlightStatus To LogFilePath.
+        }
     }
 
     Function AddField { 
@@ -25,6 +37,9 @@ Function FlightStatusModel {
         Parameter fieldValue.
         
         Set _flightStatusFields[fieldName] to fieldValue.        
+        If (RecordLogs) { 
+            Log "[" + Time:Seconds + "]" + fieldName + " set to " + fieldValue To LogFilePath.
+        }
     }
 
     Function UpdateField { 
@@ -32,6 +47,9 @@ Function FlightStatusModel {
         Parameter fieldValue. 
 
         Set _flightStatusFields[fieldName] to fieldValue.
+        If (RecordLogs) { 
+            Log "[" + Time:Seconds + "]" + fieldName + " updated to " + fieldValue To LogFilePath.
+        }
     }
 
     Function PrintStatusScreen { 

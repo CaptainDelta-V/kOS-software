@@ -34,7 +34,7 @@ Function GridFinManager {
         Parameter limit. 
 
         For fin In gridFins {             
-            fin:GetModule("ModuleControlSurface"):SETFIELD("authority limiter", limit).
+            fin:GetModule("ModuleControlSurface"):SetField("authority limiter", limit).
         }    
     }
 

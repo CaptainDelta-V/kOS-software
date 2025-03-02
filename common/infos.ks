@@ -2,7 +2,7 @@
 
 Local DEFAULT_LOG_FILENAME to "0:output/out" + Time:MINUTE + "" + Time:SECOND + ".txt".
 
-Global Function DESCRIBE_PART_ITEM {
+Global Function DescribePartItem {
     Parameter PART.
 
     For MODULE_NAME In PART:ALLMODULES { 
@@ -21,13 +21,15 @@ Global Function DESCRIBE_PART_ITEM {
 
 }
 
-Global Function DESCRIBE_PART_ITEM_TO_FILE {
+Global Function DescribePartItemToFile {
     Parameter PART.
     Parameter FILENAME is DEFAULT_LOG_FILENAME.
+    Local moduleIdx to 0.
 
     For MODULE_NAME In PART:ALLMODULES { 
-        LOG "Module name: " + MODULE_NAME to FILENAME.
+        LOG "Module name: " + MODULE_NAME + "Index: " + moduleIdx to FILENAME.
         Declare Local MODULE to PART:GetModule(MODULE_NAME).
+        Set moduleIdx to moduleIdx + 1.
 
         For fieldName In MODULE:AllFieldNames {
             LOG "    Field: " + fieldName + " " + MODULE:GETFIELD(fieldName) to FILENAME.
@@ -41,7 +43,7 @@ Global Function DESCRIBE_PART_ITEM_TO_FILE {
     }
 }
 
-Global Function DESCRIBE_MODULE_TO_FILE { 
+Global Function DescribeModuleToFile { 
     Parameter MODULE.
     Parameter FILENAME is DEFAULT_LOG_FILENAME. 
 
@@ -56,7 +58,7 @@ Global Function DESCRIBE_MODULE_TO_FILE {
     }    
 }
 
-Global Function DESCRIBE_SUFFIXNAMES_TO_FILE { 
+Global Function DescribeSuffixNamesToFile { 
     Parameter THING.
     Parameter FILENAME is DEFAULT_LOG_FILENAME.
 
@@ -65,3 +67,16 @@ Global Function DESCRIBE_SUFFIXNAMES_TO_FILE {
     }
 }
 
+Global Function HasVessel { 
+    Parameter Name. 
+
+    Local allVessels is List().
+    List targets in allVessels.
+    For tgt in allVessels { 
+        If (tgt:name = name) { 
+            Return true.
+        }
+    }
+
+    Return false.
+}

@@ -45,7 +45,7 @@ When Altitude > launchProfileTransitionAltitude Then {
     flightStatus:Update("SECONDARY PROFILE").
 }
 
-GET_LAUNCH_CONFIRMATION(flightStatus:GetTitle()).
+GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
 
 Wait 1.
