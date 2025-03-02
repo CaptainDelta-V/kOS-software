@@ -102,7 +102,7 @@ When Apoapsis > targetApoapsis Then {
     Unlock Throttle.
     Unlock Steering.   
     Wait 0.
-    Set Ship:Control:PilotMainThrottle to 1.
+    Set Ship:Control:PilotMainThrottle to 0.6.
 
     engineManagement:SetEngineMode(ENG_MODE_MID_INR).
 

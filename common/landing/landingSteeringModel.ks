@@ -95,12 +95,13 @@ Function LandingSteeringModel {
                             + Tan(_minAoA) * errorVector:Normalized.
         }
 
-        Set _targetAoACapped to VectorAngle(result, referenceVector).
+        Set _targetAoACapped to VectorAngle(result, referenceVector).        
 
         // Local rotate to AngleAxis(-180, Ship:Facing:UpVector).
         // Set result to result * rotate.
         // flip horizontally
         // Set result To V(-result:x, result:y, result:z).
+        // vectorCrossProduct(ship:facing, ship:up)
 
         return result.
     }

@@ -9,7 +9,7 @@ Function FlightStatusModel {
     Local LogFilePath is "0:logs/flight-" + ScreenTitle + "-" + Time:Hour + "-" + Time:Minute + "-" + Time:Second + ".txt".
 
     If (RecordLogs) { 
-        // DeletePath(LogFilePath).    
+        DeletePath(LogFilePath).    
         Log "[" + Time:Seconds + "]" + "INIT: " + ScreenTitle To LogFilePath.
     }
 
@@ -30,7 +30,7 @@ Function FlightStatusModel {
         If (RecordLogs) { 
             Log "[" + Time:Seconds + "]" + FlightStatus To LogFilePath.
         }
-    }
+    }    
 
     Function AddField { 
         Parameter fieldName.

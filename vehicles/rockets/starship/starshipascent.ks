@@ -13,7 +13,7 @@ RUNONCEPATH("../../../common/booting/bootUtils").
 ClearScreen.
 ClearVecDraws().
 
-Local RequiredApoapsisEtaMargin to 60 * 3.5.
+Local RequiredApoapsisEtaMargin to 60 * 2.8.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local ascent to AscentModel().
