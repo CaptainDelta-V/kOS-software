@@ -9,7 +9,10 @@ RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/launch/ascentModel").
 RUNONCEPATH("../../../common/booting/bootUtils").
+RUNONCEPATH("../../../common/flight/upperAscent").
 
+ResetTorque().
+Shutdown.
 ClearScreen.
 ClearVecDraws().
 
@@ -29,7 +32,6 @@ RunFlightStatusScreen(flightStatus, 0.75).
 
 If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {    
     flightStatus:Update("Orbit: IDLE").
-    Set Core:BootFilename to "".
 }
 Else { 
    AscendToOrbit().
@@ -38,6 +40,9 @@ Else {
 Wait Until false.
 
 Function AscendToOrbit { 
+
+    Set Core:BootFilename to "".       
+
     RCS ON.
     ResetTorque(). 
     Set SteeringManager:YawTorqueFactor to 0.5.
@@ -54,19 +59,26 @@ Function AscendToOrbit {
     Local Booster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).         
     flightStatus:AddField("Booster Time to Apoapsis", { Return Booster:Orbit:ETA:Apoapsis.}).
     flightStatus:AddField("Booster Connection", { Return Booster:Connection:IsConnected. }).
+    
+    flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
+    RunUpperAscent(80_000, targetHeading, targetRoll, 0.1, 0, 0, 0, 1, 20, { 
 
-    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin - 30 Then { 
-        Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).
-        flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
-    }
 
-    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then { 
-        Lock Throttle to 0.
-        flightStatus:Update("Orbit: PREPARING to SWITCH to Booster").
-        Set Core:BootFilename to "".         
+        Return ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin.
+    }).
+
+    // When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin - 30 Then { 
+    //     Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).
+    //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
+    // }
+
+    // When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then { 
+    //     Lock Throttle to 0.
+    //     // flightStatus:Update("Orbit: PREPARING to SWITCH to Booster").  
         
-        Wait 1.
+    //     Wait 1.
+    //     Shutdown.
                    
-        Set KUniverse:ActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
-    }
+    //     // Set KUniverse:ActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+    // }
 }

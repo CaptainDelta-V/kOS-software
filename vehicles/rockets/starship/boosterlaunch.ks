@@ -23,9 +23,9 @@ Local engineManagement to EngineManager(engineModule, VESSEL_TYPE_SUPER_HEAVY_BO
 Local startowerCore to Processor(TOWER_CPU_NAME).
 Local starshipCore to Processor(STARSHIP_CPU_NAME).
 
-Local BoosterMaxPitchOver to 70.
+Local BoosterMaxPitchOver to 55.
 
-Local launchProfileInitial to LaunchProfileModel(0.75, 11, 8, BoosterMaxPitchOver).
+Local launchProfileInitial to LaunchProfileModel(0.95, 11, 8, BoosterMaxPitchOver).
 Local launchProfileSecondary to LaunchProfileModel(2.0, 10, 9.7, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 8_000.
@@ -102,7 +102,7 @@ When Apoapsis > targetApoapsis Then {
     Unlock Throttle.
     Unlock Steering.   
     Wait 0.
-    Set Ship:Control:PilotMainThrottle to 0.6.
+    Set Ship:Control:PilotMainThrottle to 0.4.
 
     engineManagement:SetEngineMode(ENG_MODE_MID_INR).
 
