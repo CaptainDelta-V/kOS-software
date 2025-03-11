@@ -11,12 +11,12 @@ RUNONCEPATH("../../../common/launch/ascentModel").
 RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/flight/upperAscent").
 
-ResetTorque().
-Shutdown.
+// ResetTorque().
+// Shutdown.
 ClearScreen.
 ClearVecDraws().
 
-Local RequiredApoapsisEtaMargin to 60 * 2.8.
+Local RequiredApoapsisEtaMargin to 60 * 5.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local ascent to AscentModel().
@@ -25,7 +25,7 @@ Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT Control","UNKNO
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
-Local targetPitch to -1.5.
+Local targetPitch to 0.
 Local targetRoll to 180.
 
 RunFlightStatusScreen(flightStatus, 0.75).
@@ -61,24 +61,21 @@ Function AscendToOrbit {
     flightStatus:AddField("Booster Connection", { Return Booster:Connection:IsConnected. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
-    RunUpperAscent(80_000, targetHeading, targetRoll, 0.1, 0, 0, 0, 1, 20, { 
 
 
-        Return ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin.
-    }).
+
 
     // When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin - 30 Then { 
     //     Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
 
-    // When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then { 
-    //     Lock Throttle to 0.
-    //     // flightStatus:Update("Orbit: PREPARING to SWITCH to Booster").  
+    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin  Then {         
+        Lock Throttle to 0.
+        flightStatus:Update("COAST TO APOAPSIS").  
         
-    //     Wait 1.
-    //     Shutdown.
-                   
-    //     // Set KUniverse:ActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
-    // }
+        Wait 1.
+        Shutdown.                   
+        // Set KUniverse:ActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+    }
 }

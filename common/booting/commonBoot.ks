@@ -23,5 +23,5 @@ SWITCH to 1.
 CD(DefaultBootDirectory).
 
 CheckAltBootFile().
-
+// todo: make sure RunWithParams never runs after an alternate boot file.
 RunWithParams(DefaultBootFilename, bootParam0, bootParam1, bootParam2).

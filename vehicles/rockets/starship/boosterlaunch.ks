@@ -17,8 +17,7 @@ RUNONCEPATH("constants").
 ClearScreen. 
 
 Local engine to Ship:PartsTagged("BOOSTER_RAPTORS")[0].
-Local engineModule to engine:GetModule(TUNDRA_ENGINE_MODULE_NAME).
-Local engineManagement to EngineManager(engineModule, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
+Local engineManagement to EngineManager(engine, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
 
 Local startowerCore to Processor(TOWER_CPU_NAME).
 Local starshipCore to Processor(STARSHIP_CPU_NAME).
@@ -31,7 +30,7 @@ Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 8_000.
 
 Local launchHeading to 90.
-Local targetApoapsis to 70_000.
+Local targetApoapsis to 60_000.
 Local targetRoll to -90.
 
 Local flightStatus to FlightStatusModel("SUPER HEAVY Booster LAUNCH Control", "PRELAUNCH").
@@ -76,7 +75,7 @@ flightStatus:Update("PRE-IGNITION").
 engineManagement:SetEngineState(true).
 Wait 1.
 Lock Throttle to 1.
-Wait 0.125.
+// Wait 0.125.
 
 If (startowerCore:Connection:SendMessage(TOWER_RELEASE_MESSAGE)) { 
     flightStatus:Update("REQUESTING TOWER RELEASE").
@@ -102,8 +101,8 @@ When Apoapsis > targetApoapsis Then {
     Unlock Throttle.
     Unlock Steering.   
     Wait 0.
-    Set Ship:Control:PilotMainThrottle to 0.4.
-
+    Set Ship:Control:PilotMainThrottle to 1.
+    engineManagement:SetThrustLimit(40).
     engineManagement:SetEngineMode(ENG_MODE_MID_INR).
 
     Wait 1.                

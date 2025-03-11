@@ -10,8 +10,17 @@ Declare Global ENG_MODE_MID_INR to "Middle Inner".
 Declare Global ENG_MODE_CTR to "Center Three".
 
 Function EngineManager { 
-    Parameter engineModule. 
+    Parameter engine.    
     Parameter vesselType.    
+
+    Local engineModule to "".
+    
+    If vesselType = VESSEL_TYPE_SUPER_HEAVY_BOOSTER { 
+        Set engineModule to engine:GetModule(TUNDRA_ENGINE_MODULE_NAME).
+    }
+    Else If vesselType = VESSEL_TYPE_STARSHIP { 
+
+    }
 
     Function SetEngineState { 
         Parameter state. 
@@ -72,8 +81,19 @@ Function EngineManager {
         }
     }
 
+    Function SetThrustLimit { 
+        Parameter limit. 
+
+        If vesselType = VESSEL_TYPE_SUPER_HEAVY_BOOSTER { 
+            engine:GetModuleByIndex(1):SetField("thrust limiter", limit).
+            engine:GetModuleByIndex(2):SetField("thrust limiter", limit).
+            engine:GetModuleByIndex(3):SetField("thrust limiter", limit).
+        }
+    }
+
     Return Lexicon(         
         "SetEngineState", SetEngineState@,
-        "SetEngineMode", SetEngineMode@
+        "SetEngineMode", SetEngineMode@, 
+        "SetThrustLimit", SetThrustLimit@
     ).
 }

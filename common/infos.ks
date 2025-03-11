@@ -27,7 +27,7 @@ Global Function DescribePartItemToFile {
     Local moduleIdx to 0.
 
     For MODULE_NAME In PART:ALLMODULES { 
-        LOG "Module name: " + MODULE_NAME + "Index: " + moduleIdx to FILENAME.
+        LOG "Module name: " + MODULE_NAME + " Index: " + moduleIdx to FILENAME.
         Declare Local MODULE to PART:GetModule(MODULE_NAME).
         Set moduleIdx to moduleIdx + 1.
 

@@ -1,23 +1,23 @@
 Function WaitUntilOriented { 
-    Parameter ANGLE_ERR_THRESHOLD is 2.25.
-    Parameter ANGULAR_MAG_THRESHOLD is 2.
-    Wait Until Abs(SteeringManager:ANGLEERROR) < ANGLE_ERR_THRESHOLD AND Ship:ANGULARVEL:Mag < ANGULAR_MAG_THRESHOLD.
+    Parameter angleErrorThreshold is 2.25.
+    Parameter angularMagThreshold is 2.
+    Wait Until Abs(SteeringManager:ANGLEERROR) < angleErrorThreshold AND Ship:ANGULARVEL:Mag < angularMagThreshold.
 }
 
 Global Function ResetTorque { 
-    Local TORQUE_FACTOR to 1.
+    Local torquefactor to 1.
 
-    Set SteeringManager:YawTorqueFactor to TORQUE_FACTOR.
-    Set SteeringManager:PitchTorqueFactor to TORQUE_FACTOR.
-    Set SteeringManager:RollTorqueFactor to TORQUE_FACTOR.
+    Set SteeringManager:YawTorqueFactor to torquefactor.
+    Set SteeringManager:PitchTorqueFactor to torquefactor.
+    Set SteeringManager:RollTorqueFactor to torquefactor.
 }
 
 Global Function SET_TORQUE { 
-    Parameter TORQUE_FACTOR. 
+    Parameter torqueFactor. 
 
-    Set SteeringManager:YawTorqueFactor to TORQUE_FACTOR.
-    Set SteeringManager:PitchTorqueFactor to TORQUE_FACTOR.
-    Set SteeringManager:RollTorqueFactor to TORQUE_FACTOR.
+    Set SteeringManager:YawTorqueFactor to torqueFactor.
+    Set SteeringManager:PitchTorqueFactor to torqueFactor.
+    Set SteeringManager:RollTorqueFactor to torqueFactor.
 }
 
 // Global Function MAX_STOPPING

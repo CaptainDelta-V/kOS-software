@@ -3,26 +3,57 @@ RUNONCEPATH("common/flightStatus/flightStatusModel").
 RUNONCEPATH("common/orbit/circularizationController").
 RUNONCEPATH("common/nav").
 RUNONCEPATH("common/landing/sites").
+RUNONCEPATH("common/utils/listutils").
+RUNONCEPATH("common/systems/drainValveManager").
 
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
 
 
-// Local pos to Ship:PartsTagged("TOWER_BASE")[0].
+Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
+Local drainValveController to DrainValveManager(drainValves).
+drainValveController:DrainToAmount(800, "Oxidizer").
+
+
+
+// DescribeSuffixNamesToFile(oxy, LogFilepath).
+// Log Ship:Resources to LogFilepath.
+// Print Ship:Resources[0].
+
+// Local oxy to FindInList(Ship:Resources, { parameter it. return it["Name"] = "Oxidizer". }).
+// Print oxy.
+
+// DescribePartItemToFile(drainValves[0], LogFilepath).
+
+// DescribeSuffixNamesToFile(Ship:resources).
+
+// Shutdown.
+
+
+
+// drainModule
+
+
+
+// Log part:Resources to LogFilepath.
+
+// DescribePartItemToFile(pos, LogFilepath).
+
 // Local geoPos to Body:GeoPositionOf(pos:Position).
 // print geoPos.
 // Log geoPos to LogFilepath.
+// Local tank to Ship:Parts.
+// Log tank to LogFilepath.
+// DescribePartItemToFile(tank, LogFilePath).
 
+// Local engines to Ship:PartsTagged("BOOSTER_RAPTORS")[0].
 
+// DescribePartItemToFile(engines, LogFilepath).
 
-Local mechazilla to Ship:PartsTagged("MECHAZILLA")[0]. 
-DescribePartItemToFile(mechazilla, LogFilepath).
+// engines:GetModuleByIndex(1):SetField("thrust limiter", 30).
 
-
-
-mechazilla:getmodulebyindex(7):SetField("arms open angle", 20).
-
+// mechazilla:getmodulebyindex(7):SetField("arms open angle", 20).
 
 // Print HeadingOfVector(Target:Geoposition:Position - Ship:Geoposition:Position).
 // Print HeadingOfVector(Ship:Geoposition:Position - Target:Geoposition:Position).

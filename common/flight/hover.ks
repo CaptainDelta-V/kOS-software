@@ -46,7 +46,7 @@ Global Function RunVerticalSpeedHold {
     Local timeEnd to Time:Seconds + Duration.    
     
     Set calcThrottle to pid:Update(Time:Seconds, getActual:Call()).         
-    Until Time:Seconds > timeEnd OR terminator:Call() {                         
+    Until Time:Seconds > timeEnd or terminator:Call() {                         
 
         Set pid:SetPoint to getVsTarget(). 
         Set pid:MaxOutput to getMaxVal().        

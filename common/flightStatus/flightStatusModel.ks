@@ -6,7 +6,7 @@ Function FlightStatusModel {
     Parameter FlightStatus to "UNKNOWN".    
     Parameter RecordLogs to true.
 
-    Local LogFilePath is "0:logs/flight-" + ScreenTitle + "-" + Time:Hour + "-" + Time:Minute + "-" + Time:Second + ".txt".
+    Local LogFilePath is "0:logs/flight-" + ScreenTitle.
 
     If (RecordLogs) { 
         DeletePath(LogFilePath).    
