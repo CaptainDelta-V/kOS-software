@@ -33,6 +33,10 @@ Function MechazillaCatchArmsModel {
         Mechazilla:GetModuleByIndex(11):DoAction("lower landing rails", true).
     }
 
+    Function OpenPushers { 
+        // Mechazilla:
+    }
+
     Return Lexicon( 
         "ArmForCatch", ArmForCatch@,
         "AlignToHeading", AlignToHeading@,

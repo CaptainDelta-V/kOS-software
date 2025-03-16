@@ -20,7 +20,7 @@ Local RequiredApoapsisEtaMargin to 60 * 5.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local ascent to AscentModel().
-Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT Control","UNKNOWN").
+Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNOWN").
 
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
@@ -62,6 +62,8 @@ Function AscendToOrbit {
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
 
+    Set KUniverse:ForceActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+
 
 
 
@@ -75,7 +77,6 @@ Function AscendToOrbit {
         flightStatus:Update("COAST TO APOAPSIS").  
         
         Wait 1.
-        Shutdown.                   
-        // Set KUniverse:ActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+        Shutdown.                           
     }
 }

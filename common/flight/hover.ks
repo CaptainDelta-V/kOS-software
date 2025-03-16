@@ -1,6 +1,6 @@
 @LAZYGLOBAL OFF. 
 
-Global Function RunAltitudeHold { 
+Global Function RunRadarAltitudeHold { 
     Parameter TargetAltitude.
     Parameter Duration.  
     Parameter kP to 0.
@@ -18,7 +18,7 @@ Global Function RunAltitudeHold {
      
     Local timeEnd to Time:Seconds + Duration.
     
-    Set calcThrottle to pid:Update(Time:Seconds, Ship:Altitude).         
+    Set calcThrottle to pid:Update(Time:Seconds, Alt:Radar).         
     Until Time:Seconds > timeEnd OR Terminator:Call() { 
 
         Set calcThrottle to pid:Update(Time:Seconds, Ship:Altitude).         

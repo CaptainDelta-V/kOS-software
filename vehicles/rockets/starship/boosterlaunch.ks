@@ -33,7 +33,7 @@ Local launchHeading to 90.
 Local targetApoapsis to 60_000.
 Local targetRoll to -90.
 
-Local flightStatus to FlightStatusModel("SUPER HEAVY Booster LAUNCH Control", "PRELAUNCH").
+Local flightStatus to FlightStatusModel("SUPER HEAVY BOOSTER LAUNCH CONTROL", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
@@ -54,7 +54,7 @@ Else {
     Throw("DELUGE FAIL").
     Wait 100.
 }
-Wait 1.
+Wait 0.5.
 
 If (startowerCpu:Connection:SendMessage(TOWER_QD_RELEASE_MESSAGE)) { 
     flightStatus:Update("QD RELEASE").
@@ -67,7 +67,7 @@ Wait 1.5.
 
 flightStatus:Update("PRE-IGNITION").
 engineManagement:SetEngineState(true).
-Wait 1.
+Wait 0.5.
 Lock Throttle to 1.
 // Wait 0.125.
 
