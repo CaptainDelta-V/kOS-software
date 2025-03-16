@@ -19,7 +19,13 @@ Function EngineManager {
         Set engineModule to engine:GetModule(TUNDRA_ENGINE_MODULE_NAME).
     }
     Else If vesselType = VESSEL_TYPE_STARSHIP { 
+        Throw("Vessel type not supported").
+    }    
 
+    Function GetEngineMode { 
+        If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
+            Return engineModule:GetField("mode").
+        }
     }
 
     Function SetEngineState { 
@@ -63,21 +69,21 @@ Function EngineManager {
         Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
             Local currMode is engineModule:GETFIELD("mode").       
 
-            If currMode = ENG_MODE_ALL AND targetMode = ENG_MODE_MID_INR {     
+            If currMode = ENG_MODE_ALL and targetMode = ENG_MODE_MID_INR {     
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If currMode = ENG_MODE_MID_INR AND targetMode = ENG_MODE_CTR {
+            Else If currMode = ENG_MODE_MID_INR and targetMode = ENG_MODE_CTR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If currMode = ENG_MODE_CTR AND targetMode = ENG_MODE_MID_INR {
+            Else If currMode = ENG_MODE_CTR and targetMode = ENG_MODE_MID_INR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
-            Else If currMode = ENG_MODE_MID_INR AND targetMode = ENG_MODE_ALL { 
+            Else If currMode = ENG_MODE_MID_INR and targetMode = ENG_MODE_ALL { 
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
         }
         Else {         
-            Throw("Not implemented").
+            Throw("Vessel type implemented").
         }
     }
 
@@ -89,11 +95,30 @@ Function EngineManager {
             engine:GetModuleByIndex(2):SetField("thrust limiter", limit).
             engine:GetModuleByIndex(3):SetField("thrust limiter", limit).
         }
+        Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
+            engine:GetModuleByIndex(1):SetField("thrust limiter", limit).
+            engine:GetModuleByIndex(2):SetField("thrust limiter", limit).
+            engine:GetModuleByIndex(3):SetField("thrust limiter", limit).
+        }
+        Else { 
+            Throw("Vessel type not supported").
+        }
+    }
+
+    Function SetGimbalLimit { 
+        Parameter limit.
+
+        If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
+            engine:GetModuleByIndex(7):SetField("gimbal limit", limit).
+            engine:GetModuleByIndex(8):SetField("gimbal limit", limit).
+        }
     }
 
     Return Lexicon(         
+        "GetEngineMode", GetEngineMode@,
         "SetEngineState", SetEngineState@,
         "SetEngineMode", SetEngineMode@, 
-        "SetThrustLimit", SetThrustLimit@
+        "SetThrustLimit", SetThrustLimit@,
+        "SetGimbalLimit", SetGimbalLimit@
     ).
 }

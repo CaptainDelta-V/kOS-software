@@ -74,9 +74,7 @@ Function LandingStatusModel {
         Return PitchOfVector(-Ship:Velocity:Surface).
     }
 
-    Function ErrorVector {
-        // todo: this should probably compare at exactly the same altitude
-        // Return GetImpact():Position - _landingSite:AltitudePosition(_targetAltitude).        
+    Function ErrorVector {        
         Return GetImpact():AltitudePosition(_targetAltitude) - _landingSite:AltitudePosition(_targetAltitude).        
     }
 
@@ -90,7 +88,7 @@ Function LandingStatusModel {
 
     Function HeadingFromImpactToTarget { Return HeadingOfVector(-ErrorVector()). }
 
-    Function Eccentricity { Return Ship:Orbit:ECCENTRICITY. }
+    Function Eccentricity { Return Ship:Orbit:Eccentricity. }
 
     Function Overshoot {
         Parameter meters is 0.

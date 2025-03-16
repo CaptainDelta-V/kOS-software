@@ -1,19 +1,86 @@
-RUNONCEPATH("common/infos").
-RUNONCEPATH("common/flightStatus/flightStatusModel").
-RUNONCEPATH("common/orbit/circularizationController").
-RUNONCEPATH("common/nav").
-RUNONCEPATH("common/landing/sites").
-RUNONCEPATH("common/utils/listutils").
-RUNONCEPATH("common/systems/drainValveManager").
+// RUNONCEPATH("common/constants").
+// RUNONCEPATH("common/infos").
+// RUNONCEPATH("common/flightStatus/flightStatusModel").
+// RUNONCEPATH("common/orbit/circularizationController").
+// RUNONCEPATH("common/nav").
+// RUNONCEPATH("common/landing/sites").
+// RUNONCEPATH("common/utils/listutils").
+// RUNONCEPATH("common/engineManager").
+
+ClearVecDraws().
 
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
+Local olmGeoPosition to LatLng(-0.0971988972860862,-74.5565400064737). // center of OLM
+Local olmLandRefGeoPosition to LatLng(-0.0971957998740445,-74.5570880721982). // Inner point towards tower
+Local towerBaseGeoPosition to LatLng(-0.0972415730475416,-74.5585281410506). 
+
+Log Ship:GeoPosition to LogFilepath.
+
+Local arrow to VecDraw(
+    V(0,0,0),
+    V(0,0,0),
+    RGB(1,1,1),
+    "SITE",
+    1.0,
+    true,
+    0.1,
+    true,
+    true
+).
+
+Set arrow:StartUpdater to { Return olmGeoPosition:AltitudePosition(100). }.
+Set arrow:VecUpdater to { Return  olmGeoPosition:AltitudePosition(1500). }.
+
+Local arrow2 to VecDraw(
+    V(0,0,0),
+    V(0,0,0),
+    RGB(0,1,0),
+    "SITE",
+    1.0,
+    true,
+    0.1,
+    true,
+    true
+).
+
+Set arrow2:StartUpdater to { Return olmLandRefGeoPosition:AltitudePosition(100). }.
+Set arrow2:VecUpdater to { Return  olmLandRefGeoPosition:AltitudePosition(1500). }.
+
+Local arrow3 to VecDraw(
+    V(0,0,0),
+    V(0,0,0),
+    RGB(0,1,1),
+    "SITE",
+    1.0,
+    true,
+    0.1,
+    true,
+    true
+).
+
+Set arrow3:StartUpdater to { Return towerBaseGeoPosition:AltitudePosition(100). }.
+Set arrow3:VecUpdater to { Return  towerBaseGeoPosition:AltitudePosition(1500). }.
 
 
-Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
-Local drainValveController to DrainValveManager(drainValves).
-drainValveController:DrainToAmount(800, "Oxidizer").
+
+Wait Until False. 
+
+// Local part to Ship:PartsTagged("MERLIN_9_CORE")[0].
+// DescribePartItemToFile(part, LogFilepath).
+
+// Local enginesController to EngineManager(part, VESSEL_TYPE_FALCON_BOOSTER).
+// enginesController:SetGimbalLimit(0).
+// Wait 4. 
+// enginesController:SetGimbalLimit(100).
+
+// print Ship:Resources.
+
+// Local resource to FindInList(Ship:Resource, { parameter it:Name = }). 
+
+// Local part to Ship:PartsTagged("MECHAZILLA")[0].
+// DescribePartItemToFile(part, LogFilepath).
 
 
 

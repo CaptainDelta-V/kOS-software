@@ -12,7 +12,7 @@ Global Function ResetTorque {
     Set SteeringManager:RollTorqueFactor to torquefactor.
 }
 
-Global Function SET_TORQUE { 
+Global Function SetTorque { 
     Parameter torqueFactor. 
 
     Set SteeringManager:YawTorqueFactor to torqueFactor.

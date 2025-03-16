@@ -19,12 +19,18 @@ Function DrainValveManager {
         If resource = "None" { 
             Print("Resource not found.").
             Return.
-        }
-        Wait Until resource:Amount < amount.
+        }        
 
-        For valve in drainValves { 
-            Local drainModule to valve:GetModule("ModuleResourceDrain").
-            drainModule:DoAction("stop draining", true).
+        Local amountReached to false.
+        Until amountReached { 
+            If resource:Amount < amount { 
+                For valve in drainValves { 
+                    Local drainModule to valve:GetModule("ModuleResourceDrain").
+                    drainModule:DoAction("stop draining", true).
+                }
+                Set amountReached to true.
+            }
+            Wait 0.01.
         }
     }
 

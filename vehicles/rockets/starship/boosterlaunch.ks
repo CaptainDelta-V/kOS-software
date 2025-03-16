@@ -19,8 +19,8 @@ ClearScreen.
 Local engine to Ship:PartsTagged("BOOSTER_RAPTORS")[0].
 Local engineManagement to EngineManager(engine, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
 
-Local startowerCore to Processor(TOWER_CPU_NAME).
-Local starshipCore to Processor(STARSHIP_CPU_NAME).
+Local startowerCpu to Processor(TOWER_CPU_NAME).
+Local starshipCpu to Processor(STARSHIP_CPU_NAME).
 
 Local BoosterMaxPitchOver to 55.
 
@@ -38,12 +38,6 @@ flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
 
-Lock PitchTarget to launchProfile:PitchTarget().
-When Altitude > launchProfileTransitionAltitude Then { 
-    Set launchProfile to launchProfileSecondary.
-    flightStatus:Update("SECONDARY PROFILE").
-}
-
 GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
 
@@ -52,7 +46,7 @@ RCS OFF.
 SAS OFF.
 Lock Throttle to 0.
 
-If (startowerCore:Connection:SendMessage(TOWER_DELUGE_START_MESSAGE)) { 
+If (startowerCpu:Connection:SendMessage(TOWER_DELUGE_START_MESSAGE)) { 
     flightStatus:Update("WATER DELUGE ACTIVATION").    
 }
 Else { 
@@ -62,7 +56,7 @@ Else {
 }
 Wait 1.
 
-If (startowerCore:Connection:SendMessage(TOWER_QD_RELEASE_MESSAGE)) { 
+If (startowerCpu:Connection:SendMessage(TOWER_QD_RELEASE_MESSAGE)) { 
     flightStatus:Update("QD RELEASE").
 }
 Else { 
@@ -77,7 +71,7 @@ Wait 1.
 Lock Throttle to 1.
 // Wait 0.125.
 
-If (startowerCore:Connection:SendMessage(TOWER_RELEASE_MESSAGE)) { 
+If (startowerCpu:Connection:SendMessage(TOWER_RELEASE_MESSAGE)) { 
     flightStatus:Update("REQUESTING TOWER RELEASE").
 }
 Else { 
@@ -88,6 +82,12 @@ Else {
 Wait 1.
 flightStatus:Update("LIFTOFF").
 Wait 2.5.
+
+Lock PitchTarget to launchProfile:PitchTarget().
+When Altitude > launchProfileTransitionAltitude Then { 
+    Set launchProfile to launchProfileSecondary.
+    flightStatus:Update("SECONDARY PROFILE").
+}
 
 Lock Steering to Heading(launchHeading, PitchTarget - 2, targetRoll).
 Wait Until Altitude > 400.
@@ -106,7 +106,7 @@ When Apoapsis > targetApoapsis Then {
     engineManagement:SetEngineMode(ENG_MODE_MID_INR).
 
     Wait 1.                
-    starshipCore:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    
+    starshipCpu:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    
     Wait 0.
         
     SetAlternatBootFile("boosterland").    
