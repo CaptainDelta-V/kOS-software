@@ -16,18 +16,11 @@ RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
 
 Local coreEngine to Ship:PartsTagged("MERLIN_9_CORE")[0]. 
-Local merlinEngines to Ship:PartsTagged("MERLIN_9").
-Local leftBoosterEngine to merlinEngines[0].
-Local rightBoosterEngine to merlinEngines[1].
+Local merlinEngines to Ship:PartsTagged("MERLIN_9")[0].
 Local coreBoosterTank to Ship:PartsTagged("TANK_BOOSTER_CORE")[0].
 Local coreRcsUnits to Ship:PartsTagged("RCS_CORE").
 
 Local coreEngineController to EngineManager(coreEngine, VESSEL_TYPE_FALCON_BOOSTER).
-Local leftBoosterEngineController to EngineManager(leftBoosterEngine, VESSEL_TYPE_FALCON_BOOSTER). 
-Local rightBoosterEngineController to EngineManager(rightBoosterEngine, VESSEL_TYPE_FALCON_BOOSTER). 
-
-Local leftBoosterCpu to Processor(LEFT_BOOSTER_CPU_NAME).
-Local rightBoosterCpu to Processor(RIGHT_BOOSTER_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(1.95, 6, 8, 75).
 Local launchProfileSecondary to LaunchProfileModel(3.0, 8, 9.7, 85).

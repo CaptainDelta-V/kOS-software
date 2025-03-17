@@ -17,13 +17,11 @@ RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/booting/bootUtils").
 
-Parameter Params to Lexicon(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
+Parameter Params to Lexicon().
 Parameter SkipBoostback to false.
 Parameter Debug to true.
 
-Local boosterSide to Params["boosterSide"].
-
-Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + boosterSide.
+Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME.
 Local engineTag to "MERLIN_9".
 
 Local merlinEngines to Ship:PartsTagged(engineTag)[0].
@@ -41,11 +39,8 @@ Local landingSiteAltitude to 111.
 Local altitudePositionTarget to landingSiteAltitude + boosterRadarOffset.
 
 Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
-// If boosterSide = INDICATOR_BOOSTER_RIGHT { 
-//     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
-// }
 
-Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE (" + boosterSide + ")", "AWAITING INITIATION").
+Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE", "AWAITING INITIATION").
 Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(overshootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 Local landingBurn to LandingBurnModel(boosterRadarOffset).
@@ -88,52 +83,11 @@ If Not SkipBoostback {
         flightStatus:AddField("no", "no").
     }
 
-    Local otherBoosterName to "None".
-    If boosterSide = INDICATOR_BOOSTER_LEFT { 
-        Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_RIGHT.
-    }
-    Else If boosterSide = INDICATOR_BOOSTER_RIGHT {
-        Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_LEFT.
-    }
-
-    Local otherBoosterVessel to Vessel(otherBoosterName).
-    otherBoosterVessel:Connection:SendMessage(TWIN_BOOSTER_ALIGNMENT_MESSAGE).
-  
-    flightStatus:AddField("BoosterSide", boosterSide).
-    flightStatus:AddField("isCore", { return boosterSide = INDICATOR_BOOSTER_CORE. }).
-
-    flightStatus:Update("AWAITING TWIN ALIGNMENT").
-    Local otherBoosterIsOriented to false. 
-    Until otherBoosterIsOriented { 
-        If not Ship:Messages:Empty { 
-            If Ship:Messages:Pop:Content = TWIN_BOOSTER_ALIGNMENT_MESSAGE { 
-                Set otherBoosterIsOriented to true.
-                flightStatus:Update("TWIN ALIGNMENT CONFIRMED").
-            }
-        }
-
-        Wait 0.01.
-    }
-
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
     Local boostbackAbortAltitude to 38_000. 
 
-    flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, -1, boostbackAbortAltitude, 0.3, 0, 0, true, { 
-        If boosterSide = INDICATOR_BOOSTER_RIGHT { 
-                   
-        }
-    }).
-
-    If boosterSide = INDICATOR_BOOSTER_LEFT { 
-        kuniverse:forcesetactivevessel(otherBoosterVessel).
-    }
-
-    // Local iteration2RequiredError to 500.
-    // if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
-    //     flightStatus:Update("BOOSTBACK ITERATION: 2").
-    //     boostback:Engage(boostbackPitch, iteration2RequiredError, 0.00005, boostbackAbortAltitude, 0.3).
-    // }
+    flightStatus:Update("BOOSTBACK ENGAGED").
+    boostback:Engage(boostbackPitch, 5_000, -1, boostbackAbortAltitude, 0.3, 0, 0, true).
 }
 
 flightStatus:Update("TRAJECTORY COAST").
