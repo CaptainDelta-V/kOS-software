@@ -115,24 +115,19 @@ If Not SkipBoostback {
         Wait 0.01.
     }
 
-    // If not boosterSide = INDICATOR_BOOSTER_CORE {         
-
-        
-    // }
-
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
     Local boostbackAbortAltitude to 38_000. 
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
     boostback:Engage(boostbackPitch, 5_000, -1, boostbackAbortAltitude, 0.3, 0, 0, true, { 
         If boosterSide = INDICATOR_BOOSTER_RIGHT { 
-        
+                   
         }
     }).
 
-    // If boosterSide = INDICATOR_BOOSTER_LEFT { 
-        
-    // }
+    If boosterSide = INDICATOR_BOOSTER_LEFT { 
+        kuniverse:forcesetactivevessel(otherBoosterVessel).
+    }
 
     // Local iteration2RequiredError to 500.
     // if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 

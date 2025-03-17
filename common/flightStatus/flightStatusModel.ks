@@ -23,6 +23,11 @@ Function FlightStatusModel {
         Return "==== " + ScreenTitle + " ====". 
     }
 
+    Function SetTitle {
+        Parameter newTitle. 
+        Set ScreenTitle to newTitle.
+    }
+
     Function Update { 
         Parameter newStatus.
         Set FlightStatus to newStatus.
@@ -38,6 +43,10 @@ Function FlightStatusModel {
         
         Set _flightStatusFields[fieldName] to fieldValue.        
         If (RecordLogs) { 
+            Local printValue to fieldValue.
+            // If fieldValue:HasSuffix("Call") { 
+            //     Set printValue to fieldValue:Call().
+            // }
             Log "[" + Time:Seconds + "]" + fieldName + " set to " + fieldValue To LogFilePath.
         }
     }
@@ -74,6 +83,7 @@ Function FlightStatusModel {
     Return Lexicon(
         "GetFlightStatus", GetFlightStatus@,
         "GetTitle", GetTitle@,
+        "SetTitle", SetTitle@,
         "PrintStatusScreen", PrintStatusScreen@, 
         "AddField", AddField@, 
         "Update", Update@,

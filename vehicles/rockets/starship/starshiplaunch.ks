@@ -23,7 +23,7 @@ If message:Content = STARSHIP_ASCENT_HANDOFF_MESSAGE {
     Wait Until Stage:Ready.
     Stage.            
     flightStatus:Update("BOOTING INTO ASCENT MODE").
-    SetAlternatBootFile("starshipascent").
+    SetAlternateBootFile("starshipascent").
     Wait 0.
     Reboot. 
 }

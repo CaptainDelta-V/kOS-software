@@ -1,5 +1,5 @@
 Function WaitUntilOriented { 
-    Parameter angleErrorThreshold is 2.25.
+    Parameter angleErrorThreshold is 1.25.
     Parameter angularMagThreshold is 2.
     Wait Until Abs(SteeringManager:ANGLEERROR) < angleErrorThreshold AND Ship:ANGULARVEL:Mag < angularMagThreshold.
 }

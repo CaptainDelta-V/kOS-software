@@ -22,7 +22,7 @@ flightStatus:Update("MISSLE LAUNCH INITIATED").
 Set BEEPER to GETVOICE(1).
 BEEPER:PLAY( NOTE(400, 0.20) ).
 
-SetAlternatBootFile("missleguidance").
+SetAlternateBootFile("missleguidance").
 
 
 

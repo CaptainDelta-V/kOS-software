@@ -34,7 +34,7 @@ Local drainValveController to DrainValveManager(drainValves).
 Local boosterRadarOffset to 63.4.
 Local towerCatchAltitude to 150.
 Local towerCatchOffsetAltitude to towerCatchAltitude - boosterRadarOffset.
-Local suicideMargin to 222.
+Local suicideMargin to 200.
 Local maxBurnStartAltitude to 2_800.
 Local undershootMeters to -40.
 Local overshootMeters to 25. // 160 is very steep
@@ -248,13 +248,13 @@ If Debug {
 
 If Not SkipBoostback { 
     flightStatus:Update("BOOSTBACK ORIENTATION").        
-    WaitUntilOriented().
+    WaitUntilOriented(3, 2).
 
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
     Local boostbackAbortAltitude to 50_000. // 64_000 for 6 engines
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, 0.00005, boostbackAbortAltitude, 0.3).
+    boostback:Engage(boostbackPitch, 5_000, 0.00005, boostbackAbortAltitude, 0.3, 25, 50).
 
     Local iteration2RequiredError to 500.
     if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
@@ -397,7 +397,7 @@ Until verticalSpeedHoldStart {
             // Set vsTarget to -16.
             landingSteering:SetMaxAoA(-2.5).
             flightStatus:Update("TRAVERSE COAST START").
-            landingStatus:SetLandingSite(olmLandRefGeoPosition).
+            // landingStatus:SetLandingSite(olmLandRefGeoPosition).
         }        
 
         If not intermidAoaSet and landingBurn:TrueRadar() < 60 { 
@@ -407,7 +407,7 @@ Until verticalSpeedHoldStart {
             Set intermidAoaSet to true.            
         }
 
-        If not actualLandingTargetSet and landingBurn:TrueRadar() < 50 { 
+        If not actualLandingTargetSet and landingBurn:TrueRadar() < 30 { 
             landingStatus:SetLandingSite(olmGeoPosition).
             flightStatus:Update("LANDING SITE: OLM").
             Set actualLandingTargetSet to true.             
@@ -430,18 +430,20 @@ Until verticalSpeedHoldStart {
         flightStatus:AddField("VS TARGET", vsTarget).        
 
         Return vsTarget.                
-    }, 60, 0.1, 0.02, 0.0, 0.35, {
+    },
+    60, // arbitrary max duration
+    0.1, 0.02, 0.0, // PID
+    0.35, { // min/max
 
         Local maxOutput to 1.
         
-        return maxOutput.
+        Return maxOutput.
     }, 
     { 
         Local errorCurrent is landingStatus:TrajectoryErrorMeters().
 
         If (not traverseCoastStart and errorCurrent < 20) {                       
-            flightStatus:Update("MOMENTUM TO TOWER ACHIEVED").
-            //  landingSteering:SetMaxAoA(0).
+            flightStatus:Update("MOMENTUM TO TOWER ACHIEVED").            
             // VS Target will be set
             Set traverseCoastStart to true.        
         }
@@ -464,25 +466,20 @@ Until verticalSpeedHoldStart {
             flightStatus:AddField("Alignment", "Done.").
         }
 
-        // If (landingBurn:TrueRadar() < 6 and not towerCatchDampenMessageSent) { 
-                 
-        // }        
-        
         Set errorPrevious to errorCurrent.
 
         // Get actual
         Return Ship:VerticalSpeed. 
     },
     {        
-        Return landingBurn:TrueRadar() < 5.
-        // Return Ship:Status = "LANDED".
+        Return landingBurn:TrueRadar() < 5.        
     }).     
 
     towerVessel:Connection:SendMessage(TOWER_CATCH_DAMPEN_MESSAGE).
     Set towerCatchDampenMessageSent to true.      
 
     flightStatus:Update("HOVER FOR CATCH").
-    RunRadarAltitudeHold(63.5, 4, 
+    RunRadarAltitudeHold(64.5, 4, 
         0.1, 0.02, 0.0, // PID
         0.35, 1, // Min/Max
         { Return Ship:Status = "LANDED". }).

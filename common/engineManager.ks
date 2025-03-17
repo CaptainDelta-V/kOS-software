@@ -20,6 +20,9 @@ Function EngineManager {
     }
     Else If vesselType = VESSEL_TYPE_STARSHIP { 
         Throw("Vessel type not supported").
+    }
+    Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
+        Set engineModule to engine:GetModule(TUNDRA_ENGINE_MODULE_NAME).
     }    
 
     Function GetEngineMode { 
@@ -42,8 +45,16 @@ Function EngineManager {
         Else If vesselType = VESSEL_TYPE_STARSHIP {
             Throw("Vessel type not supported.").
         }
+        Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
+            If state { 
+                engineModule:DoAction("activate engine", true).
+            }
+            Else { 
+                engineModule:DoAction("shutdown engine", true).
+            }
+        }
         Else { 
-            Throw("Vessel type not supported.").
+            Throw("Vessel type " + vesselType + " not supported.").
         }
     }
 
@@ -51,7 +62,7 @@ Function EngineManager {
         Parameter targetMode.
 
         If vesselType = VESSEL_TYPE_SUPER_HEAVY_BOOSTER {             
-            Local CURR_MODE is engineModule:GETFIELD("mode").            
+            Local CURR_MODE is engineModule:GetField("mode").            
 
             If CURR_MODE = ENG_MODE_ALL AND targetMode = ENG_MODE_MID_INR {     
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
@@ -67,7 +78,7 @@ Function EngineManager {
             }
         }
         Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
-            Local currMode is engineModule:GETFIELD("mode").       
+            Local currMode is engineModule:GetField("mode").       
 
             If currMode = ENG_MODE_ALL and targetMode = ENG_MODE_MID_INR {     
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
@@ -99,7 +110,7 @@ Function EngineManager {
             engine:GetModuleByIndex(1):SetField("thrust limiter", limit).
             engine:GetModuleByIndex(2):SetField("thrust limiter", limit).
             engine:GetModuleByIndex(3):SetField("thrust limiter", limit).
-        }
+        }        
         Else { 
             Throw("Vessel type not supported").
         }

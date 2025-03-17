@@ -38,7 +38,7 @@ Until false {
 
             Wait 0.5.
             flightStatus:Update("SETTING BOOT FILE to CATCH.").
-            SetAlternatBootFile("towercatch").
+            SetAlternateBootFile("towercatch").
             Wait 8.
 
             // deluge off

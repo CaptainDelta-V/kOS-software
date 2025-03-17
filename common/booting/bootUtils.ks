@@ -1,60 +1,55 @@
-Declare Global ALTERNATE_BOOT_INDICATOR_FILE to "1:ALT_BOOT.txt".
-Local BOOT_INDICATOR_FILE_PARAM_SEPARATOR to ",".
+Declare Global ALTERNATE_BOOT_INDICATOR_FILE to "1:boot.txt".
+Declare Global BOOT_PARAMS_FILENAME to "1:params.json".
 
-Global Function SetAlternatBootFile {     
-    Parameter MetaBootFile.
-    Parameter bootParam0 is "".
-    Parameter bootParam1 is "".
-    Parameter bootParam2 is "".
-
+Function CleanUpBootMetaFiles { 
     DeletePath(ALTERNATE_BOOT_INDICATOR_FILE).
+    DeletePath(BOOT_PARAMS_FILENAME).
     Create(ALTERNATE_BOOT_INDICATOR_FILE).
-
-    Local bootParamList to List(MetaBootFile, bootParam0, bootParam1, bootParam2).
-    Local indicatorFileContent to bootParamList:Join(BOOT_INDICATOR_FILE_PARAM_SEPARATOR).
-
-    Open(ALTERNATE_BOOT_INDICATOR_FILE):Write(indicatorFileContent).
 }
 
-Global Function CheckAltBootFile { 
-    If EXISTS(ALTERNATE_BOOT_INDICATOR_FILE) { 
-        Local indicatorFileContent to Open(ALTERNATE_BOOT_INDICATOR_FILE):ReadAll():STRING.
-        
-        Local bootParamList to indicatorFileContent:Split(BOOT_INDICATOR_FILE_PARAM_SEPARATOR).
-        Local altBootFilename to bootParamList[0].
+Global Function SetAlternateBootFile {     
+    Parameter metaBootFile.    
 
-        If (bootParamList:Length = 4) { 
-            RunWithParams(altBootFilename, bootParamList[1], bootParamList[2], bootParamList[3]).
-        }
-        Else If (bootParamList:Length = 3) { 
-            RunWithParams(altBootFilename, bootParamList[1], bootParamList[2]).
-        }
-        Else If (bootParamList:Length = 2) { 
-            RunWithParams(altBootFilename, bootParamList[1]).
+    CleanUpBootMetaFiles(). 
+
+    Local indicatorFileContent to metaBootFile.
+    Open(ALTERNATE_BOOT_INDICATOR_FILE):Write(indicatorFileContent).    
+}
+
+Global Function SetAlternateBootFileWithParams { 
+    Parameter metaBootFile.
+    Parameter paramsObject.
+
+    CleanUpBootMetaFiles().
+
+    Local indicatorFileContent to metaBootFile.
+    Open(ALTERNATE_BOOT_INDICATOR_FILE):Write(indicatorFileContent).    
+    WriteJson(paramsObject, BOOT_PARAMS_FILENAME).
+}
+
+Global Function RunBootFile { 
+    Parameter defaultBootFilename. 
+
+    If Exists(ALTERNATE_BOOT_INDICATOR_FILE) { 
+        Local indicatorFileContent to Open(ALTERNATE_BOOT_INDICATOR_FILE):ReadAll():String.                
+        Local altBootFilename to indicatorFileContent.
+
+        If Exists(BOOT_PARAMS_FILENAME) { 
+            Local paramsObject to ReadJson(BOOT_PARAMS_FILENAME).            
+            RunPath(altBootFilename, paramsObject).
         }
         Else { 
             RUNPATH(altBootFilename).
         }        
     }
-}
-
-Global Function RunWithParams {
-    Parameter Filename. 
-    Parameter P0 is "".
-    Parameter P1 is "". 
-    Parameter P2 is "".
-
-    If (P2:Length > 0) { 
-        RUNPATH(Filename, P0, P1, P2).
-    }
-    Else If (P1:Length > 0) { 
-        RUNPATH(Filename, P0, P1).
-    }
-    Else If (P0:Length > 0) { 
-        RUNPATH(Filename, P0).
-    }
     Else { 
-        RUNPATH(Filename).
+        Print defaultBootFilename.
+        If Exists(BOOT_PARAMS_FILENAME) { 
+            Local paramsObject to ReadJson(BOOT_PARAMS_FILENAME).            
+            RUNPATH(defaultBootFilename, paramsObject).
+        }
+        Else { 
+            RUNPATH(defaultBootFilename).
+        }
     }
 }
-

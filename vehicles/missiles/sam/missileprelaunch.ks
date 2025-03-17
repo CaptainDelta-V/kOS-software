@@ -22,5 +22,5 @@ Wait 1.
 
 Stage. 
 flightStatus:AddField("STATUS", "LAUNCH").
-SetAlternatBootFile("missle").
+SetAlternateBootFile("missle").
 Reboot.

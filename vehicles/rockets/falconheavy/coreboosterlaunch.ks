@@ -15,13 +15,11 @@ RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
 
-Local flightStatus to FlightStatusModel("").
-
 Local coreEngine to Ship:PartsTagged("MERLIN_9_CORE")[0]. 
 Local merlinEngines to Ship:PartsTagged("MERLIN_9").
 Local leftBoosterEngine to merlinEngines[0].
 Local rightBoosterEngine to merlinEngines[1].
-Local leftBoosterTank to Ship:PartsTagged("TANK_BOOSTER_LEFT")[0].
+Local sideBoosterTank to Ship:PartsTagged("TANK_BOOSTER_LEFT")[0].
 Local coreBoosterTank to Ship:PartsTagged("TANK_BOOSTER_CORE")[0].
 Local coreRcsUnits to Ship:PartsTagged("RCS_CORE").
 
@@ -32,10 +30,8 @@ Local rightBoosterEngineController to EngineManager(rightBoosterEngine, VESSEL_T
 Local leftBoosterCpu to Processor(LEFT_BOOSTER_CPU_NAME).
 Local rightBoosterCpu to Processor(RIGHT_BOOSTER_CPU_NAME).
 
-Local BoosterMaxPitchOver to 75.
-
-Local launchProfileInitial to LaunchProfileModel(0.95, 11, 8, BoosterMaxPitchOver).
-Local launchProfileSecondary to LaunchProfileModel(2.0, 10, 9.7, BoosterMaxPitchOver).
+Local launchProfileInitial to LaunchProfileModel(1.95, 6, 8, 75).
+Local launchProfileSecondary to LaunchProfileModel(3.0, 8, 9.7, 85).
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 8_000.
 
@@ -48,13 +44,16 @@ flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
 
-Local leftBoosterLiquidFuelResource to FindInList(leftBoosterTank:Resources, { Parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
+Local leftBoosterLiquidFuelResource to FindInList(sideBoosterTank:Resources, { Parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
 flightStatus:AddField("BOOSTER LQD FUEL", { return leftBoosterLiquidFuelResource:Amount. }).
 
 Local coreThrustLimit to 75. 
 flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
-
 coreEngineController:SetThrustLimit(coreThrustLimit).
+
+flightStatus:Update("NOTIFYING SIDE BOOSTERS").
+leftBoosterCpu:Connection:SendMessage(INDICATOR_BOOSTER_LEFT).
+rightBoosterCpu:Connection:SendMessage(INDICATOR_BOOSTER_RIGHT).
 
 GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
@@ -77,15 +76,22 @@ Stage.
 Wait Until Stage:Ready. 
 Stage. 
 
+Set Core:BootFilename to "".
+
 Wait Until Altitude > 100.
 Lock Steering to Heading(launchHeading, PitchTarget, targetRoll). 
 
+Wait Until Altitude > 6_000. 
+Set coreThrustLimit to 50.
+flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
+coreEngineController:SetThrustLimit(coreThrustLimit).
+
 Local boosterSeparation to false. 
 Until boosterSeparation { 
-    If leftBoosterLiquidFuelResource:Amount < 2_600 { 
+    If leftBoosterLiquidFuelResource:Amount < 1_800 { 
         Set boosterSeparation to true.
     }
-    Wait 0.
+    Wait 0.01.
 }
 
 Unlock Steering. 
@@ -107,10 +113,11 @@ Until upperstageSeparation {
     If coreBoosterLiquidFuel:Amount < 10 { 
         Set upperstageSeparation to true.
     }
+    Wait 0.01.
 }
 
 Lock Throttle to 0.
-Stage.
+// Stage.
 
 Wait Until False. 
 

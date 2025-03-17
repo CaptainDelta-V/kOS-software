@@ -1,13 +1,8 @@
 SWITCH to 1.
 RUNONCEPATH("0:common/booting/bootUtils").
 
-Global ALTERNATE_BOOT_INDICATOR_FILE to "1:ALT_BOOT.txt".
-
 Parameter DefaultBootDirectory.
 Parameter DefaultBootFilename.
-Parameter bootParam0 is "".
-Parameter bootParam1 is "".
-Parameter bootParam2 is "".
 
 Print "UPDATING SOFTWARE For: " + DefaultBootDirectory + " . . . ".
 
@@ -22,6 +17,4 @@ CopyPath(DefaultBootDirectory, "1:" + DefaultBootDirectory).
 SWITCH to 1.
 CD(DefaultBootDirectory).
 
-CheckAltBootFile().
-// todo: make sure RunWithParams never runs after an alternate boot file.
-RunWithParams(DefaultBootFilename, bootParam0, bootParam1, bootParam2).
+RunBootFile(DefaultBootFilename).

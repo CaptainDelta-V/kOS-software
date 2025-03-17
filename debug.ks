@@ -1,21 +1,23 @@
-// RUNONCEPATH("common/constants").
+RUNONCEPATH("common/constants").
 RUNONCEPATH("common/infos").
+RUNONCEPATH("common/engineManager").
 // RUNONCEPATH("common/flightStatus/flightStatusModel").
 // RUNONCEPATH("common/orbit/circularizationController").
 // RUNONCEPATH("common/nav").
 // RUNONCEPATH("common/landing/sites").
 // RUNONCEPATH("common/utils/listutils").
-// RUNONCEPATH("common/engineManager").
+RUNONCEPATH("common/engineManager").
 
 ClearVecDraws().
 
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
-Log Ship:GeoPosition to LogFilepath.
-
-Local part to Ship:PartsTagged("MECHAZILLA")[0].
+Local part to Ship:PartsTagged("MERLIN_9")[0].
 DescribePartItemToFile(part, LogFilepath).
+
+Local engineController to EngineManager(part, VESSEL_TYPE_FALCON_BOOSTER).
+engineController:SetEngineMode(ENG_MODE_MID_INR).
 
 // Wait Until False. 
 

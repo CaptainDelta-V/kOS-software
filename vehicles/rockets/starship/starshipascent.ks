@@ -62,10 +62,7 @@ Function AscendToOrbit {
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
 
-    Set KUniverse:ForceActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
-
-
-
+    // Set KUniverse:ForceActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
 
     // When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin - 30 Then { 
     //     Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).

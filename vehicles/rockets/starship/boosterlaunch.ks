@@ -109,7 +109,7 @@ When Apoapsis > targetApoapsis Then {
     starshipCpu:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    
     Wait 0.
         
-    SetAlternatBootFile("boosterland").    
+    SetAlternateBootFile("boosterland").    
     Wait 2.      
     Reboot.       
 }

@@ -5,7 +5,7 @@ Function LandingBurnModel {
 
     Local _radarOffset to RadarOffset.
 
-    Lock _trueRadar to Alt:RADAR - _radarOffset.
+    Lock _trueRadar to Alt:Radar - _radarOffset.
     Lock _g to Constant:G * Body:Mass / Body:Radius^2.			
     Lock _maxThrustActual to Ship:AvailableThrust.
     Lock _maxDecel to (_maxThrustActual / Ship:Mass) - _g.	
@@ -48,6 +48,10 @@ Function LandingBurnModel {
         Return _stopDistance.
     }
 
+    Function GetSuicideBurnAltitude { 
+        Return Addons:Ke:SuicideBurnAltitude().
+    }
+
     Function LinearLandingThrottle { 
         Return _idealThrottle.
     }
@@ -62,9 +66,10 @@ Function LandingBurnModel {
         "TrueRadar", TrueRadar@,
         "Gravity", Gravity@, 
         "MaxThrustActual", MaxThrustActual@,
-        "MAXDECEL", MaxDecel@,
+        "MaxDecel", MaxDecel@,
         "VelocityMagnitude", VelocityMagnitude@,
         "GetStopDistance", GetStopDistance@, 
+        "GetSuicideBurnAltitude", GetSuicideBurnAltitude@,
         "LinearLandingThrottle", LinearLandingThrottle@,        
         "ImpactTime", ImpactTime@
     ).
