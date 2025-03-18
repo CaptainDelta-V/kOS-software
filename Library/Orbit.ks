@@ -116,15 +116,15 @@ function getPlanarVelocities {
     local k is e * cos(ϖ).
     local h is e * sin(ϖ).
     local p is e * sin(eA).
-    local q is e * cos(eA).
+    local qTerm is e * cos(eA).
     if (k = 0) and (h = 0) {
-        set p to 0. set q to 0.
+        set p to 0. set qTerm to 0.
     }
     local l is 1 - sqrt(1 - e^2).
 
-    local ξη1 is ((a * n) / (1 - q)).
+    local ξη1 is ((a * n) / (1 - qTerm)).
     local ξη2 is (V(-sin(λ + p), cos(λ + p), 0)).
-    local ξη3 is (q / (2 - l)).
+    local ξη3 is (qTerm / (2 - l)).
     local ξη4 is V(h, -k, 0).
     local ξη is ξη1 * (ξη2 + (ξη3*ξη4)).
 

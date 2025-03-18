@@ -1,5 +1,6 @@
 @LAZYGLOBAL OFF.
 RUNONCEPATH("1:common/nav").
+RUNONCEPATH("0:CCAT/ccat").
 
 Function LandingStatusModel {    
     Parameter TargetLandingSite is Ship:GeoPosition.    

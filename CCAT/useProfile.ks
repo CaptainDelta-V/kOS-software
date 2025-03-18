@@ -80,7 +80,7 @@ function roundingMethod {
 
 ///// INIT /////
 // PROFILE
-local craftDragProfile is loadProfile(ship:name).                                   // Loading the profile; input the name of the profile
+local craftDragProfile is loadProfile("Falcon Heavy Side Booster").                                   // Loading the profile; input the name of the profile
 local startMach is craftDragProfile["startMach"].                                   // Mach Number at which the profile starts
 local endMach is craftDragProfile["endMach"].                                       // Mach Number at which the profile ends
 local dT is craftDragProfile["dT"].                                                 // dT or Mach-Stepsize of the profile

@@ -21,9 +21,9 @@ runpath("CCAT/DragProfile/LIB/Profile.ks").                                     
 
 function CCAT {
     // CLASS CCAT 
-    parameter       solver is "RKDP54",
-                    targetDT is 1,
-                    runOnce is False,
+    parameter       runOnce is False,
+                    solver is "RKDP54",
+                    targetDT is 1,                    
                     useError is False,
                     targetError is 1,
                     endInObt is False,
@@ -32,7 +32,7 @@ function CCAT {
                     vectorVis is False,
                     heightError is 3,
                     interpolateMethod is "linear",
-                    profileName is ship:name,
+                    profileName is "Falcon Heavy Side Booster",
                     bodyName is ship:body.
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -703,9 +703,9 @@ function CCAT {
 // solver : targetDT : runOnce : useError : targetError : endInObt : exactAtmo : useGUI : vectorVis : heightError : interpolateMethod : profileName : bodyName
 
 local CCATFX is CCAT( 
+    True,
     "RKDP54",
-    1,
-    False,
+    10,    
     True,
     1,
     False,
