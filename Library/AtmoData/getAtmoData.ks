@@ -60,23 +60,23 @@ function getAtmosphericData {
     function getFloatCurves {   
         // PRIVATE getFloatCurves :: nothing -> nothing
         if curBody = BODY("Kerbin") {
-            runpath("Library/atmoData/Kerbin/getCurves.ks"). 
+            runpath("0:Library/atmoData/Kerbin/getCurves.ks"). 
             set bodyParameters to getKerbinAtmosphere().
         }
         else if curBody = BODY("Eve") {
-            runpath("Library/atmoData/Eve/getCurves.ks"). 
+            runpath("0:Library/atmoData/Eve/getCurves.ks"). 
             set bodyParameters to getEveAtmosphere().
         }
         else if curBody = BODY("Jool") {
-            runpath("Library/atmoData/Jool/getCurves.ks"). 
+            runpath("0:Library/atmoData/Jool/getCurves.ks"). 
             set bodyParameters to getJoolAtmosphere().
         }
         else if curBody = BODY("Duna") {
-            runpath("Library/atmoData/Duna/getCurves.ks"). 
+            runpath("0:Library/atmoData/Duna/getCurves.ks"). 
             set bodyParameters to getDunaAtmosphere().
         }
         else if curBody = BODY("Laythe") {
-            runpath("Library/atmoData/Laythe/getCurves.ks"). 
+            runpath("0:Library/atmoData/Laythe/getCurves.ks"). 
             set bodyParameters to getLaytheAtmosphere().
         }
         else set bodyParameters["Atmosphere"] to false.

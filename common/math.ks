@@ -6,7 +6,7 @@ Function LinearFallOff {
     Return Rate * (Amt - MinErr).
 }
 
-Function LinearFunction { 
+Global Function LinearFunction { 
     Parameter M.
     Parameter X.
     Parameter B.

@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////
 @lazyGlobal off.
 
-runpath("Library/GUItools.ks").  
+runpath("0:Library/GUItools.ks").  
 
 function CCATGUI {
     // PUBLIC CCATGUI :: lexicon -> nothing

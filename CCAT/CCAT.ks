@@ -9,11 +9,11 @@ clearscreen. clearvecdraws(). clearguis().                                      
 set config:ipu to 2000.                                                             // Set a CPU value
 
 // LIBRARY
-runpath("Library/atmoData/getAtmoData.ks").                                         // Atmospheric Data and Telemetry
-runpath("Library/ODE.ks").                                                          // Ordinary Differential Equation Solvers
-runpath("Library/Interpolation.ks").                                                // Interpolation Functions
-runpath("Library/Orbit.ks").                                                        // Orbital Functions
-runpath("CCAT/DragProfile/LIB/Profile.ks").                                         // Drag Profile function required for reynolds correction
+runpath("0:Library/atmoData/getAtmoData.ks").                                         // Atmospheric Data and Telemetry
+runpath("0:Library/ODE.ks").                                                          // Ordinary Differential Equation Solvers
+runpath("0:Library/Interpolation.ks").                                                // Interpolation Functions
+runpath("0:Library/Orbit.ks").                                                        // Orbital Functions
+runpath("0:CCAT/DragProfile/LIB/Profile.ks").                                         // Drag Profile function required for reynolds correction
 
 //////////////////////////////////////////
 // MAIN FUNCTION                       	//
@@ -324,7 +324,6 @@ function CCAT {
 
         if masterManager["vectorVis"] set masterFunctionManager["Vecdraw"] to manageVecDraws@.
         else if masterFunctionManager:haskey("Vecdraw") masterFunctionManager:remove("Vecdraw").
-
     }
 
     function resetParameters {
@@ -611,17 +610,17 @@ function CCAT {
         set vdrawLexicon[2]:vec to obtVelVec.
     }
 
-    local vdrawLexicon is lexicon().                                                                
-    local vecdraw1 is vecdraw(V(0,0,0), up:vector*250, RGB(1,0,0), "Impact Position", 1, vectorVis, 0.2, true, true).
-    set vdrawLexicon[0] to vecdraw1.
-    local vecdraw2 is vecdraw(V(0,0,0), up:vector*100, RGB(0,1,0), "Surface Position Vector", 1, vectorVis, 0.2, true, true).
-    set vdrawLexicon[1] to vecdraw2.
-    local vecdraw3 is vecdraw(V(0,0,0), up:vector*100, RGB(0,0,1), "Orbit Position Vector", 1, vectorVis, 0.2, true, true).
-    set vdrawLexicon[2] to vecdraw3.
-    if vectorVis {                                                                                  
-        for vd in range(vdrawLexicon:values:length) set vdrawLexicon[vd]:SHOW to True.
-        set masterFunctionManager["Vecdraw"] to manageVecDraws@.
-    }
+    // local vdrawLexicon is lexicon().                                                                
+    // local vecdraw1 is vecdraw(V(0,0,0), up:vector*250, RGB(1,0,0), "Impact Position", 1, vectorVis, 0.2, true, true).
+    // set vdrawLexicon[0] to vecdraw1.
+    // local vecdraw2 is vecdraw(V(0,0,0), up:vector*100, RGB(0,1,0), "Surface Position Vector", 1, vectorVis, 0.2, true, true).
+    // set vdrawLexicon[1] to vecdraw2.
+    // local vecdraw3 is vecdraw(V(0,0,0), up:vector*100, RGB(0,0,1), "Orbit Position Vector", 1, vectorVis, 0.2, true, true).
+    // set vdrawLexicon[2] to vecdraw3.
+    // if vectorVis {                                                                                  
+    //     for vd in range(vdrawLexicon:values:length) set vdrawLexicon[vd]:SHOW to True.
+    //     set masterFunctionManager["Vecdraw"] to manageVecDraws@.
+    // }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////// This section will load and update the user interface
@@ -710,13 +709,13 @@ local CCATFX is CCAT(
     1,
     False,
     False,
-    True,
+    False,
     True,
     3,
     "Linear",
-    ship:name,
+    "Falcon Heavy Side Booster",
     ship:body
 ).
 
-CCATFX["continuousIteration"]().
+// CCATFX["continuousIteration"]().
 

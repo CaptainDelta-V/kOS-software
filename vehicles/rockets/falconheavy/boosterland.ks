@@ -45,8 +45,10 @@ Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
 //     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
 // }
 
+Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT.
+
 Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE (" + boosterSide + ")", "AWAITING INITIATION").
-Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(overshootMeters).
+Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, false, isSideBooster):Overshoot(overshootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 Local landingBurn to LandingBurnModel(boosterRadarOffset).
 
@@ -54,6 +56,8 @@ flightStatus:AddField("TARGET", {
     Local site to landingStatus:GetLandingSite().
     Return site:lat + "," + site:lng.
 }).
+flightStatus:AddField("Using CAT", { return isSideBooster. }).
+flightStatus:AddField("IMPACT POS", landingStatus:GetImpact@).
 flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
 flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).
 flightStatus:AddField("ECCENTRICITY", landingStatus:Eccentricity@).
@@ -84,20 +88,16 @@ If Not SkipBoostback {
     Lock Steering to Heading(initHeading, boostbackPitch).    
     WaitUntilOriented(2,2).
 
-    If not boosterSide = INDICATOR_BOOSTER_CORE { 
-        flightStatus:AddField("no", "no").
-    }
+    // Local otherBoosterName to "None".
+    // If boosterSide = INDICATOR_BOOSTER_LEFT { 
+    //     Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_RIGHT.
+    // }
+    // Else If boosterSide = INDICATOR_BOOSTER_RIGHT {
+    //     Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_LEFT.
+    // }
 
-    Local otherBoosterName to "None".
-    If boosterSide = INDICATOR_BOOSTER_LEFT { 
-        Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_RIGHT.
-    }
-    Else If boosterSide = INDICATOR_BOOSTER_RIGHT {
-        Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_LEFT.
-    }
-
-    Local otherBoosterVessel to Vessel(otherBoosterName).
-    otherBoosterVessel:Connection:SendMessage(TWIN_BOOSTER_ALIGNMENT_MESSAGE).
+    // Local otherBoosterVessel to Vessel(otherBoosterName).
+    // otherBoosterVessel:Connection:SendMessage(TWIN_BOOSTER_ALIGNMENT_MESSAGE).
   
     flightStatus:AddField("BoosterSide", boosterSide).
     flightStatus:AddField("isCore", { return boosterSide = INDICATOR_BOOSTER_CORE. }).
@@ -124,11 +124,7 @@ If Not SkipBoostback {
     Local boostbackAbortAltitude to 38_000. 
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, -1, boostbackAbortAltitude, 0.3, 0, 0, true, { 
-        If boosterSide = INDICATOR_BOOSTER_RIGHT { 
-        
-        }
-    }).
+    boostback:Engage(boostbackPitch, 20_000, 0, boostbackAbortAltitude, 0.3, 0, 0, true).
 
     // If boosterSide = INDICATOR_BOOSTER_LEFT { 
         

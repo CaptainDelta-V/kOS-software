@@ -1,5 +1,6 @@
 RUNONCEPATH("1:common/control").
 RUNONCEPATH("1:common/math").
+RUNONCEPATH("1:common/flight/flightControlModel").
 
 Function BoostbackBurnController {     
     Parameter landingStatus.
@@ -32,30 +33,39 @@ Function BoostbackBurnController {
             If throttleCurve = -1 {
                 Lock Throttle to 1.            
             }
-            Else { 
-                Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
+            Else {                 
+                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 40_000, 0.05).
             }
             Wait 0.1.        
 
+            Local minBoostbackDuration to 8. 
+            Local minTimeEnd to Time:Seconds + minBoostbackDuration.
+
             // Go until error increases or ship goes below abort altitude
             Local previousErrorMeters to landingStatus:TrajectoryErrorMeters() + 1.
-            Until false {        
+            
+            // Until false {        
+            //     Local errorCurrent is landingStatus:TrajectoryErrorMeters().                
+            //     // If (errorCurrent < minimumError) { 
+            //     //     Lock throttle to 0.
+            //     //     Break.
+            //     // }
 
-                Local errorCurrent is landingStatus:TrajectoryErrorMeters().                
+            //     // Local minThrottle to 0.15.
+            //     Local cutoffThrottle to Throttle - 0.01.
+            //     If (((errorCurrent > previousErrorMeters OR Throttle < cutoffThrottle) and errorCurrent < minimumError) 
+            //         or (Ship:Altitude < abortAltitude) 
+            //         or supplementalCheckFn:Call()) {    
+            //         Lock Throttle to 0.
+            //         Set courseCorrectionIdx to courseCorrectionIdx + 1.
+            //         Break.
+            //     }
 
-                // Local minThrottle to 0.15.
-                Local cutoffThrottle to Throttle - 0.01.
-                If (((errorCurrent > previousErrorMeters OR Throttle < cutoffThrottle) and errorCurrent < minimumError) 
-                    or (Ship:Altitude < abortAltitude and Ship:VerticalSpeed < 0) 
-                    or supplementalCheckFn:Call()) {    
-                    Lock Throttle to 0.
-                    Set courseCorrectionIdx to courseCorrectionIdx + 1.
-                    Break.
-                }
+            //     Set previousErrorMeters to errorCurrent.
+            //     Wait 0. 
+            // }
 
-                Set previousErrorMeters to errorCurrent.
-                Wait 0. 
-            }
+            Wait Until Throttle < 0.07.
         }       
     }
 

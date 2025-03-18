@@ -5,7 +5,7 @@
 @lazyGlobal off.
 
 // Requirements
-runpath("Library/atmoData/getAtmoData.ks").                     // This will import the temperature model
+runpath("0:Library/atmoData/getAtmoData.ks").                     // This will import the temperature model
 local getSAT is lib_atmosphericData["getSAT"](False).           // Importing the correct function
 
 function get_AtmosphericFlightData {

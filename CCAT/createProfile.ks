@@ -8,14 +8,14 @@ clearscreen. clearvecdraws(). clearguis().                              // Clear
 //set config:ipu to 2000.                                                 // Set your IPU
 
 // LIBRARY
-runpath("Library/GUItools.ks").                                             // GUI creation
-runpath("CCAT/dragProfile/GUI/profileMenu.ks").                             // Menu for drag profiles
-runpath("CCAT/dragProfile/GUI/analysisMenu.ks").                            // Menu for ship analysis
-runpath("CCAT/dragProfile/LIB/Analysis.ks").                                // Ship Analysis Function
-runpath("CCAT/dragProfile/LIB/Profile.ks").                                 // Drag Profile Calculations
-runpath("Library/Atmospheric.ks").                                          // Atmospheric Telemetry
-runpath("Library/Vectors.ks").                                              // Vectors and Orientation
-runpath("CCAT/dragProfile/DATA/PartDatabase/ExtraDatabase.ks").             // Database for additional part information
+runpath("0:Library/GUItools.ks").                                             // GUI creation
+runpath("0:CCAT/dragProfile/GUI/profileMenu.ks").                             // Menu for drag profiles
+runpath("0:CCAT/dragProfile/GUI/analysisMenu.ks").                            // Menu for ship analysis
+runpath("0:CCAT/dragProfile/LIB/Analysis.ks").                                // Ship Analysis Function
+runpath("0:CCAT/dragProfile/LIB/Profile.ks").                                 // Drag Profile Calculations
+runpath("0:Library/Atmospheric.ks").                                          // Atmospheric Telemetry
+runpath("0:Library/Vectors.ks").                                              // Vectors and Orientation
+runpath("0:CCAT/dragProfile/DATA/PartDatabase/ExtraDatabase.ks").             // Database for additional part information
 
 //////////////////////////////////////////
 // FUNCTIONS                        	//

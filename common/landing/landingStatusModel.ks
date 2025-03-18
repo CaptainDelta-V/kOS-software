@@ -1,15 +1,36 @@
 @LAZYGLOBAL OFF.
 RUNONCEPATH("1:common/nav").
-RUNONCEPATH("0:CCAT/ccat").
+
 
 Function LandingStatusModel {    
     Parameter TargetLandingSite is Ship:GeoPosition.    
     Parameter TargetAltitude is 0.
     Parameter UsePositionOverTrajectory is false.  
+    Parameter UseCCAT is false. 
 
     Local _landingSite to TargetLandingSite.
     Local _targetAltitude to TargetAltitude.
     Local _usePositionOverTrajectory to UsePositionOverTrajectory.
+    Local _ccat to Lexicon().
+
+    If UseCCAT { 
+        RUNONCEPATH("0:CCAT/ccat").   
+        Set _ccat to CCAT( 
+            True,
+            "RKDP54",
+            10,    
+            True,
+            1,
+            False,
+            False,
+            False,
+            False,
+            3,
+            "Linear",
+            "Falcon Heavy Side Booster",
+            ship:body
+        ).
+    }
 
     Local _metersPerDegree to Ship:Body:Radius * 2 * Constant:Pi / 360.        
 
@@ -25,6 +46,11 @@ Function LandingStatusModel {
             Local lng to Ship:GeoPosition:Lng .            
             Return LatLng(lat, lng).
         }
+        // If UseCCAT { 
+        //     // Throw("got here").?
+        //     _ccat:SingleIteration().
+        //     Return _ccat:GetFinalPosition():GeoPosition().
+        // }
         If Addons:TR:HasImpact { 
             Return Addons:TR:ImpactPos. 
         }

@@ -7,8 +7,8 @@
 clearscreen. clearvecdraws(). clearguis().                  // Clear the KOS Console, vecdraws and guis
 
 // LIBRARY
-runpath("Library/Telemetry.ks").                            // Atmospheric Data and Telemetry
-runpath("CCAT/dragProfile/LIB/Profile.ks").                 // Drag Profile Calculations
+runpath("0:Library/Telemetry.ks").                            // Atmospheric Data and Telemetry
+runpath("0:CCAT/dragProfile/LIB/Profile.ks").                 // Drag Profile Calculations
 
 // IPU SETTINGS
 //set config:ipu to 2000.                                   // Set your IPU

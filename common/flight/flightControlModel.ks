@@ -5,3 +5,21 @@ Function FLIGHT_CONTROL_MODEL {
 
     // }
 }
+
+Global Function FalloffThrottle {
+    parameter currentError, startFalloff, minThrottle.
+    
+    // Full throttle if error is at or above startFalloff
+    if currentError >= startFalloff {
+        return 1.
+    }
+    
+    // Zero throttle if error is at or below minThrottle
+    if currentError <= minThrottle {
+        return 0.
+    }
+    
+    // Linearly scale throttle from 1 to 0 as error drops from startFalloff to minThrottle
+    local scaledThrottle is (currentError - minThrottle) / (startFalloff - minThrottle).
+    return scaledThrottle.
+}

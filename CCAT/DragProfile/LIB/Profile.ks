@@ -908,18 +908,18 @@ function loadProfile {
     function returnProfile {
         // PRIVATE loadProfile :: string -> 2D Array
         // Loads profile if found; returns nothing if not found
-        return readjson("CCAT/dragProfile/DATA/Profiles/"+profileName).
+        return readjson("0:CCAT/dragProfile/DATA/Profiles/"+profileName).
     }
 
     function profileExists {
         // PRIVATE profileExists :: string -> bool
         // Returns True if profile found; else returns false
-        if (exists("CCAT/dragProfile/DATA/Profiles/"+profileName)) return True. 
+        if (exists("0:CCAT/dragProfile/DATA/Profiles/"+profileName)) return True. 
         else return False.
     }
 
     if profileExists() {
-        print("Drag profile found called " + profileName).
+        // print("Drag profile found called " + profileName).
         return returnProfile().
     }
     else return defaultProfile().
