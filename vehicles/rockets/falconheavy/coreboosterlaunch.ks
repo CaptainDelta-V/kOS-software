@@ -96,13 +96,13 @@ coreEngineController:SetThrustLimit(coreThrustLimit).
 
 Local boosterSeparation to false. 
 Until boosterSeparation { 
-    If leftBoosterLiquidFuelResource:Amount < 2_100 { 
+    If leftBoosterLiquidFuelResource:Amount < 2_900 { 
         Set boosterSeparation to true.
     }
     Wait 0.01.
 }
 
-Unlock Steering. 
+// Unlock Steering. 
 coreEngineController:SetGimbalLimit(0).
 RCS ON.
 Wait 0.
@@ -112,12 +112,14 @@ leftBoosterEngineController:SetThrustLimit(0).
 rightBoosterEngineController:SetThrustLimit(0).
 Stage.
 
-coreEngineController:SetThrustLimit(100).
+Set coreThrustLimit to 100.
+flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
+coreEngineController:SetThrustLimit(coreThrustLimit).
 coreEngineController:SetGimbalLimit(100).
 Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
 
 Wait 2. 
-// Lock S
+Lock Steering to Heading(launchHeading, 2, targetRoll).
 
 Local upperstageSeparation to false. 
 Until upperstageSeparation { 

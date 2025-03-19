@@ -38,10 +38,10 @@ Until startCCAT {
 // }
 
 StopRunFlightStatusScreen().
-Print "CCCAT Starting . . . ".
+Print "CCAT Starting . . . ".
 Print "Target CPU: " + ccatController:GetTargetCpuName().
 Local targetCpu to Processor(ccatController:GetTargetCpuName()).
-Local dt to 3.
+Local dt to 4.
 Local prevTraj to LatLng(0,0).
 Local comparisonDecimals to 5.
 

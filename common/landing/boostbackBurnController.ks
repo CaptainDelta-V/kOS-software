@@ -30,27 +30,28 @@ Function BoostbackBurnController {
 
             Set initHeading to landingStatus:HeadingFromImpactToTarget().
 
-            If throttleCurve = -1 {
-                Lock Throttle to 1.            
-            }
-            Else {                 
-                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 100_000, 0.05).
-                //  Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
-            }
-            Wait 0.1.        
+            // If throttleCurve = -1 {
+            //     Lock Throttle to 1.            
+            // }
+            // Else {                 
+                
+            //     //  Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
+            // }            
 
             Local minBoostbackDuration to 8. 
             Local minTimeEnd to Time:Seconds + minBoostbackDuration.
+            Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 50_000, 0.06).
             
             // Go until error increases or ship goes below abort altitude
             Local previousErrorMeters to landingStatus:TrajectoryErrorMeters() + 1.
             Until false {        
 
-                Local errorCurrent is landingStatus:TrajectoryErrorMeters().                
+                Local errorCurrent is landingStatus:TrajectoryErrorMeters().                                
 
                 // Local minThrottle to 0.15.
                 Local cutoffThrottle to Throttle - 0.01.
-                If (((errorCurrent > previousErrorMeters OR Throttle < cutoffThrottle) and errorCurrent < minimumError) 
+                If ((errorCurrent > previousErrorMeters and errorCurrent < minimumError) 
+                    or errorCurrent < 250
                     or (Ship:Altitude < abortAltitude and Ship:VerticalSpeed < 0) 
                     or supplementalCheckFn:Call()) {    
                     Lock Throttle to 0.
@@ -59,7 +60,7 @@ Function BoostbackBurnController {
                 }
 
                 Set previousErrorMeters to errorCurrent.
-                Wait 0.01. 
+                Wait 0.01.
             }
             Wait Until Throttle < 0.07.
         }       

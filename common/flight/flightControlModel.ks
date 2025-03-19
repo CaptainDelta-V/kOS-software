@@ -15,11 +15,11 @@ Global Function FalloffThrottle {
     }
     
     // Zero throttle if error is at or below minThrottle
-    if currentError <= minThrottle {
-        return 0.
-    }
+    // if currentError <= minThrottle {
+    //     return 0.
+    // }
     
     // Linearly scale throttle from 1 to 0 as error drops from startFalloff to minThrottle
-    local scaledThrottle is (currentError - minThrottle) / (startFalloff - minThrottle).
-    return scaledThrottle.
+    local scaledThrottle is (currentError) / (startFalloff).
+    return Max(scaledThrottle, minThrottle).
 }
