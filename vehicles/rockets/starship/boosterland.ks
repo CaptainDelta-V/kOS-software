@@ -84,7 +84,7 @@ RCS ON.
 Wait 0.
 
 engineController:SetEngineState(true).
-engineController:SetEngineMode(ENG_MODE_MID_INR).
+engineController:SetEngineMode(ENG_MODE_SH_MID_INR).
 landingStatus:SetLandingSite(approachUndershootSite).
 Local TargetVessel to Vessel(TOWER_VESSEL_NAME).
 
@@ -301,7 +301,7 @@ Wait Until Altitude < 30_000.
     RCS OFF.
 
 Wait Until Altitude < 25_000.           
-    engineController:SetEngineMode(ENG_MODE_MID_INR).
+    engineController:SetEngineMode(ENG_MODE_SH_MID_INR).
     
     landingStatus:SetLandingSite(approachSlightUndershootRefSite).
     flightStatus:Update("LANDING SITE: SLIGHT UNDERSHOOT").
@@ -359,7 +359,7 @@ Until verticalSpeedHoldStart {
         Set switchedToRadialOutReference to true.   
         Lock Throttle to 0.25.     
         flightStatus:Update("LANDING BURN - 3 Engines").         
-        engineController:SetEngineMode(ENG_MODE_CTR).        
+        engineController:SetEngineMode(ENG_MODE_SH_CTR).        
         gridFinController:SetEnabled(false).         
         landingSteering:SetMaxAoA(-3).
         Set verticalSpeedHoldStart to true.

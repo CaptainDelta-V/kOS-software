@@ -6,8 +6,10 @@ Declare Global TUNDRA_ENGINE_MODULE_NAME to "ModuleTundraEngineSwitch".
 Declare Global TUNDRA_ENGINE_SWITCH_NEXT to "next engine mode".
 Declare Global TUNDRA_ENGINE_SWITCH_PREV to "previous engine mode".
 Declare Global ENG_MODE_ALL to "All Engines".
-Declare Global ENG_MODE_MID_INR to "Middle Inner".
-Declare Global ENG_MODE_CTR to "Center Three".
+Declare Global ENG_MODE_SH_MID_INR to "Middle Inner".
+Declare Global ENG_MODE_FN_MID_INR TO "Three Landing".
+Declare Global ENG_MODE_SH_CTR to "Center Three".
+Declare Global ENG_MODE_FN_CTR TO "Center Only".
 
 Function EngineManager { 
     Parameter engine.    
@@ -64,32 +66,32 @@ Function EngineManager {
         If vesselType = VESSEL_TYPE_SUPER_HEAVY_BOOSTER {             
             Local CURR_MODE is engineModule:GetField("mode").            
 
-            If CURR_MODE = ENG_MODE_ALL AND targetMode = ENG_MODE_MID_INR {     
+            If CURR_MODE = ENG_MODE_ALL AND targetMode = ENG_MODE_SH_MID_INR {     
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If CURR_MODE = ENG_MODE_MID_INR AND targetMode = ENG_MODE_CTR {
+            Else If CURR_MODE = ENG_MODE_SH_MID_INR AND targetMode = ENG_MODE_SH_CTR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If CURR_MODE = ENG_MODE_CTR AND targetMode = ENG_MODE_MID_INR {
+            Else If CURR_MODE = ENG_MODE_SH_CTR AND targetMode = ENG_MODE_SH_MID_INR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
-            Else If CURR_MODE = ENG_MODE_MID_INR AND targetMode = ENG_MODE_ALL { 
+            Else If CURR_MODE = ENG_MODE_SH_MID_INR AND targetMode = ENG_MODE_ALL { 
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
         }
         Else If vesselType = VESSEL_TYPE_FALCON_BOOSTER { 
             Local currMode is engineModule:GetField("mode").       
 
-            If currMode = ENG_MODE_ALL and targetMode = ENG_MODE_MID_INR {     
+            If currMode = ENG_MODE_ALL and targetMode = ENG_MODE_FN_MID_INR {     
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If currMode = ENG_MODE_MID_INR and targetMode = ENG_MODE_CTR {
+            Else If currMode = ENG_MODE_FN_MID_INR and targetMode = ENG_MODE_FN_CTR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_NEXT).
             }
-            Else If currMode = ENG_MODE_CTR and targetMode = ENG_MODE_MID_INR {
+            Else If currMode = ENG_MODE_FN_CTR and targetMode = ENG_MODE_FN_MID_INR {
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
-            Else If currMode = ENG_MODE_MID_INR and targetMode = ENG_MODE_ALL { 
+            Else If currMode = ENG_MODE_FN_MID_INR and targetMode = ENG_MODE_ALL { 
                 engineModule:DoEvent(TUNDRA_ENGINE_SWITCH_PREV).
             }
         }

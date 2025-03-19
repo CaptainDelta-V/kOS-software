@@ -15,7 +15,7 @@ RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
 
-Local boosterSide to "UNKNOWN".
+Local boosterIndicator to "UNKNOWN".
 Local flightStatus to FlightStatusModel("FALCON HEAVY SIDE BOOSTER ", "AWAITING IDENTIFICATION").
 RunFlightStatusScreen(flightStatus, 0.5).
 
@@ -28,7 +28,8 @@ Until stageSeparation {
         }
         Else If content = INDICATOR_BOOSTER_LEFT or content = INDICATOR_BOOSTER_RIGHT { 
              
-            flightStatus:Update("ASSIGNED AS " + content + " BOOSTER").            
+            flightStatus:Update("ASSIGNED AS " + content + " BOOSTER").     
+            Set boosterIndicator to content.
         }    
         Else { 
             flightStatus:Update("RECEIVED INVALID MESSAGE: " + content).
@@ -41,7 +42,7 @@ Until stageSeparation {
 flightStatus:Update("STAGE SEPARATION").
 
 Local altBootParams to Lexicon().
-altBootParams:Add(KEY_BOOSTERSIDE, content).
+altBootParams:Add(KEY_BOOSTERSIDE, boosterIndicator).
 SetAlternateBootFileWithParams("boosterland", altBootParams).  
 Wait 2.
 Reboot. 

@@ -1,23 +1,25 @@
-RUNONCEPATH("common/constants").
-RUNONCEPATH("common/infos").
-RUNONCEPATH("common/engineManager").
-// RUNONCEPATH("common/flightStatus/flightStatusModel").
-// RUNONCEPATH("common/orbit/circularizationController").
-// RUNONCEPATH("common/nav").
-// RUNONCEPATH("common/landing/sites").
-// RUNONCEPATH("common/utils/listutils").
-RUNONCEPATH("common/engineManager").
+// RUNONCEPATH("common/constants").
+// RUNONCEPATH("common/infos").
+// RUNONCEPATH("common/engineManager").
+// // RUNONCEPATH("common/flightStatus/flightStatusModel").
+// // RUNONCEPATH("common/orbit/circularizationController").
+// // RUNONCEPATH("common/nav").
+// // RUNONCEPATH("common/landing/sites").
+// // RUNONCEPATH("common/utils/listutils").
+// RUNONCEPATH("common/engineManager").
 
 ClearVecDraws().
 
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
-Local part to Ship:PartsTagged("MERLIN_9")[0].
-DescribePartItemToFile(part, LogFilepath).
+Log Ship:GeoPosition to LogFilepath.
 
-Local engineController to EngineManager(part, VESSEL_TYPE_FALCON_BOOSTER).
-engineController:SetEngineMode(ENG_MODE_MID_INR).
+// Local part to Ship:PartsTagged("MERLIN_9")[0].
+// DescribePartItemToFile(part, LogFilepath).
+
+// Local engineController to EngineManager(part, VESSEL_TYPE_FALCON_BOOSTER).
+// engineController:SetEngineMode(ENG_MODE_MID_INR).
 
 // Wait Until False. 
 
@@ -50,6 +52,14 @@ engineController:SetEngineMode(ENG_MODE_MID_INR).
 // DescribeSuffixNamesToFile(Ship:resources).
 
 // Shutdown.
+
+// Local traj to LatLng(21.232808, 43.080583).
+
+// Local trajLat to Round(traj:Lat, 5).
+// Local trajLng to Round(traj:Lng, 5).
+
+// Print trajLat = Round(21.232808, 5). 
+// Print trajLng = Round(43.080583, 5).
 
 
 

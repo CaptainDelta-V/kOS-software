@@ -8,49 +8,69 @@ RUNPATH("0:common/constants").
 Local flightStatus to FlightStatusModel("AVIONICS SYSTEM", "AWAITING INITIATION").
 Local ccatController to CCATManager().
 
-flightStatus:AddField("SOLVER", ccatController:GetRunStatus@).
+flightStatus:AddField("SOLVER RUNNING", ccatController:IsRunning@).
 flightStatus:AddField("TARGET CPU", ccatController:GetTargetCpuName@).
 
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus, 0.25).
 
-
-When not Core:Messages:Empty Then { 
-    Local message to Core:Messages:Pop:Content.
-
-    If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
-        ccatController:SetTargetCpuName(message:Split("|")[1]).
+Local startCCAT to false. 
+Until startCCAT { 
+    If not Core:Messages:Empty { 
+        Local message to Core:Messages:Pop:Content.
+        If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
+            ccatController:SetTargetCpuName(message:Split("|")[1]).        
+        }
+        Else If message = AVIONICS_CPU_RUN {     
+            Set startCCAT to true.
+        }
+        Else If message = AVIONICS_CPU_STOP { 
+            Shutdown.
+        }
     }
-    Else If message = AVIONICS_CPU_RUN { 
-        
-        // ccatController:RunContinous().
-       
-    }
-    Else If message = AVIONICS_CPU_STOP { 
-        Throw("not implemnted").
-    }
 
-    Preserve.
+    Wait 0.5.
 }
 
-Local c to Terminal:Input:GetChar().
-if c = "y" { 
-    // ccatController:RunContinous().
-    // Local calcCat to ccatController:GetCCAT().
-    // calcCat:continuousIteration().
-    // print ccatController:GetCCAT():GetFinalPosition().
+// When not Core:Messages:Empty Then { 
+//     Local message to Core:Messages:Pop:Content.
 
-    print ccatController:RunContinous():getFinalPosition().
-}
-
-// Function RunContinousUpdating { 
-//     Parameter interval.
-
-//     ccatController:RunContinous().
-//     Until not ccatController:IsRunning() { 
-
-
-//         Wait interval.
-//     }
+ 
 // }
+
+StopRunFlightStatusScreen().
+Print "CCCAT Starting . . . ".
+Print "Target CPU: " + ccatController:GetTargetCpuName().
+Local targetCpu to Processor(ccatController:GetTargetCpuName()).
+Local dt to 3.
+Local prevTraj to LatLng(0,0).
+Local comparisonDecimals to 5.
+
+// Shutdown.
+
+ccatController:RunCCAT(true, dt, { 
+    Parameter traj.
+    ClearScreen.
+    Print "==== SOLVER ACTIVE ====".
+    Print "TRAJ: " + traj.
+    Print "dT: " + dt.
+    targetCpu:Connection:SendMessage(traj).    
+
+    // Local messageBody to Lexicon().
+    // messageBody:Add("impact", traj).
+    // Local trajLat to Round(traj:Lat, comparisonDecimals).
+    // Local trajLng to Round(traj:Lng, comparisonDecimals).
+
+    // Only message when changed
+    // If (not Round(traj:Lat, comparisonDecimals) = Round(prevTraj:Lng, comparisonDecimals)) 
+    //     or (not Round(traj:Lng, comparisonDecimals) = Round(prevTraj:Lng, comparisonDecimals)) { 
+    //         Print traj.
+            
+    //         Set prevTraj to traj.        
+    //     }   
+    //     Else { 
+    //         // print traj.
+    //     } 
+    
+}):continuousIteration().
 
 Wait Until False. 

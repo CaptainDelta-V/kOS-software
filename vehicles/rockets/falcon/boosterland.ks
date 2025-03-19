@@ -69,7 +69,7 @@ RCS ON.
 Wait 0.
 
 engineController:SetEngineState(true).
-engineController:SetEngineMode(ENG_MODE_MID_INR).
+engineController:SetEngineMode(ENG_MODE_SH_MID_INR).
 engineController:SetThrustLimit(100).
 RCS ON.
 
@@ -120,7 +120,7 @@ flightStatus:AddField("VS TARGET", vsTarget).
 Local verticalSpeedHoldStart to false. 
 Until verticalSpeedHoldStart { 
     Set verticalSpeedHoldStart to Abs(Ship:Velocity:Surface:Mag < 140).
-    engineController:SetEngineMode(ENG_MODE_CTR).
+    engineController:SetEngineMode(ENG_MODE_SH_CTR).
     Wait 0.01. 
 }
 

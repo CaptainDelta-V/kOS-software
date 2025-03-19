@@ -96,7 +96,7 @@ coreEngineController:SetThrustLimit(coreThrustLimit).
 
 Local boosterSeparation to false. 
 Until boosterSeparation { 
-    If leftBoosterLiquidFuelResource:Amount < 1_800 { 
+    If leftBoosterLiquidFuelResource:Amount < 2_100 { 
         Set boosterSeparation to true.
     }
     Wait 0.01.
@@ -115,6 +115,9 @@ Stage.
 coreEngineController:SetThrustLimit(100).
 coreEngineController:SetGimbalLimit(100).
 Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
+
+Wait 2. 
+// Lock S
 
 Local upperstageSeparation to false. 
 Until upperstageSeparation { 

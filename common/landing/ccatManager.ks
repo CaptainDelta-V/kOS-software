@@ -2,13 +2,8 @@ RUNONCEPATH("0:CCAT/ccat", False).
 
 Function CCATManager { 
     Parameter messageTargetCpuName is "None".
-
-    Local _ccat to Lexicon().
-    Local _runStatus to "NOT RUNNING".
-
-    Function GetCCAT { 
-        Return _ccat.
-    }
+    
+    Local _isRunning to false.
 
     Function SetTargetCpuName { 
         Parameter targetCpuName. 
@@ -19,41 +14,42 @@ Function CCATManager {
         Return messageTargetCpuName.
     }
 
-    Function GetRunStatus{ 
-        Return _runStatus.
+    Function IsRunning{ 
+        Return _isRunning.
     }
 
-    Function IsRunning { 
-        Return _runStatus = "RUNNING".
-    }
+    Function RunCCAT { 
+        Parameter runContinous.
+        Parameter targetDT.
+        Parameter onTrajectoryCalculated to { Parameter traj. }.
 
-    Function RunContinous { 
+        Set _isRunning to true.
+
         // Print "CPU to receive trajectory: " + messageTargetCpuName.
         // Print "Continous processing should start . . .".
         // Wait 1. 
         // Set _runStatus to "RUNNING".
         Return CCAT( 
-            False,
+            not runContinous,
             "RKDP54",
-            10,    
+            targetDT,    
             True,
             1,
             False,
             False,
-            True,
-            True,
+            False,
+            False,
             3,
             "Linear",
             "Falcon Heavy Side Booster",
-            ship:body
+            ship:body, 
+            onTrajectoryCalculated
         ).        
     }
 
     Return Lexicon( 
-        "GetCCAT", GetCCAT@, 
-        "GetRunStatus", GetRunStatus@,
-        "IsRunning", IsRunning@,
-        "RunContinous", RunContinous@,
+        "RunCCAT", RunCCAT@, 
+        "IsRunning", IsRunning@,        
         "SetTargetCpuName", SetTargetCpuName@, 
         "GetTargetCpuName", GetTargetCpuName@
     ).

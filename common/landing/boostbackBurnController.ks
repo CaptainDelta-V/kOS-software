@@ -34,8 +34,8 @@ Function BoostbackBurnController {
                 Lock Throttle to 1.            
             }
             Else {                 
-                // Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 40_000, 0.05).
-                 Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
+                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 100_000, 0.05).
+                //  Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
             }
             Wait 0.1.        
 
@@ -59,7 +59,7 @@ Function BoostbackBurnController {
                 }
 
                 Set previousErrorMeters to errorCurrent.
-                Wait 0. 
+                Wait 0.01. 
             }
             Wait Until Throttle < 0.07.
         }       

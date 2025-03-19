@@ -13,7 +13,7 @@ Function LandingStatusModel {
     Local _usePositionOverTrajectory to UsePositionOverTrajectory.
     Local _ccat to Lexicon().
 
-    Local _mostRecentTrajectory to LatLnt(0,0).
+    Local _mostRecentTrajectory to LatLng(0,0).
 
     Local _metersPerDegree to Ship:Body:Radius * 2 * Constant:Pi / 360.        
 
@@ -30,14 +30,16 @@ Function LandingStatusModel {
             Return LatLng(lat, lng).
         }
         If UseCCAT { 
-            // Throw("got here").?
-
-            // check for latest trajectory message
-            // _ccat:SingleIteration().
-            // Return _ccat:GetFinalPosition():GeoPosition().
+            // Throw("got here").
+            If not Core:Messages:Empty { 
+                Local impactPos to Core:Messages:Pop:Content.
+                Set _mostRecentTrajectory to impactPos.                
+                Core:Messages:Clear().
+            }
+            
             Return _mostRecentTrajectory.
         }
-        If Addons:TR:HasImpact { 
+        Else If Addons:TR:HasImpact { 
             Return Addons:TR:ImpactPos. 
         }
 
@@ -108,7 +110,7 @@ Function LandingStatusModel {
         Local overshootUnitVector is VectorExclude(Up:Vector, _landingSite:AltitudePosition(_targetAltitude)):Normalized.
         Local overshootPosition is _landingSite:Position + meters * overshootUnitVector.
 
-        Return LandingStatusModel(Body:GeoPositionOf(overshootPosition), _targetAltitude).
+        Return LandingStatusModel(Body:GeoPositionOf(overshootPosition), _targetAltitude, UsePositionOverTrajectory, UseCCAT).
     }
 
     Function Offset { 

@@ -103,7 +103,7 @@ When Apoapsis > targetApoapsis Then {
     Wait 0.
     Set Ship:Control:PilotMainThrottle to 1.
     engineManagement:SetThrustLimit(40).
-    engineManagement:SetEngineMode(ENG_MODE_MID_INR).
+    engineManagement:SetEngineMode(ENG_MODE_SH_MID_INR).
 
     Wait 1.                
     starshipCpu:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    

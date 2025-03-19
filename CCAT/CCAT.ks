@@ -34,7 +34,8 @@ function CCAT {
                     heightError is 3,
                     interpolateMethod is "linear",
                     profileName is "Falcon Heavy Side Booster",
-                    bodyName is ship:body.
+                    bodyName is ship:body, 
+                    onTrajectoryCalculated to { Parameter traj. }.
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////// This section calculates the future position
@@ -666,6 +667,8 @@ function CCAT {
 
         until masterManager["masterSwitch"] {
             for FX in masterFunctionManager:values FX().
+            onTrajectoryCalculated(getFinalPosition():Geoposition).
+            // Print "pos: " + getFinalPosition():Geoposition.
         }
     }
 
@@ -706,9 +709,9 @@ parameter doRun is true.
 
 If doRun { 
     local CCATFX is CCAT( 
-        False,
+        false,
         "RKDP54",
-        10,    
+        1,    
         True,
         1,
         False,
