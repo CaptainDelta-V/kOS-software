@@ -4,7 +4,8 @@
 ////////////////////////////////////////////////////////
 @lazyGlobal off.
 
-clearscreen. clearvecdraws(). clearguis().                                          // Clear the KOS Console, vecdraws and guis
+// clearscreen. 
+clearvecdraws(). clearguis().                                          // Clear the KOS Console, vecdraws and guis
 
 set config:ipu to 2000.                                                             // Set a CPU value
 
@@ -610,17 +611,17 @@ function CCAT {
         set vdrawLexicon[2]:vec to obtVelVec.
     }
 
-    // local vdrawLexicon is lexicon().                                                                
-    // local vecdraw1 is vecdraw(V(0,0,0), up:vector*250, RGB(1,0,0), "Impact Position", 1, vectorVis, 0.2, true, true).
-    // set vdrawLexicon[0] to vecdraw1.
-    // local vecdraw2 is vecdraw(V(0,0,0), up:vector*100, RGB(0,1,0), "Surface Position Vector", 1, vectorVis, 0.2, true, true).
-    // set vdrawLexicon[1] to vecdraw2.
-    // local vecdraw3 is vecdraw(V(0,0,0), up:vector*100, RGB(0,0,1), "Orbit Position Vector", 1, vectorVis, 0.2, true, true).
-    // set vdrawLexicon[2] to vecdraw3.
-    // if vectorVis {                                                                                  
-    //     for vd in range(vdrawLexicon:values:length) set vdrawLexicon[vd]:SHOW to True.
-    //     set masterFunctionManager["Vecdraw"] to manageVecDraws@.
-    // }
+    local vdrawLexicon is lexicon().                                                                
+    local vecdraw1 is vecdraw(V(0,0,0), up:vector*250, RGB(1,0,0), "Impact Position", 1, vectorVis, 0.2, true, true).
+    set vdrawLexicon[0] to vecdraw1.
+    local vecdraw2 is vecdraw(V(0,0,0), up:vector*100, RGB(0,1,0), "Surface Position Vector", 1, vectorVis, 0.2, true, true).
+    set vdrawLexicon[1] to vecdraw2.
+    local vecdraw3 is vecdraw(V(0,0,0), up:vector*100, RGB(0,0,1), "Orbit Position Vector", 1, vectorVis, 0.2, true, true).
+    set vdrawLexicon[2] to vecdraw3.
+    if vectorVis {                                                                                  
+        for vd in range(vdrawLexicon:values:length) set vdrawLexicon[vd]:SHOW to True.
+        set masterFunctionManager["Vecdraw"] to manageVecDraws@.
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////// This section will load and update the user interface
@@ -662,6 +663,7 @@ function CCAT {
     function continuousIteration {
         // PUBLIC Iterate :: nothing -> nothing
         // Call this function to perform continuous iterations
+
         until masterManager["masterSwitch"] {
             for FX in masterFunctionManager:values FX().
         }
@@ -694,28 +696,30 @@ function CCAT {
         "singleIteration", singleIteration@,
         "continuousIteration", continuousIteration@,
         "restartSimulation", restartSimulation@,
-        "simulationFinished", {return masterManager["Masterswitch"].},
+        "simulationFinished", { return masterManager["Masterswitch"]. },
         "getFinalPosition", getFinalPosition@
     ).
 }
 
 // solver : targetDT : runOnce : useError : targetError : endInObt : exactAtmo : useGUI : vectorVis : heightError : interpolateMethod : profileName : bodyName
+parameter doRun is true.
 
-local CCATFX is CCAT( 
-    True,
-    "RKDP54",
-    10,    
-    True,
-    1,
-    False,
-    False,
-    False,
-    True,
-    3,
-    "Linear",
-    "Falcon Heavy Side Booster",
-    ship:body
-).
+If doRun { 
+    local CCATFX is CCAT( 
+        False,
+        "RKDP54",
+        10,    
+        True,
+        1,
+        False,
+        False,
+        True,
+        True,
+        3,
+        "Linear",
+        "Falcon Heavy Side Booster",
+        ship:body
+    ).
 
-// CCATFX["continuousIteration"]().
-
+    CCATFX["continuousIteration"]().
+}

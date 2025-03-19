@@ -28,7 +28,9 @@ Local leftBoosterEngineController to EngineManager(leftBoosterEngine, VESSEL_TYP
 Local rightBoosterEngineController to EngineManager(rightBoosterEngine, VESSEL_TYPE_FALCON_BOOSTER). 
 
 Local leftBoosterCpu to Processor(LEFT_BOOSTER_CPU_NAME).
+Local leftBoosterAvionicsCpu to Processor(LEFT_BOOSTER_AVIONICS_CPU_NAME).
 Local rightBoosterCpu to Processor(RIGHT_BOOSTER_CPU_NAME).
+Local rightBoosterAvionicsCpu to Processor(RIGHT_BOOSTER_AVIONICS_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(1.95, 6, 8, 75).
 Local launchProfileSecondary to LaunchProfileModel(3.0, 8, 9.7, 85).
@@ -55,8 +57,15 @@ flightStatus:Update("NOTIFYING SIDE BOOSTERS").
 leftBoosterCpu:Connection:SendMessage(INDICATOR_BOOSTER_LEFT).
 rightBoosterCpu:Connection:SendMessage(INDICATOR_BOOSTER_RIGHT).
 
+Wait 0.5. 
+flightStatus:Update("ASSIGNING SIDE BOOSTER AVIONICS").
+leftBoosterAvionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + LEFT_BOOSTER_CPU_NAME).
+rightBoosterAvionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + RIGHT_BOOSTER_CPU_NAME).
+
 GetLaunchConfirmation(flightStatus:GetTitle()).
-RunFlightStatusScreen(flightStatus, 0.75).
+RunFlightStatusScreen(flightStatus, 0.5).
+
+flightStatus:Update("LAUNCH SEQUENCE INITIATED").
 
 Lock PitchTarget to launchProfile:PitchTarget().
 When Altitude > launchProfileTransitionAltitude Then { 
@@ -70,7 +79,6 @@ For nozzle in coreRcsUnits {
 
 // Lock Steering to Heading(launchHeading, PitchTarget - 2, 0).
 Lock Steering to Up.
-
 Lock Throttle to 1. 
 Stage. 
 Wait Until Stage:Ready. 

@@ -41,9 +41,10 @@ Local landingSiteAltitude to 111.
 Local altitudePositionTarget to landingSiteAltitude + boosterRadarOffset.
 
 Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
-// If boosterSide = INDICATOR_BOOSTER_RIGHT { 
-//     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
-// }
+If boosterSide = INDICATOR_BOOSTER_RIGHT { 
+    Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
+}
+Shutdown. 
 
 Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT.
 
@@ -56,7 +57,7 @@ flightStatus:AddField("TARGET", {
     Local site to landingStatus:GetLandingSite().
     Return site:lat + "," + site:lng.
 }).
-flightStatus:AddField("Using CAT", { return isSideBooster. }).
+flightStatus:AddField("AVIONICS", { return isSideBooster. }).
 flightStatus:AddField("IMPACT POS", landingStatus:GetImpact@).
 flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
 flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).

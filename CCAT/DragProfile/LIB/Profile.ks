@@ -902,7 +902,9 @@ function loadProfile {
     parameter       profileName is ship:name.
     
     function defaultProfile {
-        return readjson("CCAT/dragProfile/DATA/Profiles/defaultProfile").
+        // Do not want to use this, let this fail
+        return readjson("FAKECCAT/dragProfile/DATA/Profiles/defaultProfile").
+        // return readjson("0:CCAT/dragProfile/DATA/Profiles/defaultProfile").
     }
 
     function returnProfile {

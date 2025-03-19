@@ -99,7 +99,7 @@ Global Function RunFlightStatusScreen {
 
     Set stopRunningFlightStatusScreen to false. 
 
-    When Not stopRunningFlightStatusScreen Then {         
+    When not stopRunningFlightStatusScreen Then {         
         flightStatus:PrintStatusScreen().
         
         Wait delay.

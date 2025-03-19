@@ -27,10 +27,8 @@ Until stageSeparation {
             Set stageSeparation to true. 
         }
         Else If content = INDICATOR_BOOSTER_LEFT or content = INDICATOR_BOOSTER_RIGHT { 
-            Local altBootParams to Lexicon().
-            altBootParams:Add(KEY_BOOSTERSIDE, content).
-            SetAlternateBootFileWithParams("boosterland", altBootParams).    
-            flightStatus:Update("IDENTIFIED AS " + content + " BOOSTER").            
+             
+            flightStatus:Update("ASSIGNED AS " + content + " BOOSTER").            
         }    
         Else { 
             flightStatus:Update("RECEIVED INVALID MESSAGE: " + content).
@@ -41,8 +39,11 @@ Until stageSeparation {
 }
 
 flightStatus:Update("STAGE SEPARATION").
-Wait 2.
 
+Local altBootParams to Lexicon().
+altBootParams:Add(KEY_BOOSTERSIDE, content).
+SetAlternateBootFileWithParams("boosterland", altBootParams).  
+Wait 2.
 Reboot. 
 
 
