@@ -10,7 +10,7 @@ Function BoostbackBurnController {
     Function Engage { 
         Parameter boostbackPitch to 0.
         Parameter minimumError to 10_000.
-        Parameter throttleCurve to -1.        
+        Parameter throttleCurveCode to -1.        
         Parameter abortAltitude to 50_000.  
         Parameter minThrottle to 0.05.
         Parameter orientationAngleErrorThreshold to 2. 
@@ -30,29 +30,30 @@ Function BoostbackBurnController {
 
             Set initHeading to landingStatus:HeadingFromImpactToTarget().
 
-            // If throttleCurve = -1 {
-            //     Lock Throttle to 1.            
-            // }
-            // Else {                 
-                
-            //     //  Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
-            // }            
+            If throttleCurveCode = 1 {
+                Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
+            }
+            Else If throttleCurveCode = 2 {                 
+                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 70_000, 0.03).                    
+            }            
 
             Local minBoostbackDuration to 8. 
             Local minTimeEnd to Time:Seconds + minBoostbackDuration.
-            Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 50_000, 0.06).
+            
             
             // Go until error increases or ship goes below abort altitude
             Local previousErrorMeters to landingStatus:TrajectoryErrorMeters() + 1.
             Until false {        
 
-                Local errorCurrent is landingStatus:TrajectoryErrorMeters().                                
+                Local errorCurrent is landingStatus:TrajectoryErrorMeters().
+                Local currentHeadingImpactToTarget to landingStatus:HeadingFromImpactToTarget().
 
                 // Local minThrottle to 0.15.
                 Local cutoffThrottle to Throttle - 0.01.
                 If ((errorCurrent > previousErrorMeters and errorCurrent < minimumError) 
-                    or errorCurrent < 250
+                    or GetDeltaBetweenHeadings(initHeading, currentHeadingImpactToTarget, 10)
                     or (Ship:Altitude < abortAltitude and Ship:VerticalSpeed < 0) 
+                    or IsGeoPosWestOf(landingStatus:GetImpact(), landingStatus:GetLandingSite())
                     or supplementalCheckFn:Call()) {    
                     Lock Throttle to 0.
                     Set courseCorrectionIdx to courseCorrectionIdx + 1.

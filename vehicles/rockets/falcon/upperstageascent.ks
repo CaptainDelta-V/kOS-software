@@ -1,6 +1,6 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
+
 RUNONCEPATH("../../../common/exceptions").
 RUNONCEPATH("../../../common/constants").
 RUNONCEPATH("../../../common/landing/sites").
@@ -24,7 +24,7 @@ Local RequiredApoapsisEtaMargin to 60 * 5.
 Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME.
 
 Local ascent to AscentModel().
-Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNOWN").
+Local flightStatus to FlightStatusModel("FALCON UPPER STAGE ASCENT CONTROL","UNKNOWN").
 
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
@@ -38,7 +38,13 @@ If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {
     flightStatus:Update("Orbit: IDLE").
 }
 Else { 
-   AscendToOrbit().
+    Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]:GetModule("ModuleEnginesFX"):DoEvent("activate engine").
+
+    Lock throttle to 0.2.
+    Wait 2.
+    Lock Throttle to 1.
+
+    AscendToOrbit().
 }
 
 Wait Until false.
@@ -58,9 +64,6 @@ Function AscendToOrbit {
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
     flightStatus:Update("ASCENT").        
-
-    Wait 4.        
-    flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
 
     // Set KUniverse:ForceActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
 

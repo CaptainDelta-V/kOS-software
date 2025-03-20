@@ -48,3 +48,40 @@ Function CurrentRoll {
 // 	// Local HSIP to PART:Position.
 // 	// Local Position
 // }
+
+
+
+Function GetDeltaBetweenHeadings {
+    Parameter heading1, heading2, delta.
+    
+    // Calculate the difference between the two headings
+    local diff is heading1 - heading2.
+    
+    // Normalize the difference into the range -180 to 180 degrees.
+    // This formula subtracts 360 * floor((diff+180)/360) to bring diff within the range.
+    local normalizedDiff is diff - 360 * floor((diff + 180) / 360).
+    
+    // Return true if the absolute difference is greater than delta, false otherwise.
+    if abs(normalizedDiff) > delta {
+        return true.
+    }
+    return false.
+}
+
+Function IsGeoPosWestOf {
+    parameter pos1, pos2.
+    
+    // Calculate the difference in longitude between the two positions.
+    // A positive normalized difference indicates that pos2 is east of pos1,
+    // meaning that pos1 is to the west of pos2.
+    local diff is pos2:lng - pos1:lng.
+    
+    // Normalize diff to the range -180 to 180 using a mathematical formula.
+    local normalizedDiff is diff - 360 * floor((diff + 180) / 360).
+    
+    // Return true if pos1 is west of pos2, i.e., normalizedDiff > 0.
+    if normalizedDiff > 0 {
+        return true.
+    }
+    return false.
+}

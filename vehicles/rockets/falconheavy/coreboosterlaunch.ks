@@ -1,6 +1,5 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
 RUNONCEPATH("../../../common/constants").
 RUNONCEPATH("../../../common/landing/sites").
 RUNONCEPATH("../../../common/landing/landingStatusModel"). 
@@ -23,6 +22,8 @@ Local sideBoosterTank to Ship:PartsTagged("TANK_BOOSTER_LEFT")[0].
 Local coreBoosterTank to Ship:PartsTagged("TANK_BOOSTER_CORE")[0].
 Local coreRcsUnits to Ship:PartsTagged("RCS_CORE").
 
+Local upperstageCpu to Processor("CPU_UPPERSTAGE").
+
 Local coreEngineController to EngineManager(coreEngine, VESSEL_TYPE_FALCON_BOOSTER).
 Local leftBoosterEngineController to EngineManager(leftBoosterEngine, VESSEL_TYPE_FALCON_BOOSTER). 
 Local rightBoosterEngineController to EngineManager(rightBoosterEngine, VESSEL_TYPE_FALCON_BOOSTER). 
@@ -40,6 +41,8 @@ Local launchProfileTransitionAltitude to 8_000.
 Local launchHeading to 90.
 Local targetApoapsis to 60_000.
 Local targetRoll to -180.
+Local sideBoosterSeparationAtFuelAmount to 2400.
+Local upperstageSeparationAtFuelAmount to 2400. 
 
 Local flightStatus to FlightStatusModel("FALCON HEAVY LAUNCH CONTROL", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
@@ -96,7 +99,7 @@ coreEngineController:SetThrustLimit(coreThrustLimit).
 
 Local boosterSeparation to false. 
 Until boosterSeparation { 
-    If leftBoosterLiquidFuelResource:Amount < 2_900 { 
+    If leftBoosterLiquidFuelResource:Amount < sideBoosterSeparationAtFuelAmount { 
         Set boosterSeparation to true.
     }
     Wait 0.01.
@@ -123,14 +126,26 @@ Lock Steering to Heading(launchHeading, 2, targetRoll).
 
 Local upperstageSeparation to false. 
 Until upperstageSeparation { 
-    If coreBoosterLiquidFuel:Amount < 10 { 
+    If coreBoosterLiquidFuel:Amount < upperstageSeparationAtFuelAmount { 
         Set upperstageSeparation to true.
     }
     Wait 0.01.
 }
 
 Lock Throttle to 0.
-// Stage.
+
+
+
+Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
+upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
+flightStatus:Update("COASTING FOR UPPER SEPARATION").
+
+upperstageCpu:Connection:SendMessage("GO").
+Wait 10.
+
+flightStatus:Update("LANDING SEQUENCE INITIATED").
+SetAlternateBootFile("boosterland").
+Reboot. 
 
 Wait Until False. 
 

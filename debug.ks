@@ -1,5 +1,5 @@
-// RUNONCEPATH("common/constants").
-// RUNONCEPATH("common/infos").
+RUNONCEPATH("common/constants").
+RUNONCEPATH("common/infos").
 // RUNONCEPATH("common/engineManager").
 // // RUNONCEPATH("common/flightStatus/flightStatusModel").
 // // RUNONCEPATH("common/orbit/circularizationController").
@@ -13,7 +13,16 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
-Log Ship:GeoPosition to LogFilepath.
+Set Target to Vessel("CORE_REF").
+Log Target:GeoPosition to LogFilepath.
+
+Local part to Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]. 
+
+DescribePartItemToFile(part, LogFilePath).
+
+
+
+// Log Ship:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged("MERLIN_9")[0].
 // DescribePartItemToFile(part, LogFilepath).

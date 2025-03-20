@@ -1,6 +1,5 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
 RUNONCEPATH("../../../common/constants").
 RUNONCEPATH("../../../common/landing/sites").
 RUNONCEPATH("../../../common/landing/landingStatusModel"). 

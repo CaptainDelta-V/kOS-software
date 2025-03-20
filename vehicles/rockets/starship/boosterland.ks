@@ -254,7 +254,7 @@ If Not SkipBoostback {
     Local boostbackAbortAltitude to 50_000. // 64_000 for 6 engines
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, 0.00005, boostbackAbortAltitude, 0.3, 25, 50).
+    boostback:Engage(boostbackPitch, 5_000, 1, boostbackAbortAltitude, 0.3, 25, 50).
 
     Local iteration2RequiredError to 500.
     if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 

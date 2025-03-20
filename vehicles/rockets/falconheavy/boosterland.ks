@@ -1,6 +1,5 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
 RUNONCEPATH("../../../common/exceptions").
 RUNONCEPATH("../../../common/constants").
 RUNONCEPATH("../../../common/landing/sites").
@@ -143,17 +142,7 @@ If Not SkipBoostback {
     Local boostbackAbortAltitude to 36_000. 
 
     flightStatus:Update("BOOSTBACK BURN").
-    boostback:Engage(boostbackPitch, 2_000, 0, boostbackAbortAltitude, 0.3, 0, 0, true).
-
-    // If boosterSide = INDICATOR_BOOSTER_LEFT { 
-        
-    // }
-
-    // Local iteration2RequiredError to 500.
-    // if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
-    //     flightStatus:Update("BOOSTBACK ITERATION: 2").
-    //     boostback:Engage(boostbackPitch, iteration2RequiredError, 0.00005, boostbackAbortAltitude, 0.3).
-    // }
+    boostback:Engage(boostbackPitch, 2_000, 2, boostbackAbortAltitude, 0.3, 0, 0, true).
 }
 
 flightStatus:Update("TRAJECTORY COAST").
@@ -194,7 +183,7 @@ flightStatus:AddField("TRUE RADAR", landingBurn:TrueRadar@).
 landingSteering:SetMaxAoA(-5).  
 
 Lock Throttle to 1. 
-Local vsTarget to -19.
+Local vsTarget to -25.
 flightStatus:AddField("VS TARGET", vsTarget).
 
 Local verticalSpeedHoldStart to false. 
@@ -217,35 +206,34 @@ When landingBurn:TrueRadar() < 120 Then {
     
 }
 
-When landingBurn:TrueRadar() < 80 Then { 
+When landingBurn:TrueRadar() < 40 Then { 
     avionicsCpu:Connection:SendMessage(AVIONICS_CPU_STOP).
 }
 
-When landingBurn:TrueRadar() < 100 Then { 
+When landingBurn:TrueRadar() < 20 Then { 
     landingStatus:SetLandingSite(Ship:GeoPosition).
     landingStatus:SetUsePositionOverTrajectory(true).    
-    flightStatus:Update("LANDING WHERE WE IS").
+    flightStatus:Update("LANDING").
     Preserve. 
 }
 
 RunVerticalSpeedHold({
         If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 300 { 
-            Set vsTarget to -Abs(-16).
+            // Set vsTarget to -Abs(-16).
             Set vsSpeedTargetStage0Set to true. 
             landingSteering:SetMaxAoA(-3.5). 
         }
 
-
-        If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 150 { 
+        If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 100 { 
             Set vsTarget to -Abs(-10).
             Set vsSpeedTargetStage1Set to true.
-            landingSteering:SetMaxAoA(-2).  
+            // landingSteering:SetMaxAoA(-2.5).  
         }
 
         If not vsSpeedTargetStage2Set and landingBurn:TrueRadar() < 15 { 
             Set vsTarget to -Abs(-1).
             Set vsSpeedTargetStage2Set to true.
-            landingSteering:SetMaxAoA(-1).  
+            landingSteering:SetMaxAoA(-1.5).  
         }
 
 
