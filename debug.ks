@@ -14,7 +14,7 @@ Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
 // Set Target to Vessel("CORE_REF").
-Log Ship:GeoPosition to LogFilepath.
+Log Target:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]. 
 

@@ -22,15 +22,16 @@ Local engineManagement to EngineManager(engine, VESSEL_TYPE_SUPER_HEAVY_BOOSTER)
 Local startowerCpu to Processor(TOWER_CPU_NAME).
 Local starshipCpu to Processor(STARSHIP_CPU_NAME).
 
-Local BoosterMaxPitchOver to 55.
+Local BoosterMaxPitchOver to 75.
 
-Local launchProfileInitial to LaunchProfileModel(1.45, 11, 6, BoosterMaxPitchOver).
-Local launchProfileSecondary to LaunchProfileModel(2.0, 10, 9.7, BoosterMaxPitchOver).
+Local launchProfileInitial to LaunchProfileModel(1.8, 11, 4, BoosterMaxPitchOver).
+Local launchProfileSecondary to LaunchProfileModel(2.05, 10, 9.7, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 8_000.
 
 Local launchHeading to 90.
-Local targetApoapsis to 80_000.
+// Local targetApoapsis to 80_000. // Empty Cargo
+Local targetApoapsis to 62_000. // Tanker
 Local targetRoll to -90.
 
 Local flightStatus to FlightStatusModel("SUPER HEAVY BOOSTER LAUNCH CONTROL", "PRELAUNCH").
@@ -61,7 +62,7 @@ If (startowerCpu:Connection:SendMessage(TOWER_QD_RELEASE_MESSAGE)) {
 }
 Else { 
     flightStatus:Update("QD RELEASE FAILURE").
-    Throw("DELUGE FAIL").
+    Throw("QD FAIL").
 }
 Wait 1.5.
 

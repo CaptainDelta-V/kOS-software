@@ -22,6 +22,7 @@ RunFlightStatusScreen(flightStatus).
 
 flightStatus:Update("AWAITING BOOSTER").
 Wait Until HasVessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
+flightStatus:Update("BOOSTER RADAR CONTACT").
 
 Set activeBooster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
 Local mechazillaCatchArms to MechazillaCatchArmsModel(Mechazilla, MechazillaControllerModule).
@@ -53,10 +54,10 @@ Until false {
             mechazillaCatchArms:AlignToHeading(headingToTarget).              
         }
         Else If message = TOWER_CATCH_DAMPEN_MESSAGE {
-            mechazillaCatchArms:LowerLandingRails().
+            // mechazillaCatchArms:LowerLandingRails().
 
-            Set Core:BootFilename to "".
-            SHUTDOWN.
+            // Set Core:BootFilename to "".
+            // SHUTDOWN.
         }
         Else { 
             flightStatus:Update("RECEIVED INVALID MESSAGE").        

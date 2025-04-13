@@ -47,7 +47,7 @@ Until false {
             Reboot.
         }
         Else { 
-            flightStatus:Update("RECEIVED INVALID MESSAGE").
+            flightStatus:Update("RECEIVED INVALID MESSAGE: " + message).
         }
     }
     

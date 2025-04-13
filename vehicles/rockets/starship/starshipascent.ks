@@ -25,8 +25,16 @@ Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNO
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
-Local targetPitch to 0.
+Local targetPitch to 2.5.
 Local targetRoll to 180.
+
+When Apoapsis > 85_100 Then { 
+    Set targetPitch to 0.
+}
+
+When Apoapsis > 87_128 Then { 
+    Set targetPitch to -5.
+}
 
 RunFlightStatusScreen(flightStatus, 0.75).
 
@@ -73,6 +81,7 @@ Function AscendToOrbit {
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
         
+        Set Ship:Name to "STARSHIP COASTING".
         Wait 1.
         Shutdown.                           
     }
