@@ -1,0 +1,131 @@
+@LAZYGLOBAL OFF.
+
+RUNONCEPATH("utilities").
+RUNONCEPATH("../common/infos").
+
+ClearScreen.
+
+Local DO_EXIT to false.
+
+Local IDLE_BTN_IDX to 7.
+Local BURN_BTN_IDX to 9.
+
+Local SELECTED_OPTION_IDX to 0.
+Local BEEPER is GETVOICE(1).
+
+Local OPTION_DESC_IDX to 0.
+Local OPTION_FUNC_IDX to 1.
+Local OPTIONS_LIST to List().
+OPTIONS_LIST:ADD(List("REACTOR", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("RADIATORS", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("ENGINES", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("LIGHTING", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("WEAPON SYSTEMS", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("COUNTERMEASURES", PRINT_HOME@)).
+OPTIONS_LIST:ADD(List("SELF DESTRUCT", PRINT_HOME@)).
+
+// TODO: need a meta monitor setup screen to designate programs on each, have to identify indiv instead. 
+// the monitors are currently getting set up by the last one that was loaded, gets the buttons.
+
+// BEEPER:PLAY( NOTE(650, 0.10) ).
+PRINT_HOME().
+SET_DEFAULT_BUTTONS().
+SETUP_HOME_BUTTONS().
+
+Function PRINT_HOME { 
+  ClearScreen. 
+  
+  UI_PRINT("MAIN Control PANEL", 1, UI_ALIGN_HORIZ_CENTER).
+  UI_PRINT_OPTIONS().    
+    
+  UI_PRINT("      [#FFFFFF] NOMINAL [#FFF700] WARNING [#FF0029] CRITICAL ", 13, UI_ALIGN_HORIZ_CENTER).
+  UI_PRINT(" CURRENT MONITOR: " + LAST_PRESSED_BUTTON_MONITOR, 14, UI_ALIGN_HORIZ_CENTER).
+  UI_PRINT(" LAST BUTTON NUM: [#FFFFFF]" + LAST_PRESSED_BTN_NUM, 15, UI_ALIGN_HORIZ_CENTER).
+}
+
+Function UI_PRINT_OPTIONS { 
+  Local START_LINE_IDX to 3.  
+  FROM {Local OPTION_IDX is 0.} Until OPTION_IDX = OPTIONS_LIST:Length 
+    STEP {Set OPTION_IDX to OPTION_IDX+1.} DO {
+      Local LINE to START_LINE_IDX + OPTION_IDX.
+      Local OPTION to OPTIONS_LIST[OPTION_IDX].      
+      Local SELECTION_INDCATOR to " ".
+      If OPTION_IDX = SELECTED_OPTION_IDX { 
+        Set SELECTION_INDCATOR to "X".
+      }
+      UI_PRINT(" [[" + SELECTION_INDCATOR + "] " + OPTION[OPTION_DESC_IDX]:PADRIGHT(18),
+       LINE, UI_ALIGN_HORIZ_CENTER).
+  }
+}
+
+Function SELECT_OPTION {
+  OPTIONS_LIST[SELECTED_OPTION_IDX][OPTION_FUNC_IDX]:Call().  
+}
+
+Function NEXT_OPTION { 
+  Set SELECTED_OPTION_IDX to Min(SELECTED_OPTION_IDX + 1, OPTIONS_LIST:Length).  
+  PRINT_HOME().
+}
+
+Function PREV_OPTION { 
+  Set SELECTED_OPTION_IDX to Max(SELECTED_OPTION_IDX - 1, 0).
+  PRINT_HOME().
+}
+
+Function SETUP_HOME_BUTTONS { 
+    FROM {Local X is 0.} Until X = MONITORS STEP {Set X to X+1.} DO {
+      Set BUTTONS:CURRENTMONITOR to X. 
+      Set LABELS:CURRENTMONITOR to X.      
+
+      SET_IVA_BUTTON(DOWN_BTN_IDX, "", NEXT_OPTION@).
+      SET_IVA_BUTTON(UP_BTN_IDX, "", PREV_OPTION@).
+      SET_IVA_BUTTON(CONFIRM_BTN_IDX, "", SELECT_OPTION@).
+
+      // SET_IVA_BUTTON()
+
+        // Set ALL_LABELS to BLANK BY DEFAULT. 
+        // FROM {Local BTN_IDX is -6.} Until BTN_IDX=14 STEP {Set BTN_IDX to BTN_IDX+1.} DO {
+        //   // LABELS:SETLABEL(LABEL_IDX,"12345").
+        //   // LABELS:SETLABEL(Y,"LAB"+Y:TOSTRING:PADRIGHT(2)).          
+        //   LABELS:SETLABEL(BTN_IDX, "TEST":PADRIGHT(5)).
+        //   // BUTTONS:SETDELEGATE(BTN_IDX, DOIT@:BIND(BTN_IDX)).
+        // }
+
+      // ASSIGN USED BUTTONS.
+
+      
+      // LABELS:SETLABEL(IDLE_BUTTON_NO, " IDLE":PADRIGHT(5)).
+      // // BUTTONS:SETDELEGATE(IDLE_BUTTON_NO, REACTOR_TO_IDLE@).
+
+      // LABELS:SETLABEL(IDLE_BUTTON_NO + 1, " DESC":PADRIGHT(5)).
+      // // BUTTONS:SETDELEGATE(IDLE_BUTTON_NO + 1, DESCRIBE_DEBUG@).
+
+      // LABELS:SETLABEL(BURN_BUTTON_NO, " BURN":PADRIGHT(5)).
+      // BUTTONS:SETDELEGATE(BURN_BUTTON_NO, REACTOR_TO_BURN@).
+  }
+}
+
+Function EXIT { 
+  Set DO_EXIT to true.
+}
+
+Until DO_EXIT {
+  Wait 0. 
+}.
+
+
+// Function PRINT_HOME_DEMO {
+//   ClearScreen.  
+
+//   // Print("HOME").
+//   // Print "X X X X X X X X X X X X X X X X X X X X".  
+
+//   // Print "PAGE" AT (17,0).
+//   // Print "00" AT (19,1). // Center
+
+  
+//   UI_PRINT("PA", 1, UI_ALIGN_HORIZ_CENTER).  
+//   UI_PRINT("PAG", 2, UI_ALIGN_HORIZ_CENTER).  
+//   UI_PRINT("PAGE", 3, UI_ALIGN_HORIZ_CENTER).  
+//   UI_PRINT("PAGE1", 4, UI_ALIGN_HORIZ_CENTER).    
+// }

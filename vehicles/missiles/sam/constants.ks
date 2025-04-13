@@ -1,0 +1,1 @@
+Declare Global MISSILE_COUNT to 1.
