@@ -98,7 +98,7 @@ Stage.
 
 coreEngineController:SetThrustLimit(100).
 coreEngineController:SetGimbalLimit(100).
-Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
+Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { Parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
 
 Local upperstageSeparation to false. 
 Until upperstageSeparation { 

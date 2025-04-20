@@ -22,7 +22,7 @@ Function MechazillaCatchArmsModel {
         Local slope to 41.3 / 44.
         Local targetAngle to (slope * headingToTarget) - 77.
 
-        MechazillaControllerModule:SetField("target angle", targetAngle).
+        // MechazillaControllerModule:SetField("target angle", targetAngle).
     }
 
     Function RaiseLandingRails { 

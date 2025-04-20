@@ -36,7 +36,7 @@ Global Function RunBootFile {
 
         If Exists(BOOT_PARAMS_FILENAME) { 
             Local paramsObject to ReadJson(BOOT_PARAMS_FILENAME).            
-            RunPath(altBootFilename, paramsObject).
+            RUNPATH(altBootFilename, paramsObject).
         }
         Else { 
             RUNPATH(altBootFilename).

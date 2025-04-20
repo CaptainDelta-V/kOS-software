@@ -21,7 +21,7 @@ RUNONCEPATH("../../../common/systems/drainValveManager").
 Set Ship:Name to ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME.
 Parameter SkipBoostback to false.
 Parameter SkipWaitForInitiationMessage to true.
-Parameter Debug to true.
+Parameter Debug to false.
 
 Local engines to Ship:PartsTagged("BOOSTER_RAPTORS")[0].
 Local gridFins to Ship:PartsTagged("GRID_FIN").
@@ -42,7 +42,8 @@ Local towerStatus to "NOT CONNECTED".
 
 Local towerVessel to Vessel(TOWER_CPU_NAME).
 // Local landingSite is towerVessel:GeoPosition.
-Local olmGeoPosition to LatLng(-0.123857235026732,-74.4642069102594). // center of OLM
+// Local olmGeoPosition to LatLng(-0.123857235026732,-74.4642069102594). // center of OLM
+Local olmGeoPosition to LatLng(-0.123942125673094,-74.4642469768736).
 Local olmLandRefGeoPosition to LatLng(-0.123874268832783,-74.4644711369703). // Inner point towards tower
 Local towerBaseGeoPosition to LatLng(-0.123990264683518,-74.4652636801645). 
 Local landingSite to olmLandRefGeoPosition.
@@ -50,8 +51,8 @@ Local targetLandingSite is landingSite.
 Local altitudePositionTarget to towerCatchAltitude - 90.
 Local approachOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(overshootMeters):GetLandingSite().
 Local rollReferenceOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(500):GetLandingSite().
-Local approachSlightUndershootRefSite is LandingStatusModel(towerBaseGeoPosition, altitudePositionTarget):Overshoot(-20):GetLandingSite().
-Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-3600):GetLandingSite().
+Local approachSlightUndershootRefSite is LandingStatusModel(towerBaseGeoPosition, altitudePositionTarget):Overshoot(-60):GetLandingSite().
+Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-4_000):GetLandingSite().
 Local landingStatus to LandingStatusModel(approachOvershootSite, altitudePositionTarget):Overshoot(undershootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 
@@ -248,13 +249,13 @@ If Debug {
 
 If Not SkipBoostback { 
     flightStatus:Update("BOOSTBACK ORIENTATION").        
-    WaitUntilOriented(3, 2).
+    WaitUntilOriented(30, 20).
 
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
     Local boostbackAbortAltitude to 50_000. // 64_000 for 6 engines
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, 1, boostbackAbortAltitude, 0.3, 25, 50).
+    boostback:Engage(boostbackPitch, 5_000, 1, boostbackAbortAltitude, 0.3, 60, 850).
 
     Local iteration2RequiredError to 500.
     if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
@@ -279,7 +280,7 @@ Wait Until Altitude < 80_000.
     flightStatus:AddField("VIRUTAL TARGET ALTITUDE", landingStatus:GetTargetAltitude@).    
 
     gridFinController:SetEnabled(true).
-    gridFinController:SetAuthorityLimit(38).        
+    gridFinController:SetAuthorityLimit(48).        
     landingStatus:SetTargetAltitude(0).        
 
     flightStatus:AddField("TARGET AoA CAPPED", landingSteering:GetTargetAoA@).
@@ -292,26 +293,30 @@ Wait Until Altitude < 80_000.
     Wait 1.
 
     flightStatus:Update("FUEL VENTING").
-    drainValveController:DrainToAmount(5_100, "Oxidizer").
+    drainValveController:DrainToAmount(5_100, RESOURCE_OXIDIZER).
     flightStatus:Update("VENTING COMPLETE").
 
     // Set SteeringManager:RollTorqueFactor to 0.
-    landingSteering:SetMaxAoa(20).
+    landingSteering:SetMaxAoa(60).
 
 Wait Until Altitude < 60_000.
     flightStatus:Update("LANDING SITE: SLIGHT UNDERSHOOT").            
     landingStatus:SetLandingSite(approachSlightUndershootRefSite).
 
-Wait Until Altitude < 36_000.     
+Wait Until Altitude < 36_000.   
+    landingSteering:SetMaxAoa(38).
     RCS OFF.
 
 Wait Until Altitude < 25_000.           
     engineController:SetEngineMode(ENG_MODE_SH_MID_INR).        
 
-Wait Until Altitude < 20_000.
-    landingSteering:SetMaxAoa(16).
+Wait Until Altitude < 20_000.    
+landingSteering:SetMaxAoa(22).
 
 Wait Until Altitude < 12_000. 
+    landingSteering:SetMaxAoA(18).
+
+Wait Until Altitude < 8_000. 
     landingSteering:SetMaxAoA(12).
 
 Wait Until Altitude < maxBurnStartAltitude.
@@ -460,7 +465,7 @@ Until verticalSpeedHoldStart {
             flightStatus:Update("REQUESTING CATCH").                            
         }              
 
-        If (landingBurn:TrueRadar() > 40 and Time:Second > timeNextAlignment and landingBurn:TrueRadar() > 70) { 
+        If (landingBurn:TrueRadar() > 40 and Time:Second > timeNextAlignment and landingBurn:TrueRadar() > 40) { 
             towerVessel:Connection:SendMessage(TOWER_ARMS_ALIGN_MESSAGE).            
             Set timeNextAlignment to Time:Second + timeBetweenAlignments.
             flightStatus:AddField("Alignment", "Done.").
@@ -479,7 +484,7 @@ Until verticalSpeedHoldStart {
     Set towerCatchDampenMessageSent to true.      
 
     flightStatus:Update("HOVER FOR CATCH").
-    RunRadarAltitudeHold(65.5, 4, 
+    RunAltitudeHold(65.5, 2.5, 
         0.1, 0.02, 0.0, // PID
         0.35, 1, // Min/Max
         { Return Ship:Status = "LANDED". }).

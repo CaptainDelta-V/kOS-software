@@ -13,8 +13,11 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
+// Local cockpit to Ship:PartsTagged("COCKPIT")[0].
+// DescribePartItemToFile(cockpit, LogFilepath).
+// 
 // Set Target to Vessel("CORE_REF").
-Log Target:GeoPosition to LogFilepath.
+Log Ship:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]. 
 

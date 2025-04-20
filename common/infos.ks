@@ -68,15 +68,16 @@ Global Function DescribeSuffixNamesToFile {
 }
 
 Global Function HasVessel { 
-    Parameter Name. 
+    Parameter name. 
 
     Local allVessels is List().
     List targets in allVessels.
     For tgt in allVessels { 
-        If (tgt:name = name) { 
+        If (tgt:Name = name) { 
             Return true.
         }
     }
 
     Return false.
 }
+

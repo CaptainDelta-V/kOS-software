@@ -118,7 +118,6 @@ Lock Steering to Heading(launchHeading, PitchTarget, targetRoll).
 
 Wait Until Altitude > 6_000. 
 
-
 If hasSideBoosters { 
     Set coreThrustLimit to 50.
     flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 

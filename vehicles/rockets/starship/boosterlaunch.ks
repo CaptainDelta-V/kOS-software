@@ -11,6 +11,7 @@ RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/launch/launchProfileModel").
 RUNONCEPATH("../../../common/launch/utils").
+RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
 RUNONCEPATH("constants").
 
@@ -24,22 +25,25 @@ Local starshipCpu to Processor(STARSHIP_CPU_NAME).
 
 Local BoosterMaxPitchOver to 75.
 
-Local launchProfileInitial to LaunchProfileModel(1.8, 11, 4, BoosterMaxPitchOver).
-Local launchProfileSecondary to LaunchProfileModel(2.05, 10, 9.7, BoosterMaxPitchOver).
+Local launchProfileInitial to LaunchProfileModel(1.8, 9, 3, BoosterMaxPitchOver).
+Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
-Local launchProfileTransitionAltitude to 8_000.
+Local launchProfileTransitionAltitude to 4_000.
 
 Local launchHeading to 90.
-// Local targetApoapsis to 80_000. // Empty Cargo
-Local targetApoapsis to 62_000. // Tanker
+Local targetApoapsis to 70_000. // Empty Cargo
+// Local targetApoapsis to 62_000. // Tanker
 Local targetRoll to -90.
+
+Local boosterTank to Ship:PartsTagged("BOOSTER_TANK")[0].
+Local stageSeparationAtFuelAmount to 12_000.
 
 Local flightStatus to FlightStatusModel("SUPER HEAVY BOOSTER LAUNCH CONTROL", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
 
-GetLaunchConfirmation(flightStatus:GetTitle()).
+GetLaunchConfirmation(flightStatus:GetTitle(), true).
 RunFlightStatusScreen(flightStatus, 0.75).
 
 Wait 1.
@@ -96,23 +100,32 @@ Lock Steering to Heading(launchHeading, PitchTarget, targetRoll).
 
 flightStatus:Update("ASCENT").
 
-When Apoapsis > targetApoapsis Then { 
-    Set flightStatus to "Ship SEPARATION".
+Local boosterFuelResource to FindInList(boosterTank:Resources, { Parameter it. return it:Name = RESOURCE_OXIDIZER. }).
+flightStatus:AddField("BOOSTER FUEL", { return boosterFuelResource:Amount. }).
 
-    Unlock Throttle.
-    Unlock Steering.   
-    Wait 0.
-    Set Ship:Control:PilotMainThrottle to 1.
-    engineManagement:SetThrustLimit(40).
-    engineManagement:SetEngineMode(ENG_MODE_SH_MID_INR).
+Local stageSeparation to false. 
+Until stageSeparation { 
 
-    Wait 1.                
-    starshipCpu:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    
-    Wait 0.
-        
-    SetAlternateBootFile("boosterland").    
-    Wait 2.      
-    Reboot.       
+    Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount.
+
+    Wait 0.01.
 }
+
+Set flightStatus to "SHIP SEPARATION".
+
+Set Ship:Control:PilotMainThrottle to 1.
+Unlock Throttle.
+Unlock Steering.   
+Wait 0.
+engineManagement:SetThrustLimit(40).
+engineManagement:SetEngineMode(ENG_MODE_SH_MID_INR).
+
+Wait 0.5.        
+starshipCpu:Connection:SendMessage(STARSHIP_ASCENT_HANDOFF_MESSAGE).    
+Wait 0.
+    
+SetAlternateBootFile("boosterland").  
+Wait 1.5.  
+Reboot.   
 
 Wait Until false.

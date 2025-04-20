@@ -16,7 +16,7 @@ RUNONCEPATH("../../../common/flight/upperAscent").
 ClearScreen.
 ClearVecDraws().
 
-Local RequiredApoapsisEtaMargin to 60 * 5.
+Local RequiredApoapsisEtaMargin to 60 * 4.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local ascent to AscentModel().
@@ -25,7 +25,7 @@ Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNO
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
-Local targetPitch to 2.5.
+Local targetPitch to 15.5.
 Local targetRoll to 180.
 
 When Apoapsis > 85_100 Then { 
@@ -33,7 +33,11 @@ When Apoapsis > 85_100 Then {
 }
 
 When Apoapsis > 87_128 Then { 
-    Set targetPitch to -5.
+    Set targetPitch to -1.
+}
+
+When Apoapsis > 90_000 Then { 
+    Set targetPitch to -8.
 }
 
 RunFlightStatusScreen(flightStatus, 0.75).
@@ -58,7 +62,8 @@ Function AscendToOrbit {
     Set SteeringManager:RollTorqueFactor to 0.5.
 
     Lock Throttle to 1.    
-    Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
+    // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
+    Lock targetHeading to 90.
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
     flightStatus:Update("ASCENT").        
