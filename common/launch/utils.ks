@@ -1,5 +1,6 @@
 RUNONCEPATH("1:common/exceptions"). 
 RUNONCEPATH("1:common/utils/listutils").
+RUNONCEPATH("0:common/utils/colorPrintUtils").
 
 Function GetLaunchConfirmation { 
     Parameter title.
@@ -8,7 +9,6 @@ Function GetLaunchConfirmation {
     ClearScreen.
 
     Print title.
-    Print "LAUNCH DIRECTOR GO/NOGO POLL".
 
     If checkRangeViolations { 
         Local clearForConfirmation to false. 
@@ -18,7 +18,8 @@ Function GetLaunchConfirmation {
             If not RangeIsClear(rangeLimitKm) { 
                 ClearScreen.
                 Print "<color=#ff0026>RANGE NOT CLEAR</color>".
-                Print "<color=#ff0026>VIOLATIONS:</color>".
+                Print TextColorRed("RANGE NOT CLEAR").
+                Print TextColorRed("VIOLATIONS").
                 Local rangeViolations to GetRangeViolations(rangeLimitKm).
                 For violation in rangeViolations { 
                     Print "     (" + violation:Type + ") " + violation:Name + " " + violation:Distance + "km".
@@ -26,7 +27,7 @@ Function GetLaunchConfirmation {
             }
             Else {             
                 ClearScreen.
-                Print "<color=#11ff00>RANGE IS CLEAR</color>".
+                Print TextColorGreen("RANGE IS CLEAR").
                 Print " ".
                 Set clearForConfirmation to true. 
             }   
@@ -34,19 +35,16 @@ Function GetLaunchConfirmation {
         }     
     }
     
-    Print "CONFIRM GO FOR LAUNCH: (Y/N)".
-
+    Print "CONFIRM INITIATION?: (Y)".
     Local goForLunch to false.
-    Local choice to Terminal:Input:GetChar().
+    Until goForLunch {         
+        Local choice to Terminal:Input:GetChar().
 
-    If choice = "Y" { 
-        Print "LAUNCH CONFIRMED".
-        Set goForLunch to true.
-    }
-    Else {
-        Print "LAUNCH SCRUBBED. STANDING DOWN".
-        Wait 5.
-        Throw("LaunchScrubbedException").
+        If choice = "Y" { 
+            Print "INITIATION CONFIRMED".
+            Set goForLunch to true.
+            Set goForLunch to true.
+        }
     }
 
     Return goForLunch.
@@ -63,7 +61,6 @@ Function GetRangeViolations {
         
         Local otherVesselDistance to (otherVessel:Position - Ship:Position):Mag / 1000.
         // Print otherVessel:Name + ": " + otherVesselDistance.
-        
 
         Local shouldIgnore to otherVessel:Type = "Debris" or otherVessel:Type = "DroppedPart".
          

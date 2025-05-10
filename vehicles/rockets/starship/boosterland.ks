@@ -32,7 +32,7 @@ Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
 Local drainValveController to DrainValveManager(drainValves).
 
 Local boosterRadarOffset to 63.4.
-Local towerCatchAltitude to 150.
+Local towerCatchAltitude to 150. // ASL reference
 Local towerCatchOffsetAltitude to towerCatchAltitude - boosterRadarOffset.
 Local suicideMargin to 100.
 Local maxBurnStartAltitude to 2_800.

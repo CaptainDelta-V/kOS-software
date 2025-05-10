@@ -54,10 +54,10 @@ Until false {
             mechazillaCatchArms:AlignToHeading(headingToTarget).              
         }
         Else If message = TOWER_CATCH_DAMPEN_MESSAGE {
-            // mechazillaCatchArms:LowerLandingRails().
+            mechazillaCatchArms:LowerLandingRails().
 
-            // Set Core:BootFilename to "".
-            // SHUTDOWN.
+            Set Core:BootFilename to "".
+            SHUTDOWN.
         }
         Else { 
             flightStatus:Update("RECEIVED INVALID MESSAGE").        

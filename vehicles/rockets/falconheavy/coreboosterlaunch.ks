@@ -10,6 +10,7 @@ RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/launch/launchProfileModel").
+RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
@@ -47,20 +48,24 @@ Local coreRcsUnits to Ship:PartsTagged("RCS_CORE").
 Local upperstageCpu to Processor(FALCON_UPPERSTAGE_CPU_NAME).
 Local coreEngineController to EngineManager(coreEngine, VESSEL_TYPE_FALCON_BOOSTER).
 
-Local launchProfileInitial to LaunchProfileModel(1.15, 6, 8, 75).
-Local launchProfileSecondary to LaunchProfileModel(2.2, 8, 9, 80).
+Local BoosterMaxPitchOver to 75.
+
+Local launchProfileInitial to LaunchProfileModel(1.8, 9, 3, BoosterMaxPitchOver).
+Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
-Local launchProfileTransitionAltitude to 28_000.
+Local launchProfileTransitionAltitude to 4_000.
 
 Local launchHeading to 90.
 Local targetApoapsis to 60_000.
 Local targetRoll to -180.
 Local sideBoosterSeparationAtFuelAmount to 2400.
-Local upperstageSeparationAtFuelAmount to 2400. 
+Local upperstageSeparationAtFuelAmount to 1000. 
+Local upperstageSeparationAtFuelAmount to 1. 
 
 Local coreThrustLimit to 100.
 
 Local flightStatus to FlightStatusModel("FALCON HEAVY LAUNCH CONTROL", "PRELAUNCH").
+flightStatus:AddField("CONFIGURATION", { Return Choose "HEAVY" If hasSideBoosters Else "9". }).
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
@@ -89,7 +94,11 @@ If hasSideBoosters {
     rightBoosterAvionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + RIGHT_BOOSTER_CPU_NAME).
 }
 
-GetLaunchConfirmation(flightStatus:GetTitle()).
+Local payloadModel to PayloadModel((Choose VESSEL_TYPE_FALCON_HEAVY If hasSideBoosters Else VESSEL_TYPE_FALCON_BOOSTER)).
+
+payloadModel:Review().
+
+GetLaunchConfirmation(flightStatus:GetTitle(), true).
 RunFlightStatusScreen(flightStatus, 0.5).
 
 flightStatus:Update("LAUNCH SEQUENCE INITIATED").
@@ -153,6 +162,16 @@ Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter
 
 Lock Steering to Heading(launchHeading, 5, targetRoll).
 
+
+When Ship:Altitude > 52_000 Then { 
+    flightStatus:Update("Fairing Jettison").
+    AG4 ON.
+}
+
+When Ship:Altitude > 53_000 Then { 
+    flightStatus:Update("AWAITING SEPARATION").
+}
+
 flightStatus:Update("AWAITING SEPARATION").
 Local upperstageSeparation to false. 
 Until upperstageSeparation { 
@@ -162,23 +181,22 @@ Until upperstageSeparation {
     Wait 0.01.
 }
 
-Lock Throttle to 0.
+
+For nozzle in coreRcsUnits { 
+    nozzle:GetModule("ModuleRCSFX"):DoAction("toggle rcs thrust", TRUE).
+}
 
 Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
 upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
 flightStatus:Update("COASTING FOR UPPER SEPARATION").
 
 upperstageCpu:Connection:SendMessage("GO").
-Wait 10.
 
 flightStatus:Update("LANDING SEQUENCE INITIATED").
-For nozzle in coreRcsUnits { 
-    nozzle:GetModule("ModuleRCSFX"):DoAction("toggle rcs thrust", TRUE).
-}
-
-Local altBootParams to Lexicon().
-altBootParams:Add(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
-SetAlternateBootFileWithParams("boosterland", altBootParams).  
+// Local altBootParams to Lexicon().
+// altBootParams:Add(KEY_BOOSTERSIDE).
+SetAlternateBootFile("boosterland").  
+Wait 4.
 Reboot. 
 
 Wait Until False. 

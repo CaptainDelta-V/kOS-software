@@ -1,7 +1,6 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
 RUNONCEPATH("constants").
-RUNONCEPATH("../../../common/landing/sites").
 RUNONCEPATH("../../../common/infos").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
@@ -32,13 +31,13 @@ When Apoapsis > 85_100 Then {
     Set targetPitch to 0.
 }
 
-When Apoapsis > 87_128 Then { 
-    Set targetPitch to -1.
-}
+// When Apoapsis > 87_128 Then { 
+//     Set targetPitch to 0.
+// }
 
-When Apoapsis > 90_000 Then { 
-    Set targetPitch to -8.
-}
+// When Apoapsis > 90_000 Then { 
+//     Set targetPitch to -8.
+// }
 
 RunFlightStatusScreen(flightStatus, 0.75).
 

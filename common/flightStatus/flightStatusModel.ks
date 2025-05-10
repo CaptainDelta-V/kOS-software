@@ -1,4 +1,5 @@
 @LAZYGLOBAL OFF.
+RUNONCEPATH("0:common/constants").
 
 Function FlightStatusModel {
     
@@ -10,7 +11,7 @@ Function FlightStatusModel {
 
     If (RecordLogs) { 
         DeletePath(LogFilePath).    
-        Log "[" + Time:Seconds + "]" + "INIT: " + ScreenTitle To LogFilePath.
+        Log "[" + Timestamp(Time:Seconds):Full + "] " + "INIT: " + ScreenTitle To LogFilePath.
     }
 
     Local _flightStatusFields to Lexicon().
@@ -33,22 +34,31 @@ Function FlightStatusModel {
         Set FlightStatus to newStatus.
 
         If (RecordLogs) { 
-            Log "[" + Time:Seconds + "]" + FlightStatus To LogFilePath.
+            Log "[" + Timestamp(Time:Seconds):Full + "] " + FlightStatus To LogFilePath.
         }
     }    
 
     Function AddField { 
         Parameter fieldName.
         Parameter fieldValue.
+        Parameter logOnly to false.
         
-        Set _flightStatusFields[fieldName] to fieldValue.        
+        If not logOnly { 
+            Set _flightStatusFields[fieldName] to fieldValue.        
+        }
         If (RecordLogs) { 
             Local printValue to fieldValue.
-            // If fieldValue:HasSuffix("Call") { 
-            //     Set printValue to fieldValue:Call().
-            // }
-            Log "[" + Time:Seconds + "]" + fieldName + " set to " + fieldValue To LogFilePath.
+            If fieldValue:HasSuffix("Call") { 
+                Set printValue to fieldValue:Call().
+            }
+            Log "[" + Timestamp(Time:Seconds):Full + "] " + fieldName + " set to " + printValue To LogFilePath.
         }
+    }
+
+    Function RemoveField { 
+        Parameter fieldName.
+
+        Set _flightStatusFields[fieldName] to NONE.
     }
 
     Function UpdateField { 
@@ -57,7 +67,7 @@ Function FlightStatusModel {
 
         Set _flightStatusFields[fieldName] to fieldValue.
         If (RecordLogs) { 
-            Log "[" + Time:Seconds + "]" + fieldName + " updated to " + fieldValue To LogFilePath.
+            Log "[" + Time:Seconds + "] " + fieldName + " updated to " + fieldValue To LogFilePath.
         }
     }
 
@@ -66,17 +76,24 @@ Function FlightStatusModel {
         Print GetTitle().
         Print "STATUS: " + FlightStatus.
                 
-        For key In _flightStatusFields:KEYS { 
-
+        For key In _flightStatusFields:Keys { 
+            
             Local statusField to _flightStatusFields[key].
             Local outputValue to statusField.            
                             
-            If statusField:HasSuffix("Call") {
-                // can only call getters with no params
-                Set outputValue to statusField:Call().
-            }
+            If not (outputValue = NONE) { 
+                If statusField:HasSuffix("Call") {
+                    // can only call getters with no params
+                    Set outputValue to statusField:Call().
+                }
 
-            Print key + ": " + outputValue.
+                Print key + ": " + outputValue.
+            }
+        }
+
+        Function GetCurrentTimeFormatted { 
+            // Local Time:Seconds.
+            Return "Y" + Time:Year + " D" + Time:Day + " " + Time:Hour + ":" + Time:Minute + Time:Second + ":".
         }
     }
     
@@ -87,6 +104,7 @@ Function FlightStatusModel {
         "PrintStatusScreen", PrintStatusScreen@, 
         "AddField", AddField@, 
         "Update", Update@,
+        "RemoveField", RemoveField@,
         "UpdateField", UpdateField@
     ).
 }

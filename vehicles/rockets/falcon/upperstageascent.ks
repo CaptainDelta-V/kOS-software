@@ -21,16 +21,26 @@ RUNONCEPATH("../../../common/booting/bootUtils").
 ClearScreen. 
 
 Local RequiredApoapsisEtaMargin to 60 * 10.
-Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME.
+Set Ship:Name to ACTIVE_FALCON_UPPER_VESSEL_NAME.
 
 Local ascent to AscentModel().
 Local flightStatus to FlightStatusModel("FALCON UPPER STAGE ASCENT CONTROL","UNKNOWN").
 
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
+flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 
-Local targetPitch to 6.
+// Local targetPitch to 15.5.
+Local targetPitch to 5.
 Local targetRoll to 180.
+
+When Apoapsis > 85_100 Then { 
+    Set targetPitch to 0.
+}
+
+// When Apoapsis > 87_128 Then { 
+//     Set targetPitch to -5.
+// }
 
 RunFlightStatusScreen(flightStatus, 0.75).
 
@@ -72,15 +82,12 @@ Function AscendToOrbit {
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
 
-    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin  Then {         
+    
+    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
         
         Wait 1.
         Shutdown.                           
-    }
-
-    When Altitude > 50_000 Then { 
-        Set targetPitch to 0.
     }
 }

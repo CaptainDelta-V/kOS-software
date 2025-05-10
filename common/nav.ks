@@ -13,9 +13,9 @@ Function HeadingOfVector {
 }
 
 Function PitchOfVector {
-	Parameter VECT.
+	Parameter vect.
 
-	Return 90 - VectorAngle(Ship:Up:Vector, VECT).
+	Return 90 - VectorAngle(Ship:Up:Vector, vect).
 }
 
 Function HorizontalVelocityVecto { 
@@ -48,6 +48,10 @@ Function CurrentRoll {
 // 	// Local HSIP to PART:Position.
 // 	// Local Position
 // }
+
+Function PitchOfVessel {     
+    Return 90 - vectorangle(UP:FOREVECTOR, FACING:FOREVECTOR).
+}
 
 
 

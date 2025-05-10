@@ -13,11 +13,60 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
+// ============= DIST CHECK
+
+// Local offset to 200.
+
+Log Ship:GeoPosition to LogFilepath.
+
+// Local shipPosition to PositionAt(ship, Time:Seconds + offset).
+// Local targetPosition to PositionAt(target, Time:Seconds + offset).
+
+// Local dist to (targetPosition - shipPosition):Mag.
+// Print dist + "m". 
+
+
+// ==============
+
+//   Local secondsPerHour to 60 * 60.
+    
+//         // Local timestampStart to Timestamp(2, 120, 4, 27
+
+//         Local timeStep to 2.
+//         Local minDist to 99_9999.
+
+//         Local timeStart to Time:Seconds + (secondsPerHour * 18) + (secondsPerHour * 4).
+//         Local timeStop to timeStart + (secondsPerHour).
+//         Local currentTime to timeStart.
+
+//         PRINT "Time start" + Timestamp(timeStart):Full.
+//         PRINT "Time stop" + Timestamp(timeStop):Full.
+
+
+//         Until currentTime > timeStop { 
+            
+            
+//             Local shipPosition to PositionAt(ship, currentTime).
+//             Local targetPosition to PositionAt(target, currentTime).
+//             Local dist to (targetPosition - shipPosition):Mag.
+//             PRINT "dist: " + dist.
+
+//             If dist < minDist { 
+//                 Set minDist to dist.                
+//             }
+
+//             Print "dist: " + minDist.
+
+//             Set currentTime to currentTime + timeStep.
+//         }
+
+
+
 // Local cockpit to Ship:PartsTagged("COCKPIT")[0].
 // DescribePartItemToFile(cockpit, LogFilepath).
 // 
 // Set Target to Vessel("CORE_REF").
-Log Ship:GeoPosition to LogFilepath.
+// Log Ship:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]. 
 

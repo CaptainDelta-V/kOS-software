@@ -30,7 +30,6 @@ Function DrainValveManager {
                 }
                 Set amountReached to true.
             }
-            Wait 0.01.
         }
     }
 

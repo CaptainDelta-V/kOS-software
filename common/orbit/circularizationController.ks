@@ -1,23 +1,63 @@
+@LAZYGLOBAL OFF. 
+RUNONCEPATH("0:common/seeking/seek").
+RUNONCEPATH("0:common/orbit/manueverNodeManager").
 
-Function CIRCULARIZATION_CONTROLLER {     
+Function CircularizationController { 
+    Parameter flightStatus.
+    Parameter circularizeAtApoapsis to false.
 
-    Function CIRCULARIZE { 
-        Parameter USE_PERIAPSIS.
+    Local circularizationNode to Node(Time:Seconds + 100, 0, 0, 1). // placeholder
 
-        // Local TARGET_ALTITUDE 
-        // If Not USE_PERIAPSIS { 
+    Function Engage { 
+        Parameter burnThrottle.
+        Parameter finalizationThrottle to 0.01.
+        Parameter finalizationPercentage to 0.2.
+        Parameter alignmentTimeMargin to 30.
+        
+        RemoveAllNodes().
 
-        // }
-        // TODO: Create MANUEVER
+        Local targetAltitude to 0.
+        Local ascending to true. // is the target above the current node point
+        Local getActual to { Return 0. }. // used for goal seeking
 
-        Local TIME_TO_NODE to Time:Seconds + Ship:Orbit:ETA:Apoapsis.
-        Local MANV to NODE(TIME_TO_NODE).
-        ADD MANV.
+        If circularizeAtApoapsis { 
+            Set circularizationNode to Node(Time:Seconds + Ship:Orbit:Eta:Apoapsis, 0,0, 0).
+            Set targetAltitude to Ship:Orbit:Apoapsis.
+            Set getActual to { Return circularizationNode:Orbit:Periapsis. }.
+            Set ascending to true.
+        }
+        Else { 
+            Set circularizationNode to Node(Time:Seconds + Ship:Orbit:Eta:Periapsis, 0,0, 0).
+            Set targetAltitude to Ship:Orbit:Periapsis.
+            Set getActual to { Return circularizationNode:Orbit:Apoapsis. }.
+            Set ascending to false.
+        }        
 
-        // EXEC
+        flightStatus:AddField("CIRC. AT AP", circularizeAtApoapsis).
+        flightStatus:AddField("TARGET ALTITUDE", targetAltitude).
+        flightStatus:AddField("ASCENDING", ascending).
+        
+        Add circularizationNode.
+
+        Local vectorAdjustment to { 
+            parameter step.
+
+            Set circularizationNode:Prograde to circularizationNode:Prograde + step.           
+        }.                        
+
+        Local manueverNodeController to ManueverNodeManager(flightStatus, circularizationNode, burnThrottle).
+        manueverNodeController:AdjustToTarget(targetAltitude, getActual, vectorAdjustment, ascending).        
+        Wait 2.
+        flightStatus:Update("WARP TO BURN").
+        manueverNodeController:WarpToAlignment(alignmentTimeMargin).
+        manueverNodeController:Engage(finalizationThrottle, finalizationPercentage).        
+        manueverNodeController:CleanUp().
+
+        flightStatus:RemoveField("ASCENDING").
+        flightStatus:RemoveField("INC").
     }
 
     Return Lexicon(
-        "CIRCULARIZE", CIRCULARIZE@
+        "Engage", Engage@
     ).
 }

@@ -30,14 +30,20 @@ Local gridFins to Ship:PartsTagged("GRID_FIN").
 Local engineController to EngineManager(merlinEngines, VESSEL_TYPE_FALCON_BOOSTER).
 Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
 
-Local boosterRadarOffset to 32. 
+Local boosterRadarOffset to 25. 
 Local suicideMargin to 50.
-Local maxBurnStartAltitude to 2_800.
-Local overshootMeters to 500. 
+Local maxBurnStartAltitude to 2_700.
+Local overshootMeters to 100. 
 Local boostbackPitch to 0.
 Local targetRoll to 0.
-Local landingSiteAltitude to 111.
-Local altitudePositionTarget to landingSiteAltitude + boosterRadarOffset.
+Local landingSiteAltitude to 60.
+Local altitudePositionTarget to landingSiteAltitude.
+
+If boosterside = INDICATOR_BOOSTER_CORE { 
+    ClearScreen.
+    Print "EXPENDING BOOSTER. GOODBYE".
+    Shutdown.
+}
 
 Local avionicsCpuName to LEFT_BOOSTER_AVIONICS_CPU_NAME.
 Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
@@ -47,18 +53,23 @@ If boosterSide = INDICATOR_BOOSTER_RIGHT {
 }
 
 Local avionicsCpu to Processor(avionicsCpuName).
-Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT.
+// Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT.
+Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT. // not side booster and not core means the side booster that I am watching actively.
+Local useCCAT to isSideBooster.
+// Local useCCAT to boosterSide = INDICATOR_BOOSTER_LEFT or INDICATOR_BOOSTER_CORE.
 
 Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE (" + boosterSide + ")", "AWAITING INITIATION").
-Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, false, isSideBooster):Overshoot(overshootMeters).
+Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, false, useCCAT):Overshoot(overshootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 Local landingBurn to LandingBurnModel(boosterRadarOffset).
+
+Local approachSlightUndershootRefSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-200):GetLandingSite().
 
 flightStatus:AddField("TARGET", { 
     Local site to landingStatus:GetLandingSite().
     Return site:lat + "," + site:lng.
 }).
-flightStatus:AddField("CCAT AVIONICS", { return isSideBooster. }).
+flightStatus:AddField("CCAT AVIONICS", { return useCCAT. }).
 flightStatus:AddField("IMPACT POS", landingStatus:GetImpact@).
 flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
 flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).
@@ -69,8 +80,8 @@ ResetTorque().
 
 flightStatus:AddField("TARGET AoA CAPPED", landingSteering:GetTargetAoA@).
 flightStatus:AddField("TARGET AoA RAW", landingSteering:GetTargetAoARaw@). 
-flightStatus:AddField("MIN AoA", landingSteering:GetMaxAoA@).   
-flightStatus:AddField("MAX AoA", landingSteering:GetMinAoA@). 
+flightStatus:AddField("MAX AoA", landingSteering:GetMaxAoA@).   
+flightStatus:AddField("MIN AoA", landingSteering:GetMinAoA@). 
 flightStatus:AddFIeld("SURFACE MAG", { Return Ship:Velocity:Surface:Mag. }).
 flightStatus:AddField("ENGINE MODE", engineController:GetEngineMode@).
 flightStatus:AddField("BoosterSide", boosterSide).
@@ -80,7 +91,7 @@ flightStatus:AddField("MASS", { return Ship:Mass. }).
 flightStatus:AddField("STOP DIST.", landingBurn:GetStopDistance@).
 flightStatus:AddField("VERT SPEED", { return Ship:VerticalSpeed. }).
 
-flightStatus:Update("INITIATING AVIONICS CPU").
+flightStatus:Update("IDENTIFYING AVIONICS CPU").
 avionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + Core:Tag).
 Wait 0.5.
 avionicsCpu:Connection:SendMessage(AVIONICS_CPU_RUN).
@@ -94,9 +105,43 @@ Wait 0.
 engineController:SetEngineState(true).
 engineController:SetEngineMode(ENG_MODE_FN_MID_INR).
 engineController:SetThrustLimit(100).
-RCS ON.
 
-If Not SkipBoostback { 
+Local boostbackRequired to landingStatus:TrajectoryErrorMeters() > 2_000.
+flightStatus:AddField("Boostback requried", boostbackRequired, true).
+
+ClearVecDraws(). 
+If Debug { 
+
+    // Local arrowSize to 20.
+    // Local directArrow to VecDraw(    
+    //     V(0,0,0),
+    //     V(0,0,0),
+    //     RGB(1,1,1),
+    //     "DIRECT",
+    //     1.0,
+    //     true,
+    //     0.1,
+    //     true,
+    //     true
+    // ).
+
+    // Set directArrow:StartUpdater to { Return Ship:Position. }.
+    // Set directArrow:VecUpdater to { Return landingSite:AltitudePosition(altitudePositionTarget):Normalized * arrowSize. }.
+
+    // Local steeringRefRadialOutArrow to VecDraw(    
+    //     V(0,0,0),
+    //     V(0,0,0),
+    //     RGB(1,1,1),
+    //     "STEERING VECTOR RADIAL OUT",
+    //     1.0,
+    //     true,
+    //     0.1,
+    //     true,
+    //     true
+    // ).
+}
+
+If Not SkipBoostback and boostbackRequired { 
     flightStatus:Update("BOOSTBACK ORIENTATION").    
     flightStatus:AddField("ALIGNED", "NO").
     Local initHeading to landingStatus:HeadingFromImpactToTarget().                
@@ -111,7 +156,7 @@ If Not SkipBoostback {
     Else If boosterSide = INDICATOR_BOOSTER_RIGHT {
         Set otherBoosterName to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + INDICATOR_BOOSTER_LEFT.
     } 
-    Else { 
+    Else If not (boosterSide = INDICATOR_BOOSTER_CORE) { 
         Throw("WTF").
     }
     
@@ -123,8 +168,6 @@ If Not SkipBoostback {
     flightStatus:AddField("ALIGNED", "YES").    
     Wait 2.
     // flightStatus:Update("AWAITING TWIN ALIGNMENT").
-
-    
 
     // Local otherBoosterIsOriented to false. 
     // Until otherBoosterIsOriented { 
@@ -141,8 +184,14 @@ If Not SkipBoostback {
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
     Local boostbackAbortAltitude to 36_000. 
 
+    flightStatus:AddField("Trajectory at boostback start", landingStatus:GetImpact(), true).
+
     flightStatus:Update("BOOSTBACK BURN").
     boostback:Engage(boostbackPitch, 2_000, 2, boostbackAbortAltitude, 0.3, 0, 0, true).
+}
+
+When IsGeoPosWestOf(Ship:GeoPosition, approachSlightUndershootRefSite) Then { 
+    landingStatus:SetLandingSite(landingSite).
 }
 
 flightStatus:Update("TRAJECTORY COAST").
@@ -153,21 +202,19 @@ Lock Steering to landingSteering:SteeringVector().
 
 Wait Until Altitude < 20_000. 
 landingSteering:SetMaxAoA(20). 
+RCS OFF.
 
 Wait Until Altitude < 16_000. 
-landingSteering:SetMaxAoA(8).
+landingSteering:SetMaxAoA(12).
 
 Local padSiteSet to false. 
 Until padSiteSet { 
     Set padSiteSet to Altitude < 10_000.
     Wait 0.01.
 }
-landingStatus:SetLandingSite(landingSite).
 
-Wait Until Altitude < 6_000.
-landingSteering:SetMaxAoA(4).
-// landingStatus:SetLandingSite(landingSite).
-
+// Wait Until Altitude < 6_000.
+// landingSteering:SetMaxAoA(4).
 
 Set SteeringManager:RollTorqueFactor to 0.
 
@@ -177,18 +224,21 @@ Until landingBurnStart {
         and Altitude < maxBurnStartAltitude.
     Wait 0.01.
 }
-RCS OFF.
-flightStatus:Update("LANDING BURN").
-flightStatus:AddField("TRUE RADAR", landingBurn:TrueRadar@).
-landingSteering:SetMaxAoA(-5).  
 
 Lock Throttle to 1. 
 Local vsTarget to -25.
+landingSteering:SetMaxAoA(-4). 
+
+flightStatus:Update("LANDING BURN").
+flightStatus:AddField("TRUE RADAR", landingBurn:TrueRadar@).
+flightStatus:AddField("LANDING BURN START ALT", Ship:Altitude, true).
+flightStatus:AddField("LANDING BURN START PITCH", PitchOfVessel(), true).
+flightStatus:AddField("LANDING BURN START RETRO PITCH ", PitchOfVector(-Ship:Velocity:Surface), true).
 flightStatus:AddField("VS TARGET", vsTarget).
 
 Local verticalSpeedHoldStart to false. 
 Until verticalSpeedHoldStart { 
-    Set verticalSpeedHoldStart to Abs(Ship:Velocity:Surface:Mag) < 80.      
+    Set verticalSpeedHoldStart to Abs(Ship:Velocity:Surface:Mag) < 66.6.      
     Wait 0.01. 
 }
 
@@ -201,39 +251,39 @@ Local vsSpeedTargetStage2Set to false.
 
 When landingBurn:TrueRadar() < 120 Then { 
     GEAR ON.
+    flightStatus:AddField("GEAR DEPLOYED AT", landingBurn:TrueRadar(), true).
     
     // landingSteering:SetErrorScaling(0.1).
     
 }
 
-When landingBurn:TrueRadar() < 40 Then { 
-    avionicsCpu:Connection:SendMessage(AVIONICS_CPU_STOP).
+When landingBurn:TrueRadar() < 10 Then { 
+    // landingStatus:SetUsePositionOverTrajectory(true).    
+    // avionicsCpu:Connection:SendMessage(AVIONICS_CPU_STOP).
+    flightStatus:Update("LANDING").   
 }
 
-When landingBurn:TrueRadar() < 20 Then { 
+When landingBurn:TrueRadar() < 15 Then { 
+    // landingStatus:SetLandingSite(landingStatus:GetImpact()).
     landingStatus:SetLandingSite(Ship:GeoPosition).
-    landingStatus:SetUsePositionOverTrajectory(true).    
-    flightStatus:Update("LANDING").
-    Preserve. 
 }
 
 RunVerticalSpeedHold({
-        If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 300 { 
-            // Set vsTarget to -Abs(-16).
+        If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 300 {             
             Set vsSpeedTargetStage0Set to true. 
             landingSteering:SetMaxAoA(-3.5). 
         }
 
         If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 100 { 
-            Set vsTarget to -Abs(-10).
+            Set vsTarget to -10.
             Set vsSpeedTargetStage1Set to true.
-            // landingSteering:SetMaxAoA(-2.5).  
+            landingSteering:SetMaxAoA(-1.5).  
         }
 
-        If not vsSpeedTargetStage2Set and landingBurn:TrueRadar() < 15 { 
-            Set vsTarget to -Abs(-1).
+        If not vsSpeedTargetStage2Set and landingBurn:TrueRadar() < 25 { 
+            Set vsTarget to -1.
             Set vsSpeedTargetStage2Set to true.
-            landingSteering:SetMaxAoA(-1.5).  
+            // landingSteering:SetMaxAoA(-1.5).  
         }
 
 
