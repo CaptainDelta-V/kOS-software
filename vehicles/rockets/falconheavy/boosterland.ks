@@ -20,12 +20,20 @@ Parameter Params to Lexicon(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
 Parameter SkipBoostback to false.
 Parameter Debug to true.
 
-Local boosterSide to Params["boosterSide"].
+Local boosterSide to Params[KEY_BOOSTERSIDE].
+
+If Params[KEY_EXPEND_OPTION] { 
+    Clearscreen. 
+    Print "Thank you for your service".
+    Shutdown.
+}
 
 Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + boosterSide.
-Local engineTag to "MERLIN_9".
 
-Local merlinEngines to Ship:PartsTagged(engineTag)[0].
+Local partsTaggedNoCore to Ship:PartsTagged(ENGINES_MERLIN_9).
+Local partsTaggedCore to Ship:PartsTagged(ENGINES_MERLIN_9_CORE).
+
+Local merlinEngines to Choose partsTaggedCore[0] If partsTaggedCore:Length > 0 Else partsTaggedNoCore[0].
 Local gridFins to Ship:PartsTagged("GRID_FIN").
 Local engineController to EngineManager(merlinEngines, VESSEL_TYPE_FALCON_BOOSTER).
 Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
@@ -39,17 +47,22 @@ Local targetRoll to 0.
 Local landingSiteAltitude to 60.
 Local altitudePositionTarget to landingSiteAltitude.
 
-If boosterside = INDICATOR_BOOSTER_CORE { 
-    ClearScreen.
-    Print "EXPENDING BOOSTER. GOODBYE".
-    Shutdown.
-}
+// If boosterside = INDICATOR_BOOSTER_CORE { 
+//     ClearScreen.
+//     Print "EXPENDING BOOSTER. GOODBYE".
+//     Shutdown.
+// }
 
 Local avionicsCpuName to LEFT_BOOSTER_AVIONICS_CPU_NAME.
 Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
 If boosterSide = INDICATOR_BOOSTER_RIGHT { 
     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
     Set avionicsCpuName to RIGHT_BOOSTER_AVIONICS_CPU_NAME.
+}
+Else If boosterSide = INDICATOR_BOOSTER_CORE { 
+    Set landingSite to LANDING_SITES[KEY_DS_OCEAN].
+    Set avionicsCpuName to CORE_BOOSTER_AVIONICS_CPU_NAME.
+    // todo exemption for rtls F9
 }
 
 Local avionicsCpu to Processor(avionicsCpuName).
@@ -65,31 +78,31 @@ Local landingBurn to LandingBurnModel(boosterRadarOffset).
 
 Local approachSlightUndershootRefSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-200):GetLandingSite().
 
-flightStatus:AddField("TARGET", { 
+flightStatus:AddField("Target", { 
     Local site to landingStatus:GetLandingSite().
     Return site:lat + "," + site:lng.
 }).
-flightStatus:AddField("CCAT AVIONICS", { return useCCAT. }).
-flightStatus:AddField("IMPACT POS", landingStatus:GetImpact@).
-flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
-flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).
-flightStatus:AddField("ECCENTRICITY", landingStatus:Eccentricity@).
+flightStatus:AddField("CCAT Avionics", { return useCCAT. }).
+flightStatus:AddField("Impact Position", landingStatus:GetImpact@).
+flightStatus:AddField("Traj. Error (m)", landingStatus:TrajectoryErrorMeters@).
+flightStatus:AddField("Position Error (m)", landingStatus:PositionErrorMeters@).
+flightStatus:AddField("Eccentricity", landingStatus:Eccentricity@).
 
 RunFlightStatusScreen(flightStatus, 0.25).
 ResetTorque().
 
-flightStatus:AddField("TARGET AoA CAPPED", landingSteering:GetTargetAoA@).
-flightStatus:AddField("TARGET AoA RAW", landingSteering:GetTargetAoARaw@). 
-flightStatus:AddField("MAX AoA", landingSteering:GetMaxAoA@).   
-flightStatus:AddField("MIN AoA", landingSteering:GetMinAoA@). 
-flightStatus:AddFIeld("SURFACE MAG", { Return Ship:Velocity:Surface:Mag. }).
-flightStatus:AddField("ENGINE MODE", engineController:GetEngineMode@).
+flightStatus:AddField("Target AoA CAPPED", landingSteering:GetTargetAoA@).
+flightStatus:AddField("Target AoA RAW", landingSteering:GetTargetAoARaw@). 
+flightStatus:AddField("Max AoA", landingSteering:GetMaxAoA@).   
+flightStatus:AddField("Min AoA", landingSteering:GetMinAoA@). 
+flightStatus:AddFIeld("Surface Mag", { Return Ship:Velocity:Surface:Mag. }).
+flightStatus:AddField("Engine Mode", engineController:GetEngineMode@).
 flightStatus:AddField("BoosterSide", boosterSide).
-flightStatus:AddField("isCore", { return boosterSide = INDICATOR_BOOSTER_CORE. }).
-flightStatus:AddField("AVAIL THRUST", { return Ship:AvailableThrust. }).
+flightStatus:AddField("Is Core Booster", { return boosterSide = INDICATOR_BOOSTER_CORE. }).
+flightStatus:AddField("Avail ThrustT", { return Ship:AvailableThrust. }).
 flightStatus:AddField("MASS", { return Ship:Mass. }).
-flightStatus:AddField("STOP DIST.", landingBurn:GetStopDistance@).
-flightStatus:AddField("VERT SPEED", { return Ship:VerticalSpeed. }).
+flightStatus:AddField("Stop Distnace:.", landingBurn:GetStopDistance@).
+flightStatus:AddField("v/s", { return Ship:VerticalSpeed. }).
 
 flightStatus:Update("IDENTIFYING AVIONICS CPU").
 avionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + Core:Tag).

@@ -18,6 +18,13 @@ Local boosterIndicator to "UNKNOWN".
 Local flightStatus to FlightStatusModel("FALCON HEAVY SIDE BOOSTER ", "AWAITING IDENTIFICATION").
 RunFlightStatusScreen(flightStatus, 0.5).
 
+Local expend to false.
+When not Core:Messages:Empt Then { 
+    If Core:Message:Pop:Content = BOOSTER_EXPEND_SIGNAL { 
+        Set expend to true.
+    }
+}
+
 Local stageSeparation to false. 
 Until stageSeparation {
     If not Core:Messages:Empty { 
@@ -42,6 +49,7 @@ flightStatus:Update("STAGE SEPARATION").
 
 Local altBootParams to Lexicon().
 altBootParams:Add(KEY_BOOSTERSIDE, boosterIndicator).
+altBootParams:Add(KEY_EXPEND_OPTION, expend).
 SetAlternateBootFileWithParams("boosterland", altBootParams).  
 Wait 2.
 Reboot. 

@@ -15,8 +15,8 @@ RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
 
-Local coreEngine to Ship:PartsTagged("MERLIN_9_CORE")[0]. 
-Local sideBoosterEngines to Ship:PartsTagged("MERLIN_9").
+Local coreEngine to Ship:PartsTagged(ENGINES_MERLIN_9_CORE)[0]. 
+Local sideBoosterEngines to Ship:PartsTagged(ENGINES_MERLIN_9).
 Local sideBoosterTank to "None".
 Local hasSideBoosters to sideBoosterEngines:Length = 2.
 
@@ -96,6 +96,7 @@ If hasSideBoosters {
 
 Local payloadModel to PayloadModel((Choose VESSEL_TYPE_FALCON_HEAVY If hasSideBoosters Else VESSEL_TYPE_FALCON_BOOSTER)).
 
+Local expend to true.
 payloadModel:Review().
 
 GetLaunchConfirmation(flightStatus:GetTitle(), true).
@@ -190,12 +191,13 @@ Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
 upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
 flightStatus:Update("COASTING FOR UPPER SEPARATION").
 
+Local altBootParams to Lexicon().
+altBootParams:Add(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
+altBootParams:Add(KEY_EXPEND_OPTION, expend).
+SetAlternateBootFileWithParams("boosterland").  
+
 upperstageCpu:Connection:SendMessage("GO").
 
-flightStatus:Update("LANDING SEQUENCE INITIATED").
-// Local altBootParams to Lexicon().
-// altBootParams:Add(KEY_BOOSTERSIDE).
-SetAlternateBootFile("boosterland").  
 Wait 4.
 Reboot. 
 

@@ -31,8 +31,6 @@ Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 4_000.
 
 Local launchHeading to 90.
-Local targetApoapsis to 70_000. // Empty Cargo
-// Local targetApoapsis to 62_000. // Tanker
 Local targetRoll to -90.
 
 Local boosterTank to Ship:PartsTagged("BOOSTER_TANK")[0].

@@ -30,7 +30,6 @@ Function LandingStatusModel {
             Return LatLng(lat, lng).
         }
         If UseCCAT { 
-            // Throw("got here").
             If not Core:Messages:Empty { 
                 Local impactPos to Core:Messages:Pop:Content.
                 Set _mostRecentTrajectory to impactPos.                
