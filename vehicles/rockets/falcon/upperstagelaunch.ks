@@ -16,25 +16,38 @@ RUNONCEPATH("../../../common/infos").
 RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/launch/ascentModel").
+RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/booting/bootUtils").
 
 ClearScreen. 
 
-Local flightStatus to FlightStatusModel("FALCON UPPER STAGE LAUNCH CONTROL","AWAITING HANDOFF").
-// flightStatus:AddField().
+Local receivedPayloadMass to false.
+Local flightStatus to FlightStatusModel("FALCON UPPER STAGE LAUNCH CONTROL","AWAITING PAYLOAD MASS").
 
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus, 0.5). 
 
+Local payload to PayloadModel(flightStatus, VESSEL_TYPE_FALCON_HEAVY).  
 
 When not Core:Messages:Empty Then { 
     Local message to Core:Messages:Pop:Content.
-   
-    flightStatus:Update("RECEIVED HANDOFF").
-    Wait 1. 
-    flightStatus:Update("REBOOTING FOR STAGING").
-    Wait 6.
-    SetAlternateBootFile("upperstageascent").
-    Reboot.
+
+    If message = FALCON_UPPERSTAGE_HANDOFF { 
+
+        flightStatus:Update("RECIEVED HANDOFF. REBOOTING FOR STAGING").    
+        SetAlternateBootFile("upperstageascent").
+        Reboot.
+    }       
+    Else { 
+        Local payloadParams to message.
+        Local massRecd to payloadParams[KEY_PAYLOAD_MASS].
+        flightStatus:AddField("Mass reced was", massRecd).
+        payload:SetPayloadMass(massRecd).
+        payload:WritePayloadConfigToDisk().
+        flightStatus:Update("RECEIVED PAYLOAD MASS").
+        payload:AddFlightStatus().        
+    }
+
+    Preserve. 
 }
 
 Wait Until False.

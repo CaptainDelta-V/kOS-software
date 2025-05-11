@@ -35,6 +35,7 @@ function CCAT {
                     interpolateMethod is "linear",
                     profileName is "Falcon Heavy Side Booster",
                     bodyName is ship:body, 
+                    onBeforeTrajectoryCalculated to { },
                     onTrajectoryCalculated to { Parameter traj. }.
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -666,6 +667,7 @@ function CCAT {
         // Call this function to perform continuous iterations
 
         until masterManager["masterSwitch"] {
+            onBeforeTrajectoryCalculated().
             for FX in masterFunctionManager:values FX().
             onTrajectoryCalculated(getFinalPosition():Geoposition).
             // Print "pos: " + getFinalPosition():Geoposition.

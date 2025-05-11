@@ -7,7 +7,12 @@ RUNONCEPATH("0:common/booting/bootUtils").
 Parameter DefaultBootDirectory.
 Parameter DefaultBootFilename.
 
-Print "UPDATING SOFTWARE For: " + DefaultBootDirectory + " . . . ".
+Local bootLogFileName to "0:logs/bootlog_" + DefaultBootFilename + "_" + Ship:Name + ".txt".
+DeletePath(bootLogFileName).
+
+Local bootDescription to "UPDATING SOFTWARE For: " + DefaultBootDirectory + " . . . ".
+Log bootDescription to bootLogFileName.
+Print bootDescription.
 
 SWITCH to 1.
 DeletePath("common").
@@ -16,8 +21,9 @@ DeletePath("uipanels").
 SWITCH to 0. 
 CopyPath("common", "1:common").
 CopyPath("uipanels", "1:uipanels").
+
 CopyPath(DefaultBootDirectory, "1:" + DefaultBootDirectory).
 SWITCH to 1.
 CD(DefaultBootDirectory).
 
-RunBootFile(DefaultBootFilename).
+RunBootFile(DefaultBootFilename, bootLogFileName).

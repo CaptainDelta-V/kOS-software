@@ -10,6 +10,7 @@ RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/launch/launchProfileModel").
+RUNONCEPATH("../../../common/launch/ascentModel").
 RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
@@ -60,7 +61,6 @@ Local targetApoapsis to 60_000.
 Local targetRoll to -180.
 Local sideBoosterSeparationAtFuelAmount to 2400.
 Local upperstageSeparationAtFuelAmount to 1000. 
-Local upperstageSeparationAtFuelAmount to 1. 
 
 Local coreThrustLimit to 100.
 
@@ -69,11 +69,11 @@ flightStatus:AddField("CONFIGURATION", { Return Choose "HEAVY" If hasSideBooster
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
+flightStatus:AddField("Core Thrust Limit", { Return coreThrustLimit. }). 
 
 If hasSideBoosters { 
     
     Set coreThrustLimit to 75. 
-    flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
     coreEngineController:SetThrustLimit(coreThrustLimit).
 
     flightStatus:Update("NOTIFYING SIDE BOOSTERS").
@@ -82,7 +82,6 @@ If hasSideBoosters {
 }
 Else { 
     Set coreThrustLimit to 100.
-    flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
     coreEngineController:SetThrustLimit(coreThrustLimit).
     coreEngineController:SetGimbalLimit(100).
 }
@@ -94,24 +93,37 @@ If hasSideBoosters {
     rightBoosterAvionicsCpu:Connection:SendMessage(AVIONICS_CPU_ASSIGN + "|" + RIGHT_BOOSTER_CPU_NAME).
 }
 
-Local payloadModel to PayloadModel((Choose VESSEL_TYPE_FALCON_HEAVY If hasSideBoosters Else VESSEL_TYPE_FALCON_BOOSTER)).
-
+Local payload to PayloadModel(flightStatus, (Choose VESSEL_TYPE_FALCON_HEAVY If hasSideBoosters Else VESSEL_TYPE_FALCON_BOOSTER)).
 Local expend to true.
-payloadModel:Review().
+payload:CalculatePayloadMass().
+payload:Review().
+payload:WritePayloadConfigToDisk().
+payload:AddFlightStatus().
+upperstageCpu:Connection:SendMessage(payload:GetPayloadConfig()).
+
+Local maxAscentPitch to 15.
+Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, maxAscentPitch).
+Local minAscentPitch to ascent:GetMinAscentPitch().
+flightStatus:AddField("Min Ascent Pitch", minAscentPitch).
+
+// Local maxPitchOverAdjust to 90 - (maxAscentPitch - minAscentPitch).
+// flightStatus:AddField("Max Pitch Over Adjust", maxPitchOverAdjust).
+launchProfileSecondary:SetMaxPitchOver(90 - minAscentPitch).
 
 GetLaunchConfirmation(flightStatus:GetTitle(), true).
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus, 0.3).
 
 flightStatus:Update("LAUNCH SEQUENCE INITIATED").
+
+Local altBootParams to Lexicon().
+altBootParams:Add(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
+altBootParams:Add(KEY_EXPEND_OPTION, expend).
+SetAlternateBootFileWithParams("boosterland", altBootParams).  
 
 Lock PitchTarget to launchProfile:PitchTarget().
 When Altitude > launchProfileTransitionAltitude Then { 
     Set launchProfile to launchProfileSecondary.
     flightStatus:Update("SECONDARY PROFILE").
-}
-
-For nozzle in coreRcsUnits { 
-    nozzle:GetModule("ModuleRCSFX"):DoAction("toggle rcs thrust", TRUE).
 }
 
 // Lock Steering to Heading(launchHeading, PitchTarget - 2, 0).
@@ -129,8 +141,7 @@ Lock Steering to Heading(launchHeading, PitchTarget, targetRoll).
 Wait Until Altitude > 6_000. 
 
 If hasSideBoosters { 
-    Set coreThrustLimit to 50.
-    flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
+    Set coreThrustLimit to 50.    
     coreEngineController:SetThrustLimit(coreThrustLimit).
 
     Local leftBoosterLiquidFuelResource to FindInList(sideBoosterTank:Resources, { Parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
@@ -154,22 +165,20 @@ If hasSideBoosters {
     Stage.
 
     Set coreThrustLimit to 100.
-    flightStatus:AddField("CORE THRUST LIMIT", coreThrustLimit). 
     coreEngineController:SetThrustLimit(coreThrustLimit).
     coreEngineController:SetGimbalLimit(100).
 }
 
+RCS OFF.
 Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
+Lock Steering to Heading(launchHeading, PitchTarget, targetRoll).
 
-Lock Steering to Heading(launchHeading, 5, targetRoll).
-
-
-When Ship:Altitude > 52_000 Then { 
+When Ship:Altitude > 42_000 Then { 
     flightStatus:Update("Fairing Jettison").
     AG4 ON.
 }
 
-When Ship:Altitude > 53_000 Then { 
+When Ship:Altitude > 43_000 Then { 
     flightStatus:Update("AWAITING SEPARATION").
 }
 
@@ -182,21 +191,10 @@ Until upperstageSeparation {
     Wait 0.01.
 }
 
+coreEngineController:SetThrustLimit(0).
+Wait 0.
 
-For nozzle in coreRcsUnits { 
-    nozzle:GetModule("ModuleRCSFX"):DoAction("toggle rcs thrust", TRUE).
-}
-
-Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
-upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
-flightStatus:Update("COASTING FOR UPPER SEPARATION").
-
-Local altBootParams to Lexicon().
-altBootParams:Add(KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE).
-altBootParams:Add(KEY_EXPEND_OPTION, expend).
-SetAlternateBootFileWithParams("boosterland").  
-
-upperstageCpu:Connection:SendMessage("GO").
+upperstageCpu:Connection:SendMessage(FALCON_UPPERSTAGE_HANDOFF).
 
 Wait 4.
 Reboot. 

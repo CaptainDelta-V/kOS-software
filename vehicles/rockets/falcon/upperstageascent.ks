@@ -16,6 +16,7 @@ RUNONCEPATH("../../../common/infos").
 RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/launch/ascentModel").
+RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/booting/bootUtils").
 
 ClearScreen. 
@@ -23,15 +24,21 @@ ClearScreen.
 Local RequiredApoapsisEtaMargin to 60 * 10.
 Set Ship:Name to ACTIVE_FALCON_UPPER_VESSEL_NAME.
 
-Local ascent to AscentModel().
 Local flightStatus to FlightStatusModel("FALCON UPPER STAGE ASCENT CONTROL","UNKNOWN").
 
-flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 
-// Local targetPitch to 15.5.
-Local targetPitch to 5.
+Local payload to PayloadModel(flightStatus, VESSEL_TYPE_FALCON_HEAVY).  
+payload:ReadPayloadConfigFromDisk().
+payload:AddFlightStatus().
+
+Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, 15).
+Local ascentPitch to ascent:GetMinAscentPitch().
+flightStatus:AddField("Ascent Pitch", Min(Max(ascentPitch, 0), 45)).
+flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
+
+Local targetPitch to ascentPitch.
 Local targetRoll to 180.
 
 When Apoapsis > 85_100 Then { 
@@ -42,12 +49,15 @@ When Apoapsis > 85_100 Then {
 //     Set targetPitch to -5.
 // }
 
-RunFlightStatusScreen(flightStatus, 0.75).
+RunFlightStatusScreen(flightStatus, 0.3).
 
 If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {    
     flightStatus:Update("ORBITING").
 }
 Else { 
+    Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
+    upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
+    flightStatus:Update("UPPER SEPARATION").
     Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]:GetModule("ModuleEnginesFX"):DoEvent("activate engine").
 
     Lock throttle to 0.2.
@@ -86,6 +96,7 @@ Function AscendToOrbit {
     When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
+        Set Core:BootFilename to "".
         
         Wait 1.
         Shutdown.                           

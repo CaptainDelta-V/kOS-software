@@ -1,23 +1,53 @@
 RUNONCEPATH("0:common/constants").
 RUNONCEPATH("0:common/utils/colorPrintUtils").
 
-Global PAYLOAD_CONFIG_FILEPATH to "1:payloadParam.json".
+Global PAYLOAD_CONFIG_FILEPATH to "1:payloadParams.json".
 Global KEY_PAYLOAD_MASS to "PayloadMass".
 
 Function PayloadModel { 
+    Parameter flightStatus.
     Parameter vesselType.
 
     Local _payloadParams to Lexicon(
         KEY_PAYLOAD_MASS, -1
     ).
+
+    Function AddFlightStatus { 
+        flightStatus:AddField("Payload Mass", PayloadMass() + "t").
+        flightStatus:AddField("Payload Capacity", PayloadCapacity() + "t").
+        flightStatus:AddField("Payload Utilization", Round(100 * PayloadPercent(), 2) + "%").
+    }
+
+    Function CalculatePayloadMass { 
+        If vesselType = VESSEL_TYPE_STARSHIP { 
+            Set _payloadParams[KEY_PAYLOAD_MASS] to 0.
+        }
+        If vesselType = VESSEL_TYPE_FALCON_HEAVY {     
+            Set _payloadParams[KEY_PAYLOAD_MASS] to Ship:Mass - 1451.42.
+        }    
+
+        If _payloadParams[KEY_PAYLOAD_MASS] < 0 { 
+            Throw("PAYLOAD MASS IS NEGATIVE").
+        }    
+    }
     
     Function PayloadMass { 
-        If vesselType = VESSEL_TYPE_STARSHIP { 
-            Return 0.
+        If _payloadParams[KEY_PAYLOAD_MASS] < 0 {
+            Throw("PAYLOAD MASS NOT CALCULATED").
         }
+        Return _payloadParams[KEY_PAYLOAD_MASS].        
+    }
+
+    Function PayloadCapacity { 
         If vesselType = VESSEL_TYPE_FALCON_HEAVY { 
-            Return Ship:Mass - 1451.42.
+            Return 28.
         }
+
+        Throw("Not Implemented").
+    }
+
+    Function PayloadPercent { 
+        Return PayloadMass() / PayloadCapacity().
     }
 
     Function SideBoosterRTLSPossible { 
@@ -54,36 +84,48 @@ Function PayloadModel {
         }
     }
 
-    Function WaitForPayloadMassMessage { 
-
-
-        // When not 
-        // WriteToVessel
+    Function SetPayloadMass { 
+        Parameter pm.
+        Set _payloadParams[KEY_PAYLOAD_MASS] to pm.
     }
 
-    Function WritePayloadConfig { 
-                
-        Local payloadParams to Lexicon(
+    Function GetPayloadConfig { 
+        Return Lexicon(
             KEY_PAYLOAD_MASS, PayloadMass()
         ).
-        WriteJson(payloadParams).
     }
 
-    Function ReadPayloadConfig { 
+    Function WritePayloadConfigToDisk { 
+        WriteJson(GetPayloadConfig(), PAYLOAD_CONFIG_FILEPATH).
+    }
 
+    Function ReadPayloadConfigFromDisk { 
         If Exists(PAYLOAD_CONFIG_FILEPATH) { 
             Set _payloadParams to ReadJson(PAYLOAD_CONFIG_FILEPATH).
         }
+        Else { 
+            Throw("PAYLOAD CONFIG NOT ON DISK WTF").
+        }
     }
 
-    Function HasPayloadConfig { 
+    Function HasPayloadConfigOnDisk { 
+        ReadPayloadConfigFromDisk().
         return _payloadParams[KEY_PAYLOAD_MASS] > -1.
     }
 
     Return Lexicon (
+        "AddFlightStatus", AddFlightStatus@,
+        "CalculatePayloadMass", CalculatePayloadMass@,
         "PayloadMass", PayloadMass@,
+        "PayloadCapacity", PayloadCapacity@,
+        "PayloadPercent", PayloadPercent@,
         "SideBoosterRTLSPossible", SideBoosterRTLSPossible@, 
         "CoreBoosterPreservationPossible", CoreBoosterPreservationPossible@,
-        "Review", Review@
+        "Review", Review@,
+        "SetPayloadMass", SetPayloadMass@,
+        "GetPayloadConfig", GetPayloadConfig@, 
+        "WritePayloadConfigToDisk", WritePayloadConfigToDisk@, 
+        "ReadPayloadConfigFromDisk", ReadPayloadConfigFromDisk@,        
+        "HasPayloadConfigOnDisk", HasPayloadConfigOnDisk@
     ).
 }

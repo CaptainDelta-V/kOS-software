@@ -4,7 +4,6 @@ RUNPATH("0:common/flightStatus/flightStatusModel").
 RUNPATH("0:common/landing/ccatManager").
 RUNPATH("0:common/constants").
 
-
 Local flightStatus to FlightStatusModel("AVIONICS SYSTEM", "AWAITING INITIATION").
 Local ccatController to CCATManager().
 
@@ -19,6 +18,7 @@ Until startCCAT {
         Local message to Core:Messages:Pop:Content.
         If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
             ccatController:SetTargetCpuName(message:Split("|")[1]).        
+            flightStatus:SetTitle(AVIONICS_CPU_ASSIGN).
         }
         Else If message = AVIONICS_CPU_RUN {     
             Set startCCAT to true.
@@ -28,14 +28,8 @@ Until startCCAT {
         }
     }
 
-    Wait 0.5.
+    Wait 0.
 }
-
-// When not Core:Messages:Empty Then { 
-//     Local message to Core:Messages:Pop:Content.
-
- 
-// }
 
 StopRunFlightStatusScreen().
 Print "CCAT Starting . . . ".
@@ -47,13 +41,23 @@ Local comparisonDecimals to 5.
 
 // Shutdown.
 
-ccatController:RunCCAT(true, dt, { 
+Local onBeforeTrajectoryCalculated to { 
+    ccatController:LogMessage("Iteration start").
+}.
+
+Local onTrajectoryCalculated to { 
     Parameter traj.
+
+    ccatController:LogMessage("Iteration end").
+
     ClearScreen.
     Print "==== SOLVER ACTIVE ====".
     Print "TRAJ: " + traj.
-    Print "dT: " + dt.
+    Print "dT: " + dt.    
+    ccatController:LogMessage("Send traj start").
     targetCpu:Connection:SendMessage(traj).    
+    ccatController:LogMessage("Send traj end, wait 1 second").
+    Wait 1.
 
     // Local messageBody to Lexicon().
     // messageBody:Add("impact", traj).
@@ -70,7 +74,10 @@ ccatController:RunCCAT(true, dt, {
     //     Else { 
     //         // print traj.
     //     } 
-    
-}):continuousIteration().
+}.
+
+ccatController:RunCCAT(true, dt, 
+    onBeforeTrajectoryCalculated@, onTrajectoryCalculated@)
+        :continuousIteration().
 
 Wait Until False. 

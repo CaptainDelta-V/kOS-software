@@ -6,6 +6,7 @@ Function LaunchProfileModel {
     Parameter VerticalShift.
     Parameter MaxPitchOver.
 
+    Local _maxPitchOver to MaxPitchOver.
     Lock _altitudeScaled to Ship:Altitude / 1_000.
 
     Function AltitudeScaled { 
@@ -14,16 +15,27 @@ Function LaunchProfileModel {
 
     Function PitchTarget {                        
         Local result to (Rate * (_altitudeScaled - HorizontalShift)) + VerticalShift.
-        Return 90 - Min(MaxPitchOver, Max(result, 0)).
+        Return 90 - Min(_maxPitchOver, Max(result, 0)).
     }
 
     Function DynamicPressue { 
         Return Ship:Q.
     }
 
-    Return Lexicon( 
+    Function SetMaxPitchOver { 
+        Parameter val.
+        Set _maxPitchOver to val.
+    }
+
+    Function GetMaxPitchOver { 
+        Return _maxPitchOver.
+    }
+
+    Return Lexicon(     
         "AltitudeScaled", AltitudeScaled@,
         "PitchTarget", PitchTarget@,
-        "DynamicPressue", DynamicPressue@
+        "DynamicPressue", DynamicPressue@,
+        "SetMaxPitchOver", SetMaxPitchOver@, 
+        "GetMaxPitchOver", GetMaxPitchOver@
     ).
 }

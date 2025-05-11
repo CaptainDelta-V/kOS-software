@@ -72,7 +72,7 @@ Log Ship:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged("SERVO_0")[0].
 
-// DescribePartItemToFile(part, LogFilePath).
+DescribePartItemToFile(part, LogFilePath).
 
 
 

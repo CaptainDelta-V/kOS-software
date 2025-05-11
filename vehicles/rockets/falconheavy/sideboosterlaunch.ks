@@ -19,23 +19,24 @@ Local flightStatus to FlightStatusModel("FALCON HEAVY SIDE BOOSTER ", "AWAITING 
 RunFlightStatusScreen(flightStatus, 0.5).
 
 Local expend to false.
-When not Core:Messages:Empt Then { 
-    If Core:Message:Pop:Content = BOOSTER_EXPEND_SIGNAL { 
-        Set expend to true.
-    }
-}
 
 Local stageSeparation to false. 
 Until stageSeparation {
     If not Core:Messages:Empty { 
-        Local content to Core:Messages:Pop:Content.
+        Local content to Core:Messages:Peek:Content.
         If content = SIDE_BOOSTER_LANDING_INIT_MESSAGE { 
             Set stageSeparation to true. 
+            Core:Messages:Pop.
         }
-        Else If content = INDICATOR_BOOSTER_LEFT or content = INDICATOR_BOOSTER_RIGHT { 
-             
+        Else If content = INDICATOR_BOOSTER_LEFT or content = INDICATOR_BOOSTER_RIGHT {         
             flightStatus:Update("ASSIGNED AS " + content + " BOOSTER").     
             Set boosterIndicator to content.
+            Core:Messages:Pop.
+        }
+        Else If Core:Messages:Peek:Content = BOOSTER_EXPEND_SIGNAL { 
+            Set expend to true.
+            Set receivedExpendMessage to true.
+            Core:Messages:Pop.
         }    
         Else { 
             flightStatus:Update("RECEIVED INVALID MESSAGE: " + content).

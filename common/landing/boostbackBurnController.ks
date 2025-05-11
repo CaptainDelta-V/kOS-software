@@ -40,7 +40,6 @@ Function BoostbackBurnController {
             Local minBoostbackDuration to 8. 
             Local minTimeEnd to Time:Seconds + minBoostbackDuration.
             
-            
             // Go until error increases or ship goes below abort altitude
             Local previousErrorMeters to landingStatus:TrajectoryErrorMeters() + 1.
             Until false {        

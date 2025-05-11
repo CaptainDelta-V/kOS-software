@@ -76,6 +76,8 @@ Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, f
 Local landingSteering to LandingSteeringModel(landingStatus).
 Local landingBurn to LandingBurnModel(boosterRadarOffset).
 
+flightStatus:AddField("TRAJECTORY DIST PRE BOOSTBACK", landingStatus:TrajectoryErrorMeters(), true).
+
 Local approachSlightUndershootRefSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-200):GetLandingSite().
 
 flightStatus:AddField("Target", { 

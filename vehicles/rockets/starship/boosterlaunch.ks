@@ -10,6 +10,7 @@ RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/launch/launchProfileModel").
+RUNONCEPATH("../../../common/launch/ascentModel"). 
 RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
