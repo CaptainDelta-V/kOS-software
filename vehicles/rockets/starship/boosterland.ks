@@ -403,8 +403,8 @@ Until verticalSpeedHoldStart {
         If not traverseCoastVsSet and traverseCoastStart { 
             Set traverseCoastVsSet to true.            
             // Set vsTarget to -16.
-            landingSteering:SetMaxAoA(-2.5).
-            flightStatus:Update("AoA -2.5").            
+            // landingSteering:SetMaxAoA(-2.5).
+            // flightStatus:Update("AoA -2.5").            
         }        
         
         If not actualLandingTargetSet and landingBurn:TrueRadar() < 108 { 
@@ -423,7 +423,7 @@ Until verticalSpeedHoldStart {
         If not intermidVsSet and landingBurn:TrueRadar() < 20 { 
             Set vsTarget to -2.5.
             Set intermidVsSet to true.
-            landingSteering:SetMaxAoA(-1).
+            // landingSteering:SetMaxAoA(-1).
             flightStatus:Update("INTERMID VS SET").
         }
 

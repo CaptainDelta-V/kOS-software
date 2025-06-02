@@ -4,6 +4,8 @@ RUNPATH("0:common/flightStatus/flightStatusModel").
 RUNPATH("0:common/landing/ccatManager").
 RUNPATH("0:common/constants").
 
+ClearScreen.
+
 Local flightStatus to FlightStatusModel("AVIONICS SYSTEM", "AWAITING INITIATION").
 Local ccatController to CCATManager().
 
@@ -12,13 +14,23 @@ flightStatus:AddField("TARGET CPU", ccatController:GetTargetCpuName@).
 
 RunFlightStatusScreen(flightStatus, 0.25).
 
+
+// ccatController:SetTargetCpuName(CORE_BOOSTER_CPU_NAME).
+
+ccatController:LogMessage("init").
+
 Local startCCAT to false. 
 Until startCCAT { 
     If not Core:Messages:Empty { 
         Local message to Core:Messages:Pop:Content.
         If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
-            ccatController:SetTargetCpuName(message:Split("|")[1]).        
-            flightStatus:SetTitle(AVIONICS_CPU_ASSIGN).
+            Local targetCpuName to message:Split("|")[1].
+            ccatController:SetTargetCpuName(targetCpuName).  
+            flightStatus:SetTitle("AVIONICS | " + targetCpuName).
+
+            If targetCpuName:Contains("CORE") { 
+                Shutdown.
+            }
         }
         Else If message = AVIONICS_CPU_RUN {     
             Set startCCAT to true.
@@ -27,6 +39,10 @@ Until startCCAT {
             Shutdown.
         }
     }
+
+    // If Alt:Radar > 200 { 
+    //     Set startCCAT to true.
+    // }
 
     Wait 0.
 }
@@ -41,28 +57,27 @@ Local comparisonDecimals to 5.
 
 // Shutdown.
 
-Local onBeforeTrajectoryCalculated to { 
+Function onBeforeTrajectoryCalculated { 
     ccatController:LogMessage("Iteration start").
 }.
 
-Local onTrajectoryCalculated to { 
+Function onTrajectoryCalculated  { 
     Parameter traj.
 
-    ccatController:LogMessage("Iteration end").
+    // ccatController:LogMessage("Iteration end").
 
     ClearScreen.
     Print "==== SOLVER ACTIVE ====".
     Print "TRAJ: " + traj.
     Print "dT: " + dt.    
-    ccatController:LogMessage("Send traj start").
+    
     targetCpu:Connection:SendMessage(traj).    
-    ccatController:LogMessage("Send traj end, wait 1 second").
-    Wait 1.
+    Wait 0.001.
 
-    // Local messageBody to Lexicon().
-    // messageBody:Add("impact", traj).
-    // Local trajLat to Round(traj:Lat, comparisonDecimals).
-    // Local trajLng to Round(traj:Lng, comparisonDecimals).
+    Local messageBody to Lexicon().
+    messageBody:Add("impact", traj).
+    Local trajLat to Round(traj:Lat, comparisonDecimals).
+    Local trajLng to Round(traj:Lng, comparisonDecimals).
 
     // Only message when changed
     // If (not Round(traj:Lat, comparisonDecimals) = Round(prevTraj:Lng, comparisonDecimals)) 
@@ -79,5 +94,9 @@ Local onTrajectoryCalculated to {
 ccatController:RunCCAT(true, dt, 
     onBeforeTrajectoryCalculated@, onTrajectoryCalculated@)
         :continuousIteration().
+    
+
+//     Wait 5.
+// }
 
 Wait Until False. 

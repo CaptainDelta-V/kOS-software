@@ -1,5 +1,6 @@
 Declare Global ALTERNATE_BOOT_INDICATOR_FILE to "1:boot.txt".
 Declare Global BOOT_PARAMS_FILENAME to "1:params.json".
+Declare Global GLOB_BOOT_LOG TO "0:logs/global_boot_log.txt".
 
 Function CleanUpBootMetaFiles { 
     DeletePath(ALTERNATE_BOOT_INDICATOR_FILE).
@@ -12,6 +13,8 @@ Global Function SetAlternateBootFile {
 
     CleanUpBootMetaFiles(). 
 
+    Log Core:Tag + " boot file set to " + metaBootFile to GLOB_BOOT_LOG.
+
     Local indicatorFileContent to metaBootFile.
     Open(ALTERNATE_BOOT_INDICATOR_FILE):Write(indicatorFileContent).    
 }
@@ -21,6 +24,8 @@ Global Function SetAlternateBootFileWithParams {
     Parameter paramsObject.
 
     CleanUpBootMetaFiles().
+
+    Log Core:Tag + " boot file set to " + metaBootFile + " params: " + paramsObject to GLOB_BOOT_LOG.
 
     Local indicatorFileContent to metaBootFile.
     Open(ALTERNATE_BOOT_INDICATOR_FILE):Write(indicatorFileContent).    

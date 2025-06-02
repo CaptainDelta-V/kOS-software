@@ -1,6 +1,6 @@
 
-RUNONCEPATH("0:rsvp/main").
-RUNONCEPATH("0:rsvp/transfer").
+// RUNONCEPATH("0:rsvp/main").
+// RUNONCEPATH("0:rsvp/transfer").
 
 
 Function RendezvousModel { 
@@ -82,38 +82,42 @@ Function RendezvousModel {
         Local momentumVectTarget to VCRS(positionTarget, Target:Velocity:Orbit).
 
         // Debug
-        //  Local momentumVectVesselArrow to VecDraw(
-        //     V(0,0,0),
-        //     V(0,0,0),
-        //     RGB(0,0,1),
-        //     "momentumVessel",
-        //     1.0,
-        //     true,
-        //     0.1,
-        //     true,
-        //     true
-        // ).
-        // Set momentumVectVesselArrow:StartUpdater to { Return Body:Position. }.
-        // Set momentumVectVesselArrow:VecUpdater to { Return momentumVectTarget. }.
-        // Local momentumVectVesselArrow to VecDraw(body:position, momentumVectVessel, RGB(1, 1, 1), "momentumVectVessel").
-        // Local momentumVectTargetArr to VecDraw(body:position, momentumVectTarget, RGB(1, 1, 1), "momentumVectTarget").
+        Local momentumVectVesselArrow to VecDraw(
+            V(0,0,0),
+            V(0,0,0),
+            RGB(1,1,1),
+            "momentumVessel",
+            1.0,
+            true,
+            0.1,
+            true,
+            true
+        ).
+
+        Set momentumVectVesselArrow:StartUpdater to { Return Body:Position. }.
+        Set momentumVectVesselArrow:VecUpdater to { Return momentumVectTarget. }.
+
+        Local planetToShipArrow to VecDraw(
+            V(0,0,0),
+            V(0,0,0),
+            RGB(1,1,0), 
+            "planetToShip", 
+            1.0,
+            true, 
+            0.1, 
+            true, 
+            true
+        ).
+
+        Set planetToShipArrow:StartUpdater to { Return Body:Position. }.
+        Set planetToShipArrow:VecUpdater to { Return Ship:Position. }.
 
         Local relativeInclination to VANG(momentumVectVessel, momentumVectTarget).
         flightStatus:AddField("REL. INC.", relativeInclination).
         Local ascDscNodeVect to VCRS(momentumVectVessel, momentumVectTarget).
 
-
-        // Debug
-        // Local ascNodeArrow to vecdraw(body:position, ascDscNodeVect, RGB(1, 1, 1), "ascNode").
-
         Local angleToLAN to vang(positionVessel, ascDscNodeVect).
-        flightStatus:AddField("ANGLE TO LAN", angleToLAN).
-
-        // Local angDiff to vang(pf - body:position, vAN).
-        // Local pf to positionat(ship, time:seconds + toff).
-        // Local tf to positionat(target, time:seconds + toff).
-
-        // Ship:Orbit:trueanomaly
+        flightStatus:AddField("ANGLE TO LAN", { Return angleToLAN. }).
     }
 
     // Function ClosestApproach { 
@@ -304,6 +308,7 @@ Function RendezvousModel {
     Return Lexicon(
         "TimeToANDN", TimeToANDN@,
         // "GetInfo", GetInfo@, 
+        "GetInfo", GetInfo@,
         "ClosestApproach", ClosestApproach@, 
         "CheckClosestApproach", CheckClosestApproach@
     ).

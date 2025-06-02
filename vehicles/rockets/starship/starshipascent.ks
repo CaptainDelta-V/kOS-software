@@ -1,27 +1,42 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
-RUNONCEPATH("../../../common/infos").
-RUNONCEPATH("../../../common/engineManager").
-RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
-RUNONCEPATH("../../../common/control").
-RUNONCEPATH("../../../common/nav").
-RUNONCEPATH("../../../common/launch/ascentModel").
-RUNONCEPATH("../../../common/booting/bootUtils").
-RUNONCEPATH("../../../common/flight/upperAscent").
+RUNONCEPATH("0:vehicles/rockets/starship/constants").
+RUNONCEPATH("0:common/infos").
+RUNONCEPATH("0:common/engineManager").
+RUNONCEPATH("0:common/flightStatus/flightStatusModel").
+RUNONCEPATH("0:common/control").
+RUNONCEPATH("0:common/nav").
+RUNONCEPATH("0:common/launch/ascentModel").
+RUNONCEPATH("0:common/booting/bootUtils").
+RUNONCEPATH("0:common/launch/payloadModel").
+RUNONCEPATH("0:common/flight/upperAscent").
 
-// ResetTorque().
-// Shutdown.
+Parameter Params to Lexicon(
+    KEY_LAUNCH_HEADING, 90,
+    KEY_VESSEL_TYPE, VESSEL_TYPE_STARSHIP
+).
+
 ClearScreen.
 ClearVecDraws().
+ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 60 * 4.
+Local RequiredApoapsisEtaMargin to 60 * 3.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
-Local ascent to AscentModel().
+Local vesselType to Params[KEY_VESSEL_TYPE].
 Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNOWN").
 
-flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
+// Local payload to PayloadModel(flightStatus, vesselType).  
+// payload:ReadPayloadConfigFromDisk().
+// payload:AddFlightStatus().
+
+// Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, 35).
+// Local ascentPitch to ascent:GetMinAscentPitch().
+
+// Local ascent to AscentModel().
+
+// flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
+flightStatus:AddField("ETA APOAPSIS", { Return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
 Local targetPitch to 15.5.
@@ -81,7 +96,8 @@ Function AscendToOrbit {
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
 
-    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin  Then {         
+    //ascent:TimeToApoapsis()
+    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin  Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
         

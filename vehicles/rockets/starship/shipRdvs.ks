@@ -1,16 +1,16 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
-RUNONCEPATH("constants").
-RUNONCEPATH("../../../common/landing/sites").
-RUNONCEPATH("../../../common/infos").
-RUNONCEPATH("../../../common/engineManager").
-RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
-RUNONCEPATH("../../../common/control").
-RUNONCEPATH("../../../common/launch/utils").
-RUNONCEPATH("../../../common/nav").
-RUNONCEPATH("../../../common/booting/bootUtils").
-RUNONCEPATH("../../../common/orbit/hohmannTransferController").
-RUNONCEPATH("../../../common/orbit/rendezvousModel").
+RUNONCEPATH("0:common/constants").
+RUNONCEPATH("0:common/landing/sites").
+RUNONCEPATH("0:common/infos").
+RUNONCEPATH("0:common/engineManager").
+RUNONCEPATH("0:common/flightStatus/flightStatusModel").
+RUNONCEPATH("0:common/control").
+RUNONCEPATH("0:common/launch/utils").
+RUNONCEPATH("0:common/nav").
+RUNONCEPATH("0:common/booting/bootUtils").
+RUNONCEPATH("0:common/orbit/hohmannTransferController").
+RUNONCEPATH("0:common/orbit/rendezvousModel").
 
 
 ClearScreen.
@@ -26,7 +26,11 @@ RunFlightStatusScreen(flightStatus, 0.2).
 
 Local rdvsModel to RendezvousModel(flightStatus).
 
-rdvsModel:CheckClosestApproach().
+rdvsModel:GetInfo().
+// rdvsModel:CheckClosestApproach().
+
+
+
 // Until false { 
 //     // rdvsModel:TimeToANDN().
 //     // rdvsModel:GetInfo().

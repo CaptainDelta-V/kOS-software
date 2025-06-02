@@ -13,8 +13,9 @@ Function PayloadModel {
     ).
 
     Function AddFlightStatus { 
-        flightStatus:AddField("Payload Mass", PayloadMass() + "t").
-        flightStatus:AddField("Payload Capacity", PayloadCapacity() + "t").
+        flightStatus:AddField("Vessel Type", vesselType).
+        flightStatus:AddField("Payload Mass", Round(PayloadMass(), 2) + "t").
+        flightStatus:AddField("Payload Capacity", Round(PayloadCapacity(), 2) + "t").
         flightStatus:AddField("Payload Utilization", Round(100 * PayloadPercent(), 2) + "%").
     }
 
@@ -25,9 +26,12 @@ Function PayloadModel {
         If vesselType = VESSEL_TYPE_FALCON_HEAVY {     
             Set _payloadParams[KEY_PAYLOAD_MASS] to Ship:Mass - 1451.42.
         }    
+        If vesselType = VESSEL_TYPE_FALCON_9 { 
+            Set _payloadParams[KEY_PAYLOAD_MASS] TO Ship:Mass -  1173.345.
+        }
 
         If _payloadParams[KEY_PAYLOAD_MASS] < 0 { 
-            Throw("PAYLOAD MASS IS NEGATIVE").
+            Throw("PAYLOAD MASS: " + _payloadParams[KEY_PAYLOAD_MASS] +  "t IS NEGATIVE").
         }    
     }
     
@@ -42,6 +46,9 @@ Function PayloadModel {
         If vesselType = VESSEL_TYPE_FALCON_HEAVY { 
             Return 28.
         }
+        If vesselType = VESSEL_TYPE_FALCON_9 { 
+            Return 14.
+        }
 
         Throw("Not Implemented").
     }
@@ -52,12 +59,18 @@ Function PayloadModel {
 
     Function SideBoosterRTLSPossible { 
         // If vesselType = VESSLE
+        If vesselType = VESSEL_TYPE_FALCON_HEAVY { 
+            Return PayloadMass() < 19.
+        }
         Return true. 
     }
 
     Function CoreBoosterPreservationPossible { 
 
         // Return vesselType = VESSEL_TYPE_STARSHIP.
+        // If 
+        // FH can do 16.38t core recovery with side booster recovery
+        
         Return true.    
     }
 
@@ -65,10 +78,10 @@ Function PayloadModel {
         ClearScreen.
         Print "==== PAYLOAD REVIEW ====".
 
-        Print "Payload Mass: " + TextColor(PayloadMass() + "t", COLOR_WHITE).
-        Print "Core Preservation Possible: " + (Choose TextColorGreen("POSSIBLE") If CoreBoosterPreservationPossible() Else TextColorRed("NOT POSSIBLE")).
-        Print "Core RTLS: " + (Choose TextColorGreen("POSSIBLE") If CoreBoosterPreservationPossible() Else TextColorRed("NOT POSSIBLE")).
-        Print "Side Booster RTLS: " + (Choose TextColorGreen("POSSIBLE") If SideBoosterRTLSPossible() Else TextColorRed("NOT POSSIBLE")).
+        Print "Payload Mass: " + TextColor(ROUND(PayloadMass(), 2) + "t", COLOR_WHITE).
+        Print "Core Preservation Possible: " + (Choose TextColorGreen("POSSIBLE") If CoreBoosterPreservationPossible() Else TextColorRed("(maybe) POSSIBLE")).
+        Print "Core RTLS: " + (Choose TextColorGreen("POSSIBLE") If CoreBoosterPreservationPossible() Else TextColorRed("(maybe) POSSIBLE")).
+        Print "Side Booster RTLS: " + (Choose TextColorGreen("POSSIBLE") If SideBoosterRTLSPossible() Else TextColorRed("(maybe) POSSIBLE")).
 
         Print "CONFIRM (Y)".        
         Local goForLunch to false.

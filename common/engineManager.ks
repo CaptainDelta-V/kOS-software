@@ -1,6 +1,6 @@
 
-RUNONCEPATH("1:common/constants").
-RUNONCEPATH("1:common/exceptions").
+RUNONCEPATH("0:common/constants").
+RUNONCEPATH("0:common/exceptions").
 
 Declare Global TUNDRA_ENGINE_MODULE_NAME to "ModuleTundraEngineSwitch".
 Declare Global TUNDRA_ENGINE_SWITCH_NEXT to "next engine mode".

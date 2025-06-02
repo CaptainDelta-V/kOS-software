@@ -34,7 +34,7 @@ Function BoostbackBurnController {
                 Lock Throttle to LinearFallOff(0.00005, landingStatus:TrajectoryErrorMeters(), 1). 
             }
             Else If throttleCurveCode = 2 {                 
-                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 70_000, 0.03).                    
+                Lock Throttle to FalloffThrottle(landingStatus:TrajectoryErrorMeters(), 80_000, minThrottle).                    
             }            
 
             Local minBoostbackDuration to 8. 
@@ -52,7 +52,6 @@ Function BoostbackBurnController {
                 If ((errorCurrent > previousErrorMeters and errorCurrent < minimumError) 
                     or GetDeltaBetweenHeadings(initHeading, currentHeadingImpactToTarget, 10)
                     or (Ship:Altitude < abortAltitude and Ship:VerticalSpeed < 0) 
-                    or IsGeoPosWestOf(landingStatus:GetImpact(), landingStatus:GetLandingSite())
                     or supplementalCheckFn:Call()) {    
                     Lock Throttle to 0.
                     Set courseCorrectionIdx to courseCorrectionIdx + 1.
@@ -60,7 +59,7 @@ Function BoostbackBurnController {
                 }
 
                 Set previousErrorMeters to errorCurrent.
-                Wait 0.01.
+                Wait 0.001.
             }
             Wait Until Throttle < 0.07.
         }       

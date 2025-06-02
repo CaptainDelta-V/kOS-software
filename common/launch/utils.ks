@@ -1,5 +1,5 @@
-RUNONCEPATH("1:common/exceptions"). 
-RUNONCEPATH("1:common/utils/listutils").
+RUNONCEPATH("0:common/exceptions"). 
+RUNONCEPATH("0:common/utils/listutils").
 RUNONCEPATH("0:common/utils/colorPrintUtils").
 
 Function GetLaunchConfirmation { 
@@ -17,7 +17,7 @@ Function GetLaunchConfirmation {
             Print "RANGE REQUIREMENT: " + rangeLimitKm.        
             If not RangeIsClear(rangeLimitKm) { 
                 ClearScreen.
-                Print "<color=#ff0026>RANGE NOT CLEAR</color>".
+        
                 Print TextColorRed("RANGE NOT CLEAR").
                 Print TextColorRed("VIOLATIONS").
                 Local rangeViolations to GetRangeViolations(rangeLimitKm).
@@ -25,7 +25,8 @@ Function GetLaunchConfirmation {
                     Print "     (" + violation:Type + ") " + violation:Name + " " + violation:Distance + "km".
                 }
             }
-            Else {             
+            Else {          
+
                 ClearScreen.
                 Print TextColorGreen("RANGE IS CLEAR").
                 Print " ".
@@ -62,7 +63,9 @@ Function GetRangeViolations {
         Local otherVesselDistance to (otherVessel:Position - Ship:Position):Mag / 1000.
         // Print otherVessel:Name + ": " + otherVesselDistance.
 
-        Local shouldIgnore to otherVessel:Type = "Debris" or otherVessel:Type = "DroppedPart".
+        Local shouldIgnore to otherVessel:Type = "Debris" or 
+            otherVessel:Type = "DroppedPart" or
+            otherVessel:Type = "Flag".
          
         If (otherVesselDistance < rangeLimitKm and (not shouldIgnore)) {
             Local violationInfo to Lexicon().

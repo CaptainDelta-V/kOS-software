@@ -1,16 +1,24 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
 RUNONCEPATH("constants").
-RUNONCEPATH("../../../common/landing/sites").
-RUNONCEPATH("../../../common/infos").
-RUNONCEPATH("../../../common/control").
-RUNONCEPATH("../../../common/nav").
-RUNONCEPATH("../../../common/booting/bootUtils").
-RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
+RUNONCEPATH("0:common/landing/sites").
+RUNONCEPATH("0:common/infos").
+RUNONCEPATH("0:common/control").
+RUNONCEPATH("0:common/nav").
+RUNONCEPATH("0:common/booting/bootUtils").
+RUNONCEPATH("0:common/launch/payloadModel").
+RUNONCEPATH("0:common/flightStatus/flightStatusModel").
 
 ClearScreen.
 
 Local flightStatus to FlightStatusModel("STARSHIP LAUNCH", "BOOSTER RIDE").
+
+// Local payload to PayloadModel(flightStatus, VESSEL_TYPE_STARSHIP).
+
+// payload:CalculatePayloadMass().
+// payload:WritePayloadConfigToDisk().
+// payload:AddFlightStatus().
+
 RunFlightStatusScreen(flightStatus, 0.75).
 
 Wait Until Altitude > 20_000.

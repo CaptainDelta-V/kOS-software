@@ -15,6 +15,7 @@ Log bootDescription to bootLogFileName.
 Print bootDescription.
 
 SWITCH to 1.
+DeletePath("systems").
 DeletePath("common").
 DeletePath("vehicles").
 DeletePath("uipanels").

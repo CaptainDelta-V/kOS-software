@@ -11,6 +11,7 @@ RUNONCEPATH("../../../common/booting/bootUtils").
 RUNONCEPATH("../../../common/engineManager").
 RUNONCEPATH("../../../common/launch/launchProfileModel").
 RUNONCEPATH("../../../common/launch/ascentModel"). 
+RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
@@ -34,15 +35,19 @@ Local launchProfileTransitionAltitude to 4_000.
 Local launchHeading to 90.
 Local targetRoll to -90.
 
+Local vesselType to VESSEL_TYPE_SUPER_HEAVY_BOOSTER.
+
 Local boosterTank to Ship:PartsTagged("BOOSTER_TANK")[0].
 Local stageSeparationAtFuelAmount to 12_000.
+
+Local landingSite to Ship:Position.
 
 Local flightStatus to FlightStatusModel("SUPER HEAVY BOOSTER LAUNCH CONTROL", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
-flightStatus:AddField("Alt SCALED", launchProfileInitial:AltitudeScaled@).
+flightStatus:AddField("Alt Scaled", launchProfileInitial:AltitudeScaled@).
 
-GetLaunchConfirmation(flightStatus:GetTitle(), true).
+GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
 
 Wait 1.
@@ -105,7 +110,8 @@ flightStatus:AddField("BOOSTER FUEL", { return boosterFuelResource:Amount. }).
 Local stageSeparation to false. 
 Until stageSeparation { 
 
-    Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount.
+    Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount
+        or (Addons:TR:ImpactPos:Position - landingSite):Mag > 82_000.
 
     Wait 0.01.
 }

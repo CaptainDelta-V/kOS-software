@@ -17,11 +17,17 @@ RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/launch/ascentModel").
 RUNONCEPATH("../../../common/launch/payloadModel").
+RUNONCEPATH("../../../common/utils/physicsRangeModel").
 RUNONCEPATH("../../../common/booting/bootUtils").
+
+Parameter Params to Lexicon(
+    KEY_LAUNCH_HEADING, 90,
+    KEY_VESSEL_TYPE, VESSEL_TYPE_FALCON_9
+).
 
 ClearScreen. 
 
-Local RequiredApoapsisEtaMargin to 60 * 10.
+Local RequiredApoapsisEtaMargin to 60 * 3.
 Set Ship:Name to ACTIVE_FALCON_UPPER_VESSEL_NAME.
 
 Local flightStatus to FlightStatusModel("FALCON UPPER STAGE ASCENT CONTROL","UNKNOWN").
@@ -29,25 +35,28 @@ Local flightStatus to FlightStatusModel("FALCON UPPER STAGE ASCENT CONTROL","UNK
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 
-Local payload to PayloadModel(flightStatus, VESSEL_TYPE_FALCON_HEAVY).  
+Local vesselType to Params[KEY_VESSEL_TYPE].
+
+Local payload to PayloadModel(flightStatus, vesselType).  
 payload:ReadPayloadConfigFromDisk().
 payload:AddFlightStatus().
 
-Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, 15).
+Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, 35).
 Local ascentPitch to ascent:GetMinAscentPitch().
 flightStatus:AddField("Ascent Pitch", Min(Max(ascentPitch, 0), 45)).
+flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 
 Local targetPitch to ascentPitch.
 Local targetRoll to 180.
 
-When Apoapsis > 85_100 Then { 
-    Set targetPitch to 0.
-}
-
-// When Apoapsis > 87_128 Then { 
-//     Set targetPitch to -5.
+// When Apoapsis > 85_100 Then { 
+//     Set targetPitch to 0.
 // }
+
+When Apoapsis > 87_128 Then { 
+    Set targetPitch to -2.
+}
 
 RunFlightStatusScreen(flightStatus, 0.3).
 
@@ -55,13 +64,18 @@ If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {
     flightStatus:Update("ORBITING").
 }
 Else { 
+    
     Local upperstageDecoupler to Ship:PartsTagged(FALCON_DECOUPLER_UPPERSTAGE)[0].
-    upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).
+    upperstageDecoupler:GetModule("ModuleTundraDecoupler"):DoAction("decouple", true).    
     flightStatus:Update("UPPER SEPARATION").
-    Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]:GetModule("ModuleEnginesFX"):DoEvent("activate engine").
-
+    Wait 0. 
+    RCS ON.
+    Lock Throttle to 1.
+    WAIT 2.5.
     Lock throttle to 0.2.
-    Wait 2.
+    Ship:PartsTagged(FALCON_ENG_UPPERSTAGE)[0]:GetModule("ModuleEnginesFX"):DoEvent("activate engine").
+    Wait 1.2.    
+    RCS OFF.
     Lock Throttle to 1.
 
     AscendToOrbit().
@@ -80,7 +94,8 @@ Function AscendToOrbit {
     Set SteeringManager:RollTorqueFactor to 0.5.
 
     Lock Throttle to 1.    
-    Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
+    // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
+    Local targetHeading to Params[KEY_LAUNCH_HEADING].
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
     flightStatus:Update("ASCENT").        
@@ -91,14 +106,15 @@ Function AscendToOrbit {
     //     Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
-
     
     When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then {         
         Lock Throttle to 0.
-        flightStatus:Update("COAST TO APOAPSIS").  
-        Set Core:BootFilename to "".
-        
+        flightStatus:Update("COAST TO APOAPSIS").              
         Wait 1.
+        flightStatus:Update("RESTORING PHYSICS RANGE").
+        Wait 1.
+        // Local physicsRangeController to PhysicsRangeModel(). // BAD IDEA
+        // physicsRangeController:ResetPhysicsRanges().        
         Shutdown.                           
     }
 }

@@ -2,7 +2,7 @@ RUNONCEPATH("0:CCAT/ccat", False).
 
 Function CCATManager { 
     Parameter messageTargetCpuName is "None".
-    Local logFilename to "0:logs/ccat" + messageTargetCpuName + ".txt".
+    Local logFilename to "0:logs/ccat.txt".
     
     Local _isRunning to false.
 
@@ -21,23 +21,23 @@ Function CCATManager {
 
     Function LogMessage { 
         Parameter message. 
-        Log "[" + Timestamp(Time:Seconds):Full + "] " + message To LogFilePath.
+        Log "[" + Timestamp(Time:Seconds):Full + "] " + message To logFilename.
     }
 
     Function RunCCAT { 
         Parameter runContinous.
         Parameter targetDT.
-        Parameter onBeforeTrajectoryCalculated to { }.
-        Parameter onTrajectoryCalculated to { Parameter traj. }.
+        Parameter onBeforeTrajectoryCalculated.
+        Parameter onTrajectoryCalculated.
 
         Set _isRunning to true.
 
-        // Print "CPU to receive trajectory: " + messageTargetCpuName.
-        // Print "Continous processing should start . . .".
-        // Wait 1. 
+        Print "CPU to receive trajectory: " + messageTargetCpuName.
+        Print "Continous processing should start . . .".
+        Wait 0.25.
         // Set _runStatus to "RUNNING".
         Return CCAT( 
-            not runContinous,
+            false,
             "RKDP54",
             targetDT,    
             True,
@@ -50,8 +50,8 @@ Function CCATManager {
             "Linear",
             "Falcon Heavy Side Booster",
             ship:body, 
-            onBeforeTrajectoryCalculated,
-            onTrajectoryCalculated
+            onBeforeTrajectoryCalculated@,
+            onTrajectoryCalculated@
         ).        
     }
 

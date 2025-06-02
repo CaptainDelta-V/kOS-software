@@ -1,5 +1,7 @@
 RUNONCEPATH("common/constants").
 RUNONCEPATH("common/infos").
+RUNONCEPATH("common/utils/physicsRangeModel").
+RUNONCEPATH("common/landing/sites").
 // RUNONCEPATH("common/engineManager").
 // // RUNONCEPATH("common/flightStatus/flightStatusModel").
 // // RUNONCEPATH("common/orbit/circularizationController").
@@ -13,11 +15,57 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
+Local physicsRangeController to PhysicsRangeModel(). 
+Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
+physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
+// physicsRangeController:ResetPhysicsRanges().        
+
+
+// Local motors to Ship:PartsTagged("ROTO_ROTOR").
+
+
+// Local servoModule to motor:GetModule("ModuleIRServo_v3").
+// servoModule:DoAction("move center", true).
+
+
+// For motor in motors{ 
+    
+    
+// }
+// // DescribePartItemToFile(motor, LogFilepath).
+
+
+// Wait 4.
+// // servoModule:DoAction("move +", true). // moves to max
+// servoModule:SetField("target position", 17).
+
+
+
+
+
+// Log Target:GeoPosition to LogFilepath.
+
+// lOCAL p1 to Kerbin:GEOPOSITIONLATLNG(-0.0737193788321927,-73.278837542306). 
+// LOCAL p2 to LANDING_SITES[KEY_DS_OCEAN_SHORT].
+
+// PRINT (P1:pOSITION - P2:pOSITION):MAG.
+
+// Log Ship:GeoPosition to LogFilepath.
+
+// Local physicsRangeController to PhysicsRangeModel(). 
+
+// // physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
+
+
+// Local descriptions to physicsRangeController:GetLoadDistanceDescriptions().
+// Log descriptions to LogFilepath.
+
 // ============= DIST CHECK
 
-// Local offset to 200.
 
-Log Ship:GeoPosition to LogFilepath.
+
+
+// Log Ship:GeoPosition to LogFilepath.
 
 // Local shipPosition to PositionAt(ship, Time:Seconds + offset).
 // Local targetPosition to PositionAt(target, Time:Seconds + offset).
@@ -72,7 +120,7 @@ Log Ship:GeoPosition to LogFilepath.
 
 // Local part to Ship:PartsTagged("SERVO_0")[0].
 
-DescribePartItemToFile(part, LogFilePath).
+// DescribePartItemToFile(part, LogFilePath).
 
 
 

@@ -38,6 +38,8 @@ function CCAT {
                     onBeforeTrajectoryCalculated to { },
                     onTrajectoryCalculated to { Parameter traj. }.
 
+    onBeforeTrajectoryCalculated().                    
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////// This section calculates the future position
     // TRAJECTORIES   // For orbital trajectories, the future position is resolved analytically
@@ -669,8 +671,7 @@ function CCAT {
         until masterManager["masterSwitch"] {
             onBeforeTrajectoryCalculated().
             for FX in masterFunctionManager:values FX().
-            onTrajectoryCalculated(getFinalPosition():Geoposition).
-            // Print "pos: " + getFinalPosition():Geoposition.
+            onTrajectoryCalculated(getFinalPosition():Geoposition).        
         }
     }
 

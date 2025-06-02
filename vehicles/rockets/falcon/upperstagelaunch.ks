@@ -26,7 +26,13 @@ Local flightStatus to FlightStatusModel("FALCON UPPER STAGE LAUNCH CONTROL","AWA
 
 RunFlightStatusScreen(flightStatus, 0.5). 
 
-Local payload to PayloadModel(flightStatus, VESSEL_TYPE_FALCON_HEAVY).  
+Local vesselType to VESSEL_TYPE_FALCON_9.
+If Ship:Name:Contains("Heavy") { 
+    Set vesselType to VESSEL_TYPE_FALCON_HEAVY.
+}
+
+Local payload to PayloadModel(flightStatus, vesselType).  
+Local launchHeading to 90.
 
 When not Core:Messages:Empty Then { 
     Local message to Core:Messages:Pop:Content.
@@ -34,13 +40,26 @@ When not Core:Messages:Empty Then {
     If message = FALCON_UPPERSTAGE_HANDOFF { 
 
         flightStatus:Update("RECIEVED HANDOFF. REBOOTING FOR STAGING").    
-        SetAlternateBootFile("upperstageascent").
+        Local params to Lexicon(
+            KEY_LAUNCH_HEADING, launchHeading,
+            KEY_VESSEL_TYPE, vesselType
+        ).
+        SetAlternateBootFileWithParams("upperstageascent", params).
+        Wait 0.
         Reboot.
     }       
-    Else { 
+    Else If message:HasKey(KEY_LAUNCH_HEADING) { 
+        
+        Local headingRecieved to message[KEY_LAUNCH_HEADING].
+        flightStatus:AddField("Heading Received was", headingRecieved).
+        Set launchHeading to headingRecieved.
+
+        // this isn't working for some reason
+    }
+    Else If message:HasKey(KEY_PAYLOAD_MASS) { 
+
         Local payloadParams to message.
         Local massRecd to payloadParams[KEY_PAYLOAD_MASS].
-        flightStatus:AddField("Mass reced was", massRecd).
         payload:SetPayloadMass(massRecd).
         payload:WritePayloadConfigToDisk().
         flightStatus:Update("RECEIVED PAYLOAD MASS").
@@ -48,6 +67,10 @@ When not Core:Messages:Empty Then {
     }
 
     Preserve. 
+}
+
+When Alt:Radar > 50 Then { 
+    flightStatus:Update("BOOSTER RIDE").
 }
 
 Wait Until False.
