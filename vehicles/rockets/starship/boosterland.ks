@@ -377,7 +377,7 @@ Until verticalSpeedHoldStart {
   
     Wait 0.001.
 }                  
-    landingSteering:SetMaxAoA(-4).              
+    landingSteering:SetMaxAoA(-6).              
     landingSteering:SetMinAoA(0).
 
     Local errorPrevious to landingStatus:TrajectoryErrorMeters() + 1.
@@ -407,9 +407,10 @@ Until verticalSpeedHoldStart {
             // flightStatus:Update("AoA -2.5").            
         }        
         
-        If not actualLandingTargetSet and landingBurn:TrueRadar() < 108 { 
+        If not actualLandingTargetSet and landingBurn:TrueRadar() < 108 {             
             landingStatus:SetLandingSite(olmGeoPosition).
             flightStatus:Update("LANDING SITE: OLM").
+            landingSteering:SetMaxAoA(-4).       
             Set actualLandingTargetSet to true.             
         }
 
@@ -422,7 +423,7 @@ Until verticalSpeedHoldStart {
 
         If not intermidVsSet and landingBurn:TrueRadar() < 20 { 
             Set vsTarget to -2.5.
-            Set intermidVsSet to true.
+            Set intermidVsSet to true.                   
             // landingSteering:SetMaxAoA(-1).
             flightStatus:Update("INTERMID VS SET").
         }
@@ -460,7 +461,7 @@ Until verticalSpeedHoldStart {
             flightStatus:Update("REQUESTING PRECATCH").            
         }
 
-        If (not catchMessageSent and landingBurn:TrueRadar() < boosterRadarOffset * 0.75) {
+        If (not catchMessageSent and landingBurn:TrueRadar() < boosterRadarOffset * 0.25) {
             Set catchMessageSent to towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
             flightStatus:Update("REQUESTING CATCH").                            
         }              
@@ -484,7 +485,7 @@ Until verticalSpeedHoldStart {
     Set towerCatchDampenMessageSent to true.      
 
     flightStatus:Update("HOVER FOR CATCH").
-    RunAltitudeHold(65.5, 2.5, 
+    RunAltitudeHold(66.5, 2.5, 
         0.1, 0.02, 0.0, // PID
         0.35, 1, // Min/Max
         { Return Ship:Status = "LANDED". }).

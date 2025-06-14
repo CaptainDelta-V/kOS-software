@@ -11,7 +11,9 @@ Function AscentModel {
         Local pitchRange to ascentPitchMax - Abs(ascentPitchMin).
 
         Local payloadPercent to payloadMass / payloadCapacity.
-        Return payloadPercent * pitchRange.
+        Local pitch to payloadPercent * pitchRange.
+
+        Return Min(Max(pitch, ascentPitchMin), ascentPitchMax).
     }
 
     Function TimeToApoapsis { 

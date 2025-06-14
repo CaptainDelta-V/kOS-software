@@ -53,6 +53,7 @@ Function PhysicsRangeModel {
     }
 
     Function SetPhysicsRangesForRecoveryLaunch { 
+        Parameter includeLanded to false.        
         Parameter rangeToSet to 400_000.    
 
         // Flying
@@ -70,11 +71,13 @@ Function PhysicsRangeModel {
         Set KUniverse:DefaultLoadDistance:Suborbital:Pack To rangeToSet.
 
         // Landed 
-        Set KUniverse:DefaultLoadDistance:Landed:Load To rangeToSet.
-        Set KUniverse:DefaultLoadDistance:Landed:Unload To rangeToSet.
-        Wait 0.001.
-        Set KUniverse:DefaultLoadDistance:Landed:Unpack To rangeToSet.
-        Set KUniverse:DefaultLoadDistance:Landed:Pack To rangeToSet.
+        If includeLanded { 
+            Set KUniverse:DefaultLoadDistance:Landed:Load To rangeToSet.
+            Set KUniverse:DefaultLoadDistance:Landed:Unload To rangeToSet.
+            Wait 0.001.
+            Set KUniverse:DefaultLoadDistance:Landed:Unpack To rangeToSet.
+            Set KUniverse:DefaultLoadDistance:Landed:Pack To rangeToSet.
+        }
     }
 
     Function GetLoadDistanceDescriptions { 

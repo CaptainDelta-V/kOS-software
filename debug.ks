@@ -18,6 +18,7 @@ DeletePath(LogFilepath).
 Local physicsRangeController to PhysicsRangeModel(). 
 Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
 physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
+
 // physicsRangeController:ResetPhysicsRanges().        
 
 

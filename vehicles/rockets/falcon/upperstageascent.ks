@@ -41,22 +41,22 @@ Local payload to PayloadModel(flightStatus, vesselType).
 payload:ReadPayloadConfigFromDisk().
 payload:AddFlightStatus().
 
-Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 0, 35).
+Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 12, 35).
 Local ascentPitch to ascent:GetMinAscentPitch().
-flightStatus:AddField("Ascent Pitch", Min(Max(ascentPitch, 0), 45)).
+flightStatus:AddField("Ascent Pitch", ascent:GetMinAscentPitch@).
 flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 
 Local targetPitch to ascentPitch.
 Local targetRoll to 180.
 
-// When Apoapsis > 85_100 Then { 
-//     Set targetPitch to 0.
-// }
-
-When Apoapsis > 87_128 Then { 
-    Set targetPitch to -2.
+When Apoapsis > 85_100 Then { 
+    Set targetPitch to 0.
 }
+
+// When Apoapsis > 87_128 Then { 
+//     Set targetPitch to -2.
+// }
 
 RunFlightStatusScreen(flightStatus, 0.3).
 
@@ -89,9 +89,9 @@ Function AscendToOrbit {
 
     RCS ON.
     ResetTorque(). 
-    Set SteeringManager:YawTorqueFactor to 0.5.
-    Set SteeringManager:PitchTorqueFactor to 0.5.
-    Set SteeringManager:RollTorqueFactor to 0.5.
+    // Set SteeringManager:YawTorqueFactor to 0.5.
+    // Set SteeringManager:PitchTorqueFactor to 0.5.
+    // Set SteeringManager:RollTorqueFactor to 0.5.
 
     Lock Throttle to 1.    
     // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
@@ -107,7 +107,7 @@ Function AscendToOrbit {
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
     
-    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin Then {         
+    When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000 Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").              
         Wait 1.

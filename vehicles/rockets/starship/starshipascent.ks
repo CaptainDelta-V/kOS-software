@@ -20,7 +20,7 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 60 * 3.
+Local RequiredApoapsisEtaMargin to 60 * 3.4.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local vesselType to Params[KEY_VESSEL_TYPE].
@@ -46,9 +46,9 @@ When Apoapsis > 85_100 Then {
     Set targetPitch to 0.
 }
 
-// When Apoapsis > 87_128 Then { 
-//     Set targetPitch to 0.
-// }
+When Apoapsis > 90_128 Then { 
+    Set targetPitch to -4.
+}
 
 // When Apoapsis > 90_000 Then { 
 //     Set targetPitch to -8.
@@ -71,9 +71,9 @@ Function AscendToOrbit {
 
     RCS ON.
     ResetTorque(). 
-    Set SteeringManager:YawTorqueFactor to 0.5.
-    Set SteeringManager:PitchTorqueFactor to 0.5.
-    Set SteeringManager:RollTorqueFactor to 0.5.
+    // Set SteeringManager:YawTorqueFactor to 0.5.
+    // Set SteeringManager:PitchTorqueFactor to 0.5.
+    // Set SteeringManager:RollTorqueFactor to 0.5.
 
     Lock Throttle to 1.    
     // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).

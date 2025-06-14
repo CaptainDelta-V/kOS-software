@@ -44,7 +44,7 @@ Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
 
 Local boosterRadarOffset to 25. 
 Local suicideMargin to 200.
-Local maxBurnStartAltitude to 3_400.
+Local maxBurnStartAltitude to 3_700.
 Local overshootMeters to 100. 
 Local boostbackPitch to 0.
 Local targetRoll to 0.
@@ -78,7 +78,7 @@ Local useCCAT to isSideBooster.
 // Local useCCAT to boosterSide = INDICATOR_BOOSTER_LEFT or INDICATOR_BOOSTER_CORE.
 
 If not isSideBooster { 
-    Set  maxBurnStartAltitude to 3_800. // core in ocean in coming in much steeper
+    Set maxBurnStartAltitude to 3_250. // core in ocean in coming in much steeper
 }
 
 Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE (" + boosterSide + ")", "AWAITING INITIATION").
@@ -242,6 +242,14 @@ Lock Steering to landingSteering:SteeringVector().
 
 Wait Until Altitude < 40_000. 
 RCS OFF.
+
+// Entry burn
+Wait Until Altitude < 28_000.
+Lock Throttle to 1. 
+flightStatus:Update("Entry Burn Start").
+Wait Until Ship:VerticalSpeed < 250.
+Lock Throttle to 0.
+flightStatus:Update("Entry Burn Complete").
 
 Wait Until Altitude < 20_000. 
 landingSteering:SetMaxAoA(11). 

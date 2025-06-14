@@ -50,8 +50,8 @@ Until false {
         }
         Else If message = TOWER_ARMS_ALIGN_MESSAGE { 
             flightStatus:Update("ARMS ALIGNMENT").
-            Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
-            mechazillaCatchArms:AlignToHeading(headingToTarget).              
+            // Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
+            // mechazillaCatchArms:AlignToHeading(headingToTarget).              
         }
         Else If message = TOWER_CATCH_DAMPEN_MESSAGE {
             mechazillaCatchArms:LowerLandingRails().

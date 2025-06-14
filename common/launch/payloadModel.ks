@@ -27,11 +27,15 @@ Function PayloadModel {
             Set _payloadParams[KEY_PAYLOAD_MASS] to Ship:Mass - 1451.42.
         }    
         If vesselType = VESSEL_TYPE_FALCON_9 { 
-            Set _payloadParams[KEY_PAYLOAD_MASS] TO Ship:Mass -  1173.345.
+            Set _payloadParams[KEY_PAYLOAD_MASS] TO Ship:Mass -  1173.2399. // Cargo Fairing
+
+            If Ship:Name:Contains("Crew") { 
+                Set _payloadParams[KEY_PAYLOAD_MASS] TO Ship:Mass - 1172.6. // Cargo
+            }
         }
 
         If _payloadParams[KEY_PAYLOAD_MASS] < 0 { 
-            Throw("PAYLOAD MASS: " + _payloadParams[KEY_PAYLOAD_MASS] +  "t IS NEGATIVE").
+            Throw("PAYLOAD MASS: " + _payloadParams[KEY_PAYLOAD_MASS] +  "t IS NEGATIVE. Ship Mass: " + Ship:Mass + "t").
         }    
     }
     
@@ -66,6 +70,8 @@ Function PayloadModel {
     }
 
     Function CoreBoosterPreservationPossible { 
+
+        // falcon 9 < 8 tons
 
         // Return vesselType = VESSEL_TYPE_STARSHIP.
         // If 

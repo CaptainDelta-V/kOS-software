@@ -60,7 +60,7 @@ Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitc
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 4_000.
 
-Local launchHeading to 90.
+Local launchHeading to 45.
 Local targetRoll to -180.
 Local sideBoosterSeparationAtFuelAmount to 2400.
 Local upperstageSeparationAtFuelAmount to 2650. 
@@ -194,12 +194,12 @@ RCS OFF.
 Local coreBoosterLiquidFuel to FindInList(coreBoosterTank:Resources, { parameter it. return it:Name = RESOURCE_LIQUID_FUEL. }).
 Lock Steering to Heading(launchHeading, PitchTarget, targetRoll).
 
-When Ship:Altitude > 42_000 Then { 
+When Ship:Altitude > 35_000 Then { 
     flightStatus:Update("Fairing Jettison").
-    AG4 ON.
+    AG4 ON. // todo: this only works if active, if watching booster not going to
 }
 
-When Ship:Altitude > 43_000 Then { 
+When Ship:Altitude > 36_000 Then { 
     flightStatus:Update("AWAITING SEPARATION").
 }
 
