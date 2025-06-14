@@ -3,6 +3,7 @@ RUNONCEPATH("common/infos").
 RUNONCEPATH("common/utils/physicsRangeModel").
 RUNONCEPATH("common/landing/sites").
 RUNONCEPATH("common/nav").
+RUNONCEPATH("common/landing/mechazillaCatchArmsModel").
 
 // RUNONCEPATH("common/engineManager").
 // // RUNONCEPATH("common/flightStatus/flightStatusModel").
@@ -17,11 +18,16 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
-Local towerVessel to Vessel("STARTOWER").
+Local Mechazilla to Ship:PartsTagged("MECHAZILLA")[0].
+Local MechazillaControllerModule to Mechazilla:GetModule("ModuleSLEController").
+Local mechazillaCatchArms to MechazillaCatchArmsModel(Mechazilla, MechazillaControllerModule).
 
-Local realMechazillaPosition to towerVessel:PartsTagged("MECHAZILLA")[0]:Position.
-Local realMechazillaGeoPosition to Ship:Body:GeoPositionOf(realMechazillaPosition).
-Print "mech pos: " + realMechazillaPosition.
+Local towerVessel to Vessel("STARTOWER").
+Local targetVessel to Vessel("Osprey").
+
+Local realMechazillaPosition to Mechazilla:Position.
+// Local realMechazillaGeoPosition to Ship:Body:GeoPositionOf(realMechazillaPosition).
+// Print "mech pos: " + realMechazillaPosition.
 
 Local arrowSize to 50.
 
@@ -40,12 +46,23 @@ Local debugArrow to VecDraw(
 ).
 
 Set debugArrow:StartUpdater to { Return realMechazillaPosition. }.
-Set debugArrow:VecUpdater to {
-    Local upVec is (realMechazillaPosition - towerVessel:Body:Position):Normalized.
+Set debugArrow:VecUpdater to { Return targetVessel:Position. }.
 
-    Local pointAboveMechazilla is realMechazillaPosition + (upVec * 10).
-    Return realMechazillaPosition - pointAboveMechazilla.
-}.
+// Set debugArrow:VecUpdater to {
+//     Local upVec is (realMechazillaPosition - towerVessel:Body:Position):Normalized.
+
+//     Local pointAboveMechazilla is realMechazillaPosition + (upVec * 10).
+//     Return realMechazillaPosition - pointAboveMechazilla.
+// }.
+
+Until False { 
+    
+    Local headingToTarget to HeadingOfVector(targetVessel:Geoposition:Position - realMechazillaPosition).
+    ClearScreen.
+    Print "Heading to target: " + headingToTarget.
+    mechazillaCatchArms:AlignToHeading(headingToTarget).              
+    Wait 1. 
+}
 
 // Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
 // Set radialOutArrow:VecUpdater to { Return Target:Position. }.

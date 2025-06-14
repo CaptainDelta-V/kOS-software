@@ -52,9 +52,7 @@ When not Core:Messages:Empty Then {
         
         Local headingRecieved to message[KEY_LAUNCH_HEADING].
         flightStatus:AddField("Heading Received was", headingRecieved).
-        Set launchHeading to headingRecieved.
-
-        // this isn't working for some reason
+        Set launchHeading to headingRecieved.    
     }
     Else If message:HasKey(KEY_PAYLOAD_MASS) { 
 

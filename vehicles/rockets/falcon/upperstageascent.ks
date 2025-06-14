@@ -42,7 +42,7 @@ payload:ReadPayloadConfigFromDisk().
 payload:AddFlightStatus().
 
 Local ascent to AscentModel(payload:PayloadMass(), payload:PayloadCapacity(), 12, 35).
-Local ascentPitch to ascent:GetMinAscentPitch().
+Local ascentPitch to 15.5.
 flightStatus:AddField("Ascent Pitch", ascent:GetMinAscentPitch@).
 flightStatus:AddField("Apoapsis", { Return Ship:Orbit:Apoapsis. }).
 flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
@@ -54,9 +54,9 @@ When Apoapsis > 85_100 Then {
     Set targetPitch to 0.
 }
 
-// When Apoapsis > 87_128 Then { 
-//     Set targetPitch to -2.
-// }
+When Apoapsis > 87_128 Then { 
+    Set targetPitch to -2.
+}
 
 RunFlightStatusScreen(flightStatus, 0.3).
 
@@ -87,14 +87,16 @@ Function AscendToOrbit {
 
     Set Core:BootFilename to "".       
 
+    SAS OFF. 
+    Wait 0.    
+
     RCS ON.
     ResetTorque(). 
     // Set SteeringManager:YawTorqueFactor to 0.5.
     // Set SteeringManager:PitchTorqueFactor to 0.5.
     // Set SteeringManager:RollTorqueFactor to 0.5.
 
-    Lock Throttle to 1.    
-    // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
+    Lock Throttle to 1.        
     Local targetHeading to Params[KEY_LAUNCH_HEADING].
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
@@ -110,9 +112,7 @@ Function AscendToOrbit {
     When ascent:TimeToApoapsis() > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000 Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").              
-        Wait 1.
-        flightStatus:Update("RESTORING PHYSICS RANGE").
-        Wait 1.
+        Wait 1.    
         // Local physicsRangeController to PhysicsRangeModel(). // BAD IDEA
         // physicsRangeController:ResetPhysicsRanges().        
         Shutdown.                           

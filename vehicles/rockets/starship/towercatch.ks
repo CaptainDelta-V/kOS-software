@@ -37,21 +37,23 @@ Until false {
         If message = TOWER_CATCH_MESSAGE {                 
             flightStatus:Update("CLOSING MECHAZILLA").
             Local CLOSE_ARMS_SUFFIX to "close arms".
-            Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
-            mechazillaCatchArms:AlignToHeading(headingToTarget).              
+
+            // Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
+            // mechazillaCatchArms:AlignToHeading(headingToTarget).              
+
             If MechazillaControllerModule:HasEvent(CLOSE_ARMS_SUFFIX) { 
                 MechazillaControllerModule:DoEvent(CLOSE_ARMS_SUFFIX).             
             }
         }
         Else If message = TOWER_PRECATCH_MESSAGE { 
             flightStatus:Update("MECHAZILLA PRECATCH").
-            Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).           
-            mechazillaCatchArms:AlignToHeading(headingToTarget).              
+            Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).                       
+            mechazillaCatchArms:AlignToHeading(headingToTarget).  
         }
         Else If message = TOWER_ARMS_ALIGN_MESSAGE { 
             flightStatus:Update("ARMS ALIGNMENT").
-            // Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
-            // mechazillaCatchArms:AlignToHeading(headingToTarget).              
+            Local headingToTarget to HeadingOfVector(activeBooster:Geoposition:Position - Ship:Geoposition:Position).
+            mechazillaCatchArms:AlignToHeading(headingToTarget).              
         }
         Else If message = TOWER_CATCH_DAMPEN_MESSAGE {
             mechazillaCatchArms:LowerLandingRails().

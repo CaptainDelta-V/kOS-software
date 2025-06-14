@@ -39,14 +39,14 @@ Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNO
 flightStatus:AddField("ETA APOAPSIS", { Return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
-Local targetPitch to 15.5.
+Local targetPitch to 15.5. // no need for the payload model causes issues
 Local targetRoll to 180.
 
 When Apoapsis > 85_100 Then { 
     Set targetPitch to 0.
 }
 
-When Apoapsis > 90_128 Then { 
+When Apoapsis > 89_000 Then { 
     Set targetPitch to -4.
 }
 
@@ -69,22 +69,24 @@ Function AscendToOrbit {
 
     Set Core:BootFilename to "".       
 
+    SAS OFF.
+    Wait 0.
+
     RCS ON.
     ResetTorque(). 
     // Set SteeringManager:YawTorqueFactor to 0.5.
     // Set SteeringManager:PitchTorqueFactor to 0.5.
     // Set SteeringManager:RollTorqueFactor to 0.5.
+    
 
-    Lock Throttle to 1.    
-    // Lock targetHeading to HeadingOfVector(Ship:Velocity:Orbit).
-    Lock targetHeading to 90.
+    Lock Throttle to 1.        
+    Local targetHeading to Params[KEY_LAUNCH_HEADING].
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
     flightStatus:Update("ASCENT").        
 
     Wait 4.
     Local Booster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).         
-    flightStatus:AddField("Booster Time to Apoapsis", { Return Booster:Orbit:ETA:Apoapsis.}).
     flightStatus:AddField("Booster Connection", { Return Booster:Connection:IsConnected. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 

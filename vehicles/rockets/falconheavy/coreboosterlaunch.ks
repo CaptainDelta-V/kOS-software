@@ -217,6 +217,7 @@ Until upperstageSeparation {
 coreEngineController:SetThrustLimit(0).
 Wait 0.
 
+RCS ON.
 upperstageCpu:Connection:SendMessage(FALCON_UPPERSTAGE_HANDOFF).
 
 Wait 4.

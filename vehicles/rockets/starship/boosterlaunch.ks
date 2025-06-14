@@ -32,7 +32,7 @@ Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitc
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 4_000.
 
-Local launchHeading to 90.
+Local launchHeading to 42.
 Local targetRoll to -90.
 
 Local vesselType to VESSEL_TYPE_SUPER_HEAVY_BOOSTER.
@@ -47,6 +47,11 @@ flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt Scaled", launchProfileInitial:AltitudeScaled@).
 
+Local sendSuccess to starshipCpu:Connection:SendMessage(Lexicon(
+    KEY_LAUNCH_HEADING, launchHeading
+)).
+
+flightStatus:AddField("LaunchHeadingSentToShip", sendSuccess + " " + launchHeading).
 GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.75).
 
@@ -122,6 +127,7 @@ Set Ship:Control:PilotMainThrottle to 1.
 Unlock Throttle.
 Unlock Steering.   
 Wait 0.
+SAS ON.
 engineManagement:SetThrustLimit(40).
 engineManagement:SetEngineMode(ENG_MODE_SH_MID_INR).
 

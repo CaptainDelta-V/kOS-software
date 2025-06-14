@@ -11,7 +11,10 @@ RUNONCEPATH("0:common/flightStatus/flightStatusModel").
 
 ClearScreen.
 
+Local vesselType to VESSEL_TYPE_STARSHIP.
 Local flightStatus to FlightStatusModel("STARSHIP LAUNCH", "BOOSTER RIDE").
+
+Local launchHeading to 90.
 
 // Local payload to PayloadModel(flightStatus, VESSEL_TYPE_STARSHIP).
 
@@ -21,21 +24,38 @@ Local flightStatus to FlightStatusModel("STARSHIP LAUNCH", "BOOSTER RIDE").
 
 RunFlightStatusScreen(flightStatus, 0.75).
 
-Wait Until Altitude > 20_000.
+When not Core:Messages:Empty Then { 
+    Local message to Core:Messages:Pop:Content.
+
+    flightStatus:AddField("ReceivedMessage", message).
+
+    If message = STARSHIP_ASCENT_HANDOFF_MESSAGE {     
+        Wait Until Stage:Ready.
+        Stage.     
+        Wait 0.       
+        flightStatus:Update("BOOTING INTO ASCENT MODE").
+
+        Local params to Lexicon(
+            KEY_LAUNCH_HEADING, launchHeading,
+            KEY_VESSEL_TYPE, vesselType
+        ).
+
+        SetAlternateBootFileWithParams("starshipascent", params).
+        Wait 0.
+        Reboot. 
+    }
+    Else If message:HasSuffix("HasKey") and message:HasKey(KEY_LAUNCH_HEADING) { 
+        Set launchHeading to message[KEY_LAUNCH_HEADING].        
+        flightStatus:AddField("Launch heading", launchHeading).
+    }
+    Else {    
+        flightStatus:Update("Unhandled message").
+    }
+
+    Preserve.
+}
+
+Wait Until Ship:Altitude > 200.
 flightStatus:Update("WAITING FOR ASCENT HANDOFF . . .").
 
-Wait Until Not Core:Messages:Empty. 
-Local message to Core:Messages:Pop. 
-
-If message:Content = STARSHIP_ASCENT_HANDOFF_MESSAGE {     
-    Wait Until Stage:Ready.
-    Stage.            
-    flightStatus:Update("BOOTING INTO ASCENT MODE").
-    SetAlternateBootFile("starshipascent").
-    Wait 0.
-    Reboot. 
-}
-Else {    
-    flightStatus:Update("WTF").
-}
-
+Wait Until False.
