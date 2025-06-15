@@ -34,12 +34,12 @@ Local drainValveController to DrainValveManager(drainValves).
 Local boosterRadarOffset to 63.4.
 Local towerCatchAltitude to 150. // ASL reference
 Local altitudePositionTarget to towerCatchAltitude - 90.
-Local suicideMargin to 100.
+Local suicideMargin to 60.
 Local maxBurnStartAltitude to 3_000.
-Local undershootMeters to -40.
+Local undershootMeters to -80.
 Local overshootMeters to 25. // 160 is very steep
 Local towerStatus to "NOT CONNECTED".
-Local olmTowerBaseOffsetMeters to -7.
+Local olmTowerBaseOffsetMeters to -8.
 
 Local towerVessel to Vessel(TOWER_CPU_NAME).
 Local towerBaseGeoPosition to towerVessel:GeoPosition.
@@ -50,7 +50,7 @@ Local landingSite to olmLandRefGeoPosition.
 Local approachOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(overshootMeters):GetLandingSite().
 Local rollReferenceOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(500):GetLandingSite().
 Local approachSlightUndershootRefSite is LandingStatusModel(towerBaseGeoPosition, altitudePositionTarget):Overshoot(-60):GetLandingSite().
-Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-4_000):GetLandingSite().
+Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-3_000):GetLandingSite().
 Local landingStatus to LandingStatusModel(approachOvershootSite, altitudePositionTarget):Overshoot(undershootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 
@@ -71,6 +71,7 @@ flightStatus:AddField("LATITUDE ERROR", landingStatus:LatitudeError@).
 flightStatus:AddField("LONGITUDE ERROR", landingStatus:LongitudeError@).
 flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
 flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).
+
 
 RunFlightStatusScreen(flightStatus, 1).
 ResetTorque().
@@ -262,6 +263,7 @@ If Not SkipBoostback {
 }
 
 Lock Steering to landingSteering:SteeringVector().
+flightStatus:AddField("Max AoA", landingSteering:GetMaxAoA@).
 
 flightStatus:Update("POST BOOSTBACK COAST").
 RCS ON.
@@ -326,12 +328,13 @@ ResetTorque().
 landingSteering:SetErrorScaling(4).
 
 Lock Steering to -Ship:Velocity:Surface.
+// Lock Steering to LookDirUp(landingSteering:SteeringVectorReferenceRadialOut(),  rollReferenceOvershootSite:Position).
 Lock Throttle to 1.    
 landingSteering:SetMaxAoA(-2).      
 landingBurn:SetRadarOffset(boosterRadarOffset).
 flightStatus:Update("LANDING BURN - 13 Engines").                
 
-Local vsTarget to -15.
+Local vsTarget to -10.
 Local verticalSpeedHoldStart to false. 
 
 flightStatus:AddField("VS", { Return Ship:VerticalSpeed. }).
@@ -350,7 +353,7 @@ Until verticalSpeedHoldStart {
 
     // Todo: should be checking accelerometer 
     If (not swtichedTo3Engines and 
-         (Abs(Ship:VerticalSpeed) < 40 or Ship:Velocity:Surface:Mag < 52)) {
+         (Abs(Ship:VerticalSpeed) < 20 or Ship:Velocity:Surface:Mag < 52)) {
             
         Set swtichedTo3Engines to true.   
         Lock Throttle to 0.25.     
@@ -399,6 +402,11 @@ Until verticalSpeedHoldStart {
         //     // landingSteering:SetMaxAoA(-2.5).
         //     // flightStatus:Update("AoA -2.5").            
         // }        
+        If not landingVSpeedStage1Set and landingBurn:TrueRadar() < 280 { 
+            landingSteering:SetMaxAoA(-4).              
+            Set landingVSpeedStage1Set to true.
+        }
+
         
         If not actualLandingTargetSet and landingBurn:TrueRadar() < 108 {             
             landingStatus:SetLandingSite(olmGeoPosition).
@@ -408,8 +416,7 @@ Until verticalSpeedHoldStart {
         }
 
         If not vsAdjusted and landingBurn:TrueRadar() < 60 { 
-            Set vsTarget to -2.5.
-            landingSteering:SetMaxAoA(-2.8).
+            
             flightStatus:Update("VS ADJUSTED").
             Set vsAdjusted to true.            
         }
@@ -418,12 +425,17 @@ Until verticalSpeedHoldStart {
             Set vsTarget to -1.
             Set intermidVsSet to true.                               
             flightStatus:Update("INTERMID VS SET").
+            landingSteering:SetMaxAoA(-2.8).
+
+            towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
+            flightStatus:Update("REQUESTING CATCH").                            
         }
 
-        If not landingVSpeedStage2Set and landingBurn:TrueRadar() < 8 {             
+        If not landingVSpeedStage2Set and landingBurn:TrueRadar() < 10 {             
             Set landingVSpeedStage2Set to true.                      
             flightStatus:Update("LANDING VS STAGE 2 SET").
             landingSteering:SetMaxAoA(-1).  
+            Set vsTarget to -0.25.
         }
 
         flightStatus:AddField("VS TARGET", vsTarget).        
@@ -452,10 +464,10 @@ Until verticalSpeedHoldStart {
             flightStatus:Update("REQUESTING PRECATCH").            
         }
 
-        If (not catchMessageSent and landingBurn:TrueRadar() < boosterRadarOffset * 0.6) {
-            Set catchMessageSent to towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
-            flightStatus:Update("REQUESTING CATCH").                            
-        }              
+        // If (not catchMessageSent and landingBurn:TrueRadar() < boosterRadarOffset * 0.6) {
+        //     Set catchMessageSent to towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
+        //     flightStatus:Update("REQUESTING CATCH").                            
+        // }              
 
         If (landingBurn:TrueRadar() > 40 and Time:Second > timeNextAlignment and landingBurn:TrueRadar() > 40) { 
             towerVessel:Connection:SendMessage(TOWER_ARMS_ALIGN_MESSAGE).            
@@ -477,7 +489,7 @@ Until verticalSpeedHoldStart {
     Set towerCatchDampenMessageSent to true.      
 
     flightStatus:Update("HOVER FOR CATCH").
-    RunAltitudeHold(finalHoverRadarAltitude, 10, 
+    RunAltitudeHold(Alt:Radar, 10, 
         0.1, 0.02, 0.0, // PID
         0.35, 1, // Min/Max
         { Return Ship:Status = "LANDED". }).

@@ -17,40 +17,10 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
-Local towerVessel to Vessel("STARTOWER").
-
-Local realMechazillaPosition to towerVessel:PartsTagged("MECHAZILLA")[0]:Position.
-Local realMechazillaGeoPosition to Ship:Body:GeoPositionOf(realMechazillaPosition).
-Print "mech pos: " + realMechazillaPosition.
-
-Local arrowSize to 50.
-
-// Set vd to VecDraw(realMechazillaPosition:Position, arrowSize * North:Vector, red).
-
-Local debugArrow to VecDraw(
-    V(0,0,0),
-    V(0,0,0),
-    RGB(1,1,1),
-    "Test",
-    1.0,
-    true,
-    0.1,
-    true,
-    true
-).
-
-Set debugArrow:StartUpdater to { Return realMechazillaPosition. }.
-Set debugArrow:VecUpdater to {
-    Local upVec is (realMechazillaPosition - towerVessel:Body:Position):Normalized.
-
-    Local pointAboveMechazilla is realMechazillaPosition + (upVec * 10).
-    Return realMechazillaPosition - pointAboveMechazilla.
-}.
 
 // Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
 // Set radialOutArrow:VecUpdater to { Return Target:Position. }.
 
-Wait Until False. 
 
 
 
@@ -61,9 +31,9 @@ Wait Until False.
 // Local sendIt to starshipCpu:Connection:SendMessage("test").
 // print "send: " + sendit.
 
-// Local physicsRangeController to PhysicsRangeModel(). 
-// Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
-// physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
+Local physicsRangeController to PhysicsRangeModel(). 
+Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
+physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
 
 // physicsRangeController:ResetPhysicsRanges().        
 

@@ -53,7 +53,6 @@ Function RendezvousModel {
         local timeToDN to utAtDN - time:seconds.
         // *** END CORRECTION ***
 
-
         // 5. Determine which node is next and the time
         local timeToNextNode is 0.
         local nextNodeIs is "".

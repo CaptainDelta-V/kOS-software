@@ -8,8 +8,8 @@ Function EntrySteeringModel {
     Local _errorScaling to ErrorScaling.
     Local _targetAoARaw to 0.
     Local _targetAoACapped to 0.
-    Local _steeringDirectionPitch to 0. 
-    Local _steeringDirectionHeading to 0.
+    Local _steeringDirectionPitch to 0. // no idea why here
+    Local _steeringDirectionHeading to 0. // 
 
     Function SetMaxAoa { 
         Parameter aoA.        
@@ -45,18 +45,10 @@ Function EntrySteeringModel {
         Return _steeringDirectionHeading.
     }
 
-
-    Function SteeringVector { 
-        Return -Ship:Velocity:Surface.
-    }
-
-    Return Lexicon(
-        "GetSteeringDirectionPitch", GetSteeringDirectionPitch@,
-        "GetSteeringDirectionHeading", GetSteeringDirectionHeading@,
+    Return Lexicon(        
         "SetMaxAoa", SetMaxAoa@,
         "SetMinAoA", SetMinAoA@,
         "GetMaxAoA", GetMaxAoA@,
-        "GetMinAoA", GetMinAoA@,
-        "SteeringVector", SteeringVector@
+        "GetMinAoA", GetMinAoA@
     ).
 }

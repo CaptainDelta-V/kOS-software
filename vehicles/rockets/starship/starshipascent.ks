@@ -20,7 +20,7 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 60 * 3.4.
+Local RequiredApoapsisEtaMargin to 60 * 2.25.
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local vesselType to Params[KEY_VESSEL_TYPE].
@@ -87,9 +87,11 @@ Function AscendToOrbit {
 
     Wait 4.
     Local Booster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).         
+
     flightStatus:AddField("Booster Connection", { Return Booster:Connection:IsConnected. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
+    // flightStatus:AddField()
 
     // Set KUniverse:ForceActiveVessel to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).
 
@@ -99,7 +101,7 @@ Function AscendToOrbit {
     // }
 
     //ascent:TimeToApoapsis()
-    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin  Then {         
+    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000 Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
         

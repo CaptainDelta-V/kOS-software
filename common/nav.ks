@@ -49,11 +49,13 @@ Function CurrentRoll {
 // 	// Local Position
 // }
 
+Function HeadingOfVessel { 
+    Return HeadingOfVector(Ship:Velocity:Surface).
+}
+
 Function PitchOfVessel {     
     Return 90 - vectorangle(UP:FOREVECTOR, FACING:FOREVECTOR).
 }
-
-
 
 Function GetDeltaBetweenHeadings {
     Parameter heading1, heading2, delta.

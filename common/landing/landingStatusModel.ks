@@ -73,11 +73,11 @@ Function LandingStatusModel {
     }
 
     Function SpeedLatitude { 
-        Return Ship:Velocity:Surface:Z.
+        Return Ship:Velocity:Surface:Z. // Not sure this is right, probably not
     }
 
     Function SpeedLongitude { 
-        Return Ship:Velocity:Surface:Y.
+        Return Ship:Velocity:Surface:Y. // Not sure this is right, probably not
     }
 
     Function RetrogradeHeading { 

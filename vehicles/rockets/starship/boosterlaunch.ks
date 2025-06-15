@@ -32,7 +32,7 @@ Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitc
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 4_000.
 
-Local launchHeading to 42.
+Local launchHeading to 90.
 Local targetRoll to -90.
 
 Local vesselType to VESSEL_TYPE_SUPER_HEAVY_BOOSTER.

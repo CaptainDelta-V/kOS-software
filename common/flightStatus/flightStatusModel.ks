@@ -42,11 +42,12 @@ Function FlightStatusModel {
         Parameter fieldName.
         Parameter fieldValue.
         Parameter logOnly to false.
+        Parameter noLog to false.
         
         If not logOnly { 
             Set _flightStatusFields[fieldName] to fieldValue.        
         }
-        If (RecordLogs) { 
+        If RecordLogs and not noLog { 
             Local printValue to fieldValue.
             If fieldValue:HasSuffix("Call") { 
                 Set printValue to fieldValue:Call().

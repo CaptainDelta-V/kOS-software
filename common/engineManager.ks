@@ -127,11 +127,32 @@ Function EngineManager {
         }
     }
 
+    Function GetAllEngines { 
+        Local engineParts to List(). 
+
+        For pt in Ship:Parss { 
+            If pt:HasModule("ModuleEngines") or Part:HasModuleI("ModuleEnginesFX") { 
+                engineParts:Add(pt).
+            }
+        }
+
+        Return engineParts.
+    }
+
+    Function ToggleOMSEngines { 
+        Parameter disableOthers to true.
+
+        Local engines to GetAllEngines().
+        
+    }
+
     Return Lexicon(         
         "GetEngineMode", GetEngineMode@,
         "SetEngineState", SetEngineState@,
         "SetEngineMode", SetEngineMode@, 
         "SetThrustLimit", SetThrustLimit@,
-        "SetGimbalLimit", SetGimbalLimit@
+        "SetGimbalLimit", SetGimbalLimit@, 
+        "GetAllEngines", GetAllEngines@, 
+        "ToggleOMSEngines", ToggleOMSEngines@
     ).
 }
