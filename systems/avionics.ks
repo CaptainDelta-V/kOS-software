@@ -9,94 +9,117 @@ ClearScreen.
 Local flightStatus to FlightStatusModel("AVIONICS SYSTEM", "AWAITING INITIATION").
 Local ccatController to CCATManager().
 
-flightStatus:AddField("SOLVER RUNNING", ccatController:IsRunning@).
-flightStatus:AddField("TARGET CPU", ccatController:GetTargetCpuName@).
+// flightStatus:AddField("SOLVER RUNNING", ccatController:IsRunning@).
+// flightStatus:AddField("TARGET CPU", ccatController:GetTargetCpuName@).
 
-RunFlightStatusScreen(flightStatus, 0.25).
+// RunFlightStatusScreen(flightStatus).
 
+// Local startCCAT to false. 
+// Until startCCAT { 
+//     If not Core:Messages:Empty { 
+//         Local message to Core:Messages:Pop:Content.
+//         If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
+//             Local targetCpuName to message:Split("|")[1].
+//             ccatController:SetTargetCpuName(targetCpuName).  
+//             flightStatus:SetTitle("AVIONICS | " + targetCpuName).
 
-// ccatController:SetTargetCpuName(CORE_BOOSTER_CPU_NAME).
+//             // If targetCpuName:Contains("CORE") { 
+//             //     Shutdown.
+//             // }
+//         }
+//         Else If message = AVIONICS_CPU_RUN {     
+//             Set startCCAT to true.
+//         }
+//         Else If message = AVIONICS_CPU_STOP { 
+//             Shutdown.
+//         }
+//     }
 
-ccatController:LogMessage("init").
+//     // For debugging during flight:
+//     If Alt:Radar > 200 { 
+//         Set startCCAT to true.
+//     }
 
-Local startCCAT to false. 
-Until startCCAT { 
-    If not Core:Messages:Empty { 
-        Local message to Core:Messages:Pop:Content.
-        If message:StartsWith(AVIONICS_CPU_ASSIGN) {         
-            Local targetCpuName to message:Split("|")[1].
-            ccatController:SetTargetCpuName(targetCpuName).  
-            flightStatus:SetTitle("AVIONICS | " + targetCpuName).
+//     Wait 0.
+// }
 
-            If targetCpuName:Contains("CORE") { 
-                Shutdown.
-            }
-        }
-        Else If message = AVIONICS_CPU_RUN {     
-            Set startCCAT to true.
-        }
-        Else If message = AVIONICS_CPU_STOP { 
-            Shutdown.
-        }
-    }
+// flightStatus:Update("CCAT Starting . . . ").
+// flightStatus:AddField("Target CPU", ccatController:GetTargetCpuName@).
 
-    // If Alt:Radar > 200 { 
-    //     Set startCCAT to true.
-    // }
-
-    Wait 0.
-}
-
-StopRunFlightStatusScreen().
-Print "CCAT Starting . . . ".
-Print "Target CPU: " + ccatController:GetTargetCpuName().
-Local targetCpu to Processor(ccatController:GetTargetCpuName()).
-Local dt to 4.
-Local prevTraj to LatLng(0,0).
-Local comparisonDecimals to 5.
-
-// Shutdown.
+// Local targetCpu to Processor(ccatController:GetTargetCpuName()).
+Local dT to 0.01.
+Local cTraj to LatLng(0,0).
 
 Function onBeforeTrajectoryCalculated { 
-    ccatController:LogMessage("Iteration start").
+    flightStatus:LogMessage("Iteration start ").
 }.
 
 Function onTrajectoryCalculated  { 
     Parameter traj.
 
-    // ccatController:LogMessage("Iteration end").
+    Set cTraj to traj.
+
+    flightStatus:LogMessage("Iteration end").
 
     ClearScreen.
-    Print "==== SOLVER ACTIVE ====".
-    Print "TRAJ: " + traj.
-    Print "dT: " + dt.    
-    
-    targetCpu:Connection:SendMessage(traj).    
-    Wait 0.001.
+    flightStatus:Update("SOLVER ACTIVE ").    
 
-    Local messageBody to Lexicon().
-    messageBody:Add("impact", traj).
-    Local trajLat to Round(traj:Lat, comparisonDecimals).
-    Local trajLng to Round(traj:Lng, comparisonDecimals).
-
-    // Only message when changed
-    // If (not Round(traj:Lat, comparisonDecimals) = Round(prevTraj:Lng, comparisonDecimals)) 
-    //     or (not Round(traj:Lng, comparisonDecimals) = Round(prevTraj:Lng, comparisonDecimals)) { 
-    //         Print traj.
-            
-    //         Set prevTraj to traj.        
-    //     }   
-    //     Else { 
-    //         // print traj.
-    //     } 
 }.
 
-ccatController:RunCCAT(true, dt, 
-    onBeforeTrajectoryCalculated@, onTrajectoryCalculated@)
-        :continuousIteration().
+Clearscreen.
+Print "Manual iteratio mode".
+
+Until False { 
+
+    Clearscreen.
+    Print "Enter a thing: ".    
+    Local inputStr to "".
+    Wait Until Terminal:Input:GetChar() = Terminal:Input:Enter.
+
+    If Terminal:Input:HasChar() {         
+        Until not Terminal:Input:HasChar() { 
+            Set inputStr to inputStr + Terminal:Input:GetChar().
+        }
+    }
+
+    print "Whoel string: " + inputStr.
+
+    // Local currString to "".
+    // Local lastChar to NONE.    
+    // Until lastChar = Terminal:Input:Enter { 
+    //     Set lastChar to Terminal:Input:GetChar().
+    //     print "typed: " + lastChar.
+    // }
+
     
 
-//     Wait 5.
-// }
+    Terminal:Input:GetChar(). 
 
+
+    // Print "dT: ".
+    // Local strBuff to "".
+    // Until Terminal:Input:Enter {         
+    //     Set strBuff to strBuff + Terminal:Input:GetChar().
+    // }
+    // Set dT to strBuff:ToNumber().
+
+    // Local start to Time:Seconds.
+    // ccatController:RunCCAT(true, dT, 
+    //         onBeforeTrajectoryCalculated@, onTrajectoryCalculated@):singleIteration().
+    // Local end to Time:Seconds. 
+
+    // Local duration to end - start.
+    // Print "Calculated with dT: " + dT.
+    // Print "Duration: " + duration.
+    // Print "Impact: " + cTraj.
+    // Local trPos to Addons:TR:ImpactPos. 
+    // Print "TR: " + trPos.
+    // Print "TR Delta: " + (cTraj:AltitudePosition(100) - trPos:AltitudePosition(100)):Mag + "m".    
+    
+    // Print "any key to clear.".
+    // Terminal:Input:GetChar().    
+}
+
+
+    
 Wait Until False. 

@@ -1,4 +1,4 @@
-RUNONCEPATH("0:CCAT/ccat", False).
+RUNONCEPATH("0:CCAT/ccat").
 
 Function CCATManager { 
     Parameter messageTargetCpuName is "None".
@@ -34,7 +34,7 @@ Function CCATManager {
 
         Print "CPU to receive trajectory: " + messageTargetCpuName.
         Print "Continous processing should start . . .".
-        Wait 0.25.
+        // Wait 0.25.
         // Set _runStatus to "RUNNING".
         Return CCAT( 
             false,

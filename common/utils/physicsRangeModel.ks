@@ -2,6 +2,7 @@
 Function PhysicsRangeModel { 
 
     Function ResetPhysicsRanges { 
+        Parameter alsoIncreaseLanded to false.
 
         // Escaping
         Set KUniverse:DefaultLoadDistance:Escaping:Load To 2_250.
@@ -17,12 +18,14 @@ Function PhysicsRangeModel {
         Set KUniverse:DefaultLoadDistance:Flying:Unpack To 2_000.
         Set KUniverse:DefaultLoadDistance:Flying:Pack To 25_000.
 
-        // Landed
-        Set KUniverse:DefaultLoadDistance:Landed:Load To 2_250.
-        Set KUniverse:DefaultLoadDistance:Landed:Unload To 2_500.
-        Wait 0.001.
-        Set KUniverse:DefaultLoadDistance:Landed:Unpack To 200.
-        Set KUniverse:DefaultLoadDistance:Landed:Pack To 350.
+        If alsoIncreaseLanded {
+              // Landed
+            Set KUniverse:DefaultLoadDistance:Landed:Load To 2_250.
+            Set KUniverse:DefaultLoadDistance:Landed:Unload To 2_500.
+            Wait 0.001.
+            Set KUniverse:DefaultLoadDistance:Landed:Unpack To 200.
+            Set KUniverse:DefaultLoadDistance:Landed:Pack To 350.
+        }
 
         // Orbit
         Set KUniverse:DefaultLoadDistance:Orbit:Load To 2_250.

@@ -44,16 +44,22 @@ Function FlightStatusModel {
         Parameter logOnly to false.
         Parameter noLog to false.
         
-        If not logOnly { 
+        If not logOnly { // this is dumb, why do
             Set _flightStatusFields[fieldName] to fieldValue.        
         }
-        If RecordLogs and not noLog { 
-            Local printValue to fieldValue.
-            If fieldValue:HasSuffix("Call") { 
-                Set printValue to fieldValue:Call().
-            }
-            Log "[" + Timestamp(Time:Seconds):Full + "] " + fieldName + " set to " + printValue To LogFilePath.
-        }
+        // If RecordLogs and not noLog { 
+        //     Local printValue to fieldValue.
+        //     If fieldValue:HasSuffix("Call") { 
+        //         Set printValue to fieldValue:Call().
+        //     }
+        //     Log "[" + Timestamp(Time:Seconds):Full + "] " + fieldName + " set to " + printValue To LogFilePath.
+        // }
+    }
+
+    Function LogMessage { 
+        Parameter msg. 
+ 
+        Log "[" + Timestamp(Time:Seconds):Full + "] (LOG) " + msg To LogFilePath.
     }
 
     Function RemoveField { 
@@ -104,6 +110,7 @@ Function FlightStatusModel {
         "SetTitle", SetTitle@,
         "PrintStatusScreen", PrintStatusScreen@, 
         "AddField", AddField@, 
+        "LogMessage", LogMessage@,
         "Update", Update@,
         "RemoveField", RemoveField@,
         "UpdateField", UpdateField@
@@ -114,14 +121,16 @@ Local stopRunningFlightStatusScreen to false.
 
 Global Function RunFlightStatusScreen { 
     Parameter flightStatus.
-    Parameter delay to 0.5.
+    Parameter delay to 0.05. // deprecated, remove
 
-    Set stopRunningFlightStatusScreen to false. 
+    Set stopRunningFlightStatusScreen to false.  // this has  MASSIVE PERF IMPACT, but the faster the screen goes, the faster it prints
 
     When not stopRunningFlightStatusScreen Then {         
         flightStatus:PrintStatusScreen().
+
+        // DropPriority().
         
-        Wait delay.
+        // Wait delay. // this was a bad idea
         Preserve.        
     }
 }

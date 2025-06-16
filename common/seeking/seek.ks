@@ -29,10 +29,10 @@ Function Seeker {
                 Set targetReached to previousError < currentError.
             }
 
-            flightStatus:AddField("ACTUAL", actual).
-            flightStatus:AddField("TARGET", targetVal).
+            flightStatus:AddField("ACTUAL", actual, false, true).
+            flightStatus:AddField("TARGET", targetVal, false, true).
             Set previousError to currentError.
-            // Wait 0.
+            // Wait 0.001.
         }
 
         flightStatus:RemoveField("ACTUAL").

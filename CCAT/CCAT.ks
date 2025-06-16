@@ -661,7 +661,9 @@ function CCAT {
     function singleIteration {
         // PUBLIC Iterate :: nothing -> nothing
         // Call this function to perform one iteration
+        onBeforeTrajectoryCalculated().
         for FX in masterFunctionManager:values FX().
+        onTrajectoryCalculated(getFinalPosition():Geoposition).        
     }
 
     function continuousIteration {
@@ -669,9 +671,7 @@ function CCAT {
         // Call this function to perform continuous iterations
 
         until masterManager["masterSwitch"] {
-            onBeforeTrajectoryCalculated().
-            for FX in masterFunctionManager:values FX().
-            onTrajectoryCalculated(getFinalPosition():Geoposition).        
+            singleIteration().
         }
     }
 
@@ -708,24 +708,26 @@ function CCAT {
 }
 
 // solver : targetDT : runOnce : useError : targetError : endInObt : exactAtmo : useGUI : vectorVis : heightError : interpolateMethod : profileName : bodyName
-parameter doRun is true.
 
-If doRun { 
-    local CCATFX is CCAT( 
-        false,
-        "RKDP54",
-        1,    
-        True,
-        1,
-        False,
-        False,
-        True,
-        True,
-        3,
-        "Linear",
-        "Falcon Heavy Side Booster",
-        ship:body
-    ).
+// THIS STARTS AS THE FILE IS IMPORT BIG PERF HIT
+// parameter doRun is true.
 
-    CCATFX["continuousIteration"]().
-}
+// If doRun { 
+//     local CCATFX is CCAT( 
+//         false,
+//         "RKDP54",
+//         1,    
+//         True,
+//         1,
+//         False,
+//         False,
+//         True,
+//         True,
+//         3,
+//         "Linear",
+//         "Falcon Heavy Side Booster",
+//         ship:body
+//     ).
+
+//     CCATFX["continuousIteration"]().
+// }

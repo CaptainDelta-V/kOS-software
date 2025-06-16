@@ -29,13 +29,13 @@ flightStatus:AddField("ETA APOAPSIS", { return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("ETA PERIAPSIS", { return Ship:Orbit:ETA:Periapsis. }).
 
 // GetLaunchConfirmation(flightStatus:GetTitle()).
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus, 0.1).
 
 Local landingSite to LatLng(-0.123942125673094,-74.4642469768736). // OLM
 Local landingOvershootMeters to 1_000. 
 
-Local pitchMax to 55. 
-Local pitchMin to 10. 
+Local pitchMax to 77. 
+Local pitchMin to 15. 
 
 Local parkingOrbitTolerance to 2_000.
 Local parkingOrbitIdeal to Body:Atm:Height + parkingOrbitTolerance. 
@@ -46,21 +46,23 @@ If Ship:Orbit:Periapsis > Body:Atm:Height {
     If Ship:Orbit:Periapsis > parkingOrbitMinPeriapsis and Ship:Orbit:Apoapsis > parkingOrbitMaxApoapsis { 
         flightStatus:Update("ESTABLISH PARKING ORBIT").
         Local hohmannTransfer to HohmannTransferController(flightStatus, parkingOrbitIdeal).
-        hohmannTransfer:Engage(0.2, 0.05, 0.35, 60). // burnThrottle, finalizationThrottle, finalizationPercentage, alignmentMargin,        
+        hohmannTransfer:Engage(0.2, 0.1, 0.35, 30). // burnThrottle, finalizationThrottle, finalizationPercentage, alignmentMargin,        
     } Else { 
         flightStatus:Update("ACCEPT CURRENT ORBIT AS PARKING").
     }
 
-    If Ship:Orbit:Periapsis < Body:Atm:Height { 
-        flightStatus:Update("CREATE DEORBIT MNV.").
 
-        Local deorbit to DeOrbitBurnController(flightStatus, 0.2, 0.1, 0.3, 50).    
-        deorbit:DeOrbit(landingSite).
-    }
-    Else {
-        flightStatus:Update("DEORBIT FAILURE").
-        Shutdown.
-    }
+    flightStatus:Update("CREATE DEORBIT MNV.").
+
+    Local deorbit to DeOrbitBurnController(flightStatus, 1, 0.4, 0.05, 42).    
+    deorbit:DeOrbit(landingSite).
+    // If Ship:Orbit:Periapsis < Body:Atm:Height { 
+      
+    // }
+    // Else {
+    //     flightStatus:Update("DEORBIT FAILURE").
+    //     Shutdown.
+    // }
 }
 
 RemoveAllNodes().
@@ -82,28 +84,28 @@ Lock pitchError to landingStatus:ErrorVector():X.
 Lock yawError to landingStatus:ErrorVector():Y. 
 Lock yawErrorIsRight to yawError < 0.
 
+Lock zError to landingStatus:ErrorVector():Z.
+
 flightStatus:AddField("Is Overshooting", { Return isOvershooting. }).
 flightStatus:AddField("Trajectory Error", { Return Round(landingStatus:TrajectoryErrorMeters(), 1) + "m". }).
 
-Local maximumReasonableRangeError to 5_000. // The highest error expected to start after deorbit
-Local maximumReasonableYawError to 5_000.
+Local maximumReasonableRangeError to 1_000. // The highest error expected to start after deorbit
+Local maximumReasonableYawError to 1_000.
 
 Local maxPitchErrorTolerance to 1_000.
 Local maxYawErrorTolerance to 1_000.
 
 Local maxYawErrorTolerance to 500.
-Local defaultPitch to 55.
-Local pitchMin to 10.
-Local pitchMax to 85.
-Local errorScale to 0.25.
-Local yawRange to 20.
+Local defaultPitch to 35.
+Local yawRange to 32.
 
 flightStatus:AddField("Pitch Min", pitchMin).
 flightStatus:AddField("Pitch Max", pitchMax).
 flightStatus:AddField("Error (Pitch)", { Return Round(pitchError, 1). }).
 flightStatus:AddField("Error (Yaw)", { Return Round(yawError, 1). }).
-flightStatus:AddField("Current Pitch", PitchOFVessel@).
-flightStatus:AddField("Current Heading", HeadingOfVessel@).
+flightStatus:AddField("Error (Z)", { Return Round(zError, 1). }).
+flightStatus:AddField("Current Pitch", { Return Round(PitchOFVessel(), 2). }).
+flightStatus:AddField("Current Heading", { Return Round(HeadingOfVessel(), 2). }).
 
 Lock targetHeading to HeadingOfVector(landingSite:Position - Ship:Geoposition:Position).
 
@@ -123,6 +125,7 @@ Until bellyFlopStart {
     If Abs(pitchError) > maxPitchErrorTolerance { 
 
         Local errorPct to Abs(pitchError / maximumReasonableRangeError).
+        flightStatus:AddField("Pitch (Range) Error", errorPct + "% of " + maximumReasonableRangeError).
         Set errorPct to Min(1, errorPct).
         Local correctivePitch to 0.
 
@@ -141,8 +144,13 @@ Until bellyFlopStart {
     If yawError > maxYawErrorTolerance { 
 
         Local errorPct to yawError / maximumReasonableYawError.
+        // flightStatus:LogMessage("yaw error pct: " + errorPct + " of " + maximumReasonableYawError).
+
+        flightStatus:AddField("Yaw Error", Round(errorPct, 2) + "% of " + maximumReasonableYawError).
         Set errorPct to Min(1, errorPct).
         Set correctiveHeading to 0.
+
+        flightStatus:AddField("Yaw Error Right?", yawErrorIsRight).
 
         If yawErrorIsRight {             
             Set correctiveHeading to -(targetHeading + (yawRange * errorPct)).
@@ -156,9 +164,9 @@ Until bellyFlopStart {
         Set correctiveRoll to 0.
     }
 
-    flightStatus:AddField("Corrective Pitch", targetPitch, false, true).
-    flightStatus:AddField("Corrective Heading", correctiveHeading, false, true).
-    flightStatus:AddField("Heading to Target", targetHeading, false, true).
+    flightStatus:AddField("Corrective Pitch", Round(targetPitch, 2)).
+    flightStatus:AddField("Corrective Heading", Round(correctiveHeading, 2)).
+    flightStatus:AddField("Heading to Target", Round(targetHeading, 2)).    
 
     Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
 

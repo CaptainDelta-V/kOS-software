@@ -100,7 +100,7 @@ Function ManueverNodeManager {
     Function Engage { 
         Parameter finalizationThrottle.
         Parameter finalizationPercent to 0.20.
-        Parameter stopAtRemainingMagnitude to 0.2.
+        Parameter stopAtRemainingMagnitude to 1.
 
         Lock Steering to mnvNode:DeltaV.
         flightStatus:Update("BURN ALIGNMENT").
@@ -119,12 +119,21 @@ Function ManueverNodeManager {
         Local finalizationThrottleSet to false.
         Local burnStopTime to Time:Seconds + _burnDuration.
         Local burnStop to false. 
-        Local prevBurnMagError to mnvNode:DeltaV:Mag + 1.
+        Local prevBurnMagError to mnvNode:DeltaV:Mag + 100.
+        Local prevBurnMagErrorTolerance to 1. // sometimes the value is too close on start
+
+        flightStatus:LogMessage("Prev burn mag error: " + prevBurnMagError).
         Until burnStop { 
             Local currentDeltaVMagError to mnvNode:DeltaV:Mag.
-            Set burnStop to  currentDeltaVMagError > prevBurnMagError or currentDeltaVMagError < stopAtRemainingMagnitude.
+
+            flightStatus:LogMessage("current burn mag error: " + currentDeltaVMagError).
+            flightStatus:LogMessage("Prev burn mag error: " + prevBurnMagError).
+
+            Set burnStop to currentDeltaVMagError > (prevBurnMagError + prevBurnMagErrorTolerance) or currentDeltaVMagError < stopAtRemainingMagnitude.
+            flightStatus:LogMessage("Burn stop?: " + burnStop).
 
             If (not finalizationThrottleSet) and ((burnStopTime - Time:Seconds) < _burnDuration * finalizationPercent) { 
+                flightStatus:LogMessage("finalization throttle started finalization pct: " + finalizationPercent).
                 Lock throttle to finalizationThrottle.
                 Set finalizationThrottleSet to true.
             }

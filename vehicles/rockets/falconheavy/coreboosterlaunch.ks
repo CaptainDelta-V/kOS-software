@@ -60,7 +60,7 @@ Local launchProfileSecondary to LaunchProfileModel(2.45, 10, 9.7, BoosterMaxPitc
 Local launchProfile to launchProfileInitial.
 Local launchProfileTransitionAltitude to 4_000.
 
-Local launchHeading to 45.
+Local launchHeading to 42.
 Local targetRoll to -180.
 Local sideBoosterSeparationAtFuelAmount to 2400.
 Local upperstageSeparationAtFuelAmount to 2650. 

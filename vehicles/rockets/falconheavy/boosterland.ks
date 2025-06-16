@@ -44,7 +44,7 @@ Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
 
 Local boosterRadarOffset to 25. 
 Local suicideMargin to 200.
-Local maxBurnStartAltitude to 3_700.
+Local maxBurnStartAltitude to 4_500.
 Local overshootMeters to 100. 
 Local boostbackPitch to 0.
 Local targetRoll to 0.
@@ -76,10 +76,6 @@ Local avionicsCpu to Processor(avionicsCpuName).
 Local isSideBooster to boosterSide = INDICATOR_BOOSTER_LEFT or boosterSide = INDICATOR_BOOSTER_RIGHT. // not side booster and not core means the side booster that I am watching actively.
 Local useCCAT to isSideBooster.
 // Local useCCAT to boosterSide = INDICATOR_BOOSTER_LEFT or INDICATOR_BOOSTER_CORE.
-
-If not isSideBooster { 
-    Set maxBurnStartAltitude to 3_250. // core in ocean in coming in much steeper
-}
 
 Local flightStatus to FlightStatusModel("BOOSTER LANDING GUIDANCE (" + boosterSide + ")", "AWAITING INITIATION").
 Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, false, useCCAT):Overshoot(overshootMeters).
