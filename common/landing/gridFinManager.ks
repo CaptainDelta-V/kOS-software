@@ -1,6 +1,6 @@
 
 @LAZYGLOBAL OFF.
-RUNONCEPATH("1:common/constants").
+RUNONCEPATH("0:common/constants").
 
 Function GridFinManager { 
 

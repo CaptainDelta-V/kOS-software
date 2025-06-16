@@ -1,6 +1,6 @@
-RUNONCEPATH("1:common/control").
-RUNONCEPATH("1:common/math").
-RUNONCEPATH("1:common/flight/flightControlModel").
+RUNONCEPATH("0:common/control").
+RUNONCEPATH("0:common/math").
+RUNONCEPATH("0:common/flight/flightControlModel").
 
 Function BoostbackBurnController {     
     Parameter landingStatus.
