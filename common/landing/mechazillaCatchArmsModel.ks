@@ -1,5 +1,4 @@
 @LAZYGLOBAL OFF.
-// RUNONCEPATH("1:common/nav").
 
 Function MechazillaCatchArmsModel { 
     Parameter Mechazilla.
@@ -13,8 +12,6 @@ Function MechazillaCatchArmsModel {
         MechazillaControllerModule:SetField("target angle", 7).
         RaiseLandingRails().
     }
-
-    // Function GetHeadingTo
 
     Function AlignToHeading { 
         Parameter headingToTarget.

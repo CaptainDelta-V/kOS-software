@@ -1,5 +1,5 @@
 @LAZYGLOBAL OFF.
-RUNONCEPATH("1:common/nav").
+RUNONCEPATH("0:common/nav").
 
 
 Function LandingStatusModel {    

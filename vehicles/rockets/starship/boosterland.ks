@@ -34,7 +34,7 @@ Local drainValveController to DrainValveManager(drainValves).
 Local boosterRadarOffset to 63.4.
 Local towerCatchAltitude to 150. // ASL reference
 Local altitudePositionTarget to towerCatchAltitude - 90.
-Local suicideMargin to 60.
+Local suicideMargin to 120.
 Local maxBurnStartAltitude to 3_000.
 Local undershootMeters to -80.
 Local overshootMeters to 25. // 160 is very steep

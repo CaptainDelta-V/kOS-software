@@ -1,5 +1,5 @@
-RUNONCEPATH("1:common/math").
-RUNONCEPATH("1:common/nav").
+RUNONCEPATH("0:common/math").
+RUNONCEPATH("0:common/nav").
 
 Function LandingSteeringModel {
     Parameter LandingModel.

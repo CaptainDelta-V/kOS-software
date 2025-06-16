@@ -1,6 +1,6 @@
-RUNONCEPATH("1:common/infos").
-RUNONCEPATH("1:common/control").
-RUNONCEPATH("1:common/nav").
+RUNONCEPATH("0:common/infos").
+RUNONCEPATH("0:common/control").
+RUNONCEPATH("0:common/nav").
 
 Global Function RunUpperAscent { 
     Parameter targetApoapsis. 
