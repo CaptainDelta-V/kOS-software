@@ -9,7 +9,7 @@ Function BoostbackBurnController {
 
     Function Engage { 
         Parameter boostbackPitch to 0.
-        Parameter minimumError to 10_000.
+        Parameter minimumError to 4_000.
         Parameter throttleCurveCode to -1.        
         Parameter abortAltitude to 50_000.  
         Parameter minThrottle to 0.05.

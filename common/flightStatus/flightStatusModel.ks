@@ -7,10 +7,11 @@ Function FlightStatusModel {
     Parameter FlightStatus to "UNKNOWN".    
     Parameter RecordLogs to true.
 
-    Local LogFilePath is "0:logs/flight_" + ScreenTitle.
+    Local _logFilePath is "0:logs/flight_" + ScreenTitle.
+    Local _tempFields to List().
 
     If (RecordLogs) { 
-        DeletePath(LogFilePath).    
+        DeletePath(_logFilePath).    
         Log "[" + Timestamp(Time:Seconds):Full + "] " + "INIT: " + ScreenTitle To LogFilePath.
     }
 
@@ -47,6 +48,7 @@ Function FlightStatusModel {
         If not logOnly { // this is dumb, why do
             Set _flightStatusFields[fieldName] to fieldValue.        
         }
+
         // If RecordLogs and not noLog { 
         //     Local printValue to fieldValue.
         //     If fieldValue:HasSuffix("Call") { 
@@ -54,6 +56,22 @@ Function FlightStatusModel {
         //     }
         //     Log "[" + Timestamp(Time:Seconds):Full + "] " + fieldName + " set to " + printValue To LogFilePath.
         // }
+    }
+
+    Function AddTempField { 
+        Parameter fieldName.
+        Parameter fieldValue.
+        Set _flightStatusFields[fieldName] to fieldValue.        
+        _tempFields:Add(fieldName).        
+    }
+
+    Function RemoveTempFields { 
+
+        For temper in _tempFields { 
+            RemoveField(temper).
+        }
+
+        Set _tempFields to List().
     }
 
     Function LogMessage { 
@@ -110,6 +128,8 @@ Function FlightStatusModel {
         "SetTitle", SetTitle@,
         "PrintStatusScreen", PrintStatusScreen@, 
         "AddField", AddField@, 
+        "AddTempField", AddTempField@, 
+        "RemoveTempFields", RemoveTempFields@,
         "LogMessage", LogMessage@,
         "Update", Update@,
         "RemoveField", RemoveField@,

@@ -28,16 +28,15 @@ Local flightStatus to FlightStatusModel("ENTRY GUIDANCE", "AWAITING INITIATION")
 flightStatus:AddField("ETA APOAPSIS", { return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("ETA PERIAPSIS", { return Ship:Orbit:ETA:Periapsis. }).
 
-// GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.1).
 
 Local landingSite to LatLng(-0.123942125673094,-74.4642469768736). // OLM
 Local landingOvershootMeters to 1_000. 
 
-Local pitchMax to 77. 
-Local pitchMin to 15. 
+Local pitchMax to 70. 
+Local pitchMin to 12. 
 
-Local parkingOrbitTolerance to 2_000.
+Local parkingOrbitTolerance to 4_000.
 Local parkingOrbitIdeal to Body:Atm:Height + parkingOrbitTolerance. 
 Local parkingOrbitMinPeriapsis to parkingOrbitIdeal - parkingOrbitTolerance. 
 Local parkingOrbitMaxApoapsis to parkingOrbitIdeal + parkingOrbitTolerance.
@@ -97,7 +96,7 @@ Local maxYawErrorTolerance to 1_000.
 
 Local maxYawErrorTolerance to 500.
 Local defaultPitch to 35.
-Local yawRange to 32.
+Local yawRange to 18.
 
 flightStatus:AddField("Pitch Min", pitchMin).
 flightStatus:AddField("Pitch Max", pitchMax).
@@ -110,11 +109,13 @@ flightStatus:AddField("Current Heading", { Return Round(HeadingOfVessel(), 2). }
 Lock targetHeading to HeadingOfVector(landingSite:Position - Ship:Geoposition:Position).
 
 Local targetPitch to 0.
-Local correctiveHeading to 0.
-Local correctiveRoll to 0.
+Lock correctiveHeading to 0.
+Lock correctiveRoll to 0.
 
-Local bellyFlopStart to false. 
-Until bellyFlopStart { 
+Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
+
+Local finalDescentStart to false. 
+Until finalDescentStart { 
 
     Local pitchUpperRange to pitchMax - defaultPitch.
     Local pitchLowerRange to defaultPitch - pitchMin.
@@ -140,35 +141,33 @@ Until bellyFlopStart {
     } Else { 
         Set targetPitch to defaultPitch.        
     }
+    
+    If Abs(yawError) > maxYawErrorTolerance {         
 
-    If yawError > maxYawErrorTolerance { 
-
-        Local errorPct to yawError / maximumReasonableYawError.
+        Local errorPct to Abs(yawError / maximumReasonableYawError).
         // flightStatus:LogMessage("yaw error pct: " + errorPct + " of " + maximumReasonableYawError).
 
         flightStatus:AddField("Yaw Error", Round(errorPct, 2) + "% of " + maximumReasonableYawError).
         Set errorPct to Min(1, errorPct).
-        Set correctiveHeading to 0.
+        Lock correctiveHeading to 0.
 
         flightStatus:AddField("Yaw Error Right?", yawErrorIsRight).
 
         If yawErrorIsRight {             
-            Set correctiveHeading to -(targetHeading + (yawRange * errorPct)).
-            Set correctiveRoll to 25.
+            Lock correctiveHeading to targetHeading + (-1 * yawRange * errorPct).
+            Lock correctiveRoll to 25.
         } Else { 
-            Set correctiveHeading to targetHeading + (yawRange * errorPct).
-            Set CorrectiveRoll to -25.
+            Lock correctiveHeading to targetHeading + (yawRange * errorPct).
+            Lock correctiveRoll to -25.
         }       
     } Else { 
-        Set correctiveHeading to targetHeading.
-        Set correctiveRoll to 0.
+        Lock correctiveHeading to targetHeading.
+        Lock correctiveRoll to 0.
     }
 
     flightStatus:AddField("Corrective Pitch", Round(targetPitch, 2)).
     flightStatus:AddField("Corrective Heading", Round(correctiveHeading, 2)).
-    flightStatus:AddField("Heading to Target", Round(targetHeading, 2)).    
-
-    Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
+    flightStatus:AddField("Heading to Target", Round(targetHeading, 2)).        
 
     Wait 0.01.
 }

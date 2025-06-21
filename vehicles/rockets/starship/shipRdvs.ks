@@ -16,17 +16,41 @@ RUNONCEPATH("0:common/orbit/rendezvousModel").
 ClearScreen.
 ClearVecDraws(). 
 
-Local flightStatus to FlightStatusModel("STARSHIP ORBITAL RENDEZVOUS", "AWAITING INITIATION").
+Local flightStatus to FlightStatusModel("ORBITAL RENDEZVOUS", "AWAITING INITIATION").
 
-flightStatus:AddField("ETA APOAPSIS", { return Ship:Orbit:ETA:Apoapsis. }).
-flightStatus:AddField("ETA PERIAPSIS", { return Ship:Orbit:ETA:Periapsis. }).
+flightStatus:AddField("ETA Apoapsis", { return Round(Ship:Orbit:ETA:Apoapsis, 2). }).
+flightStatus:AddField("ETA Periapsis", { return Round(Ship:Orbit:ETA:Periapsis, 2). }).
+flightStatus:AddField("OBT True Anomaly", { Return Round(Ship:Orbit:TrueAnomaly, 2). }).
+flightStatus:AddField("PER", { Return Round(Ship:Orbit:Period, 1) + "s". }).
 
-// GetLaunchConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus, 0.2).
 
-Local rdvsModel to RendezvousModel(flightStatus).
+Local rdvs to RendezvousModel(flightStatus).
 
-rdvsModel:GetInfo().
+flightStatus:AddField("Relative Inc.", { Return Round(rdvs:RelativeInclination(), 4). }).
+flightStatus:AddField("Angle to AN", { Return Round(rdvs:AngleToAN(), 4). }).
+flightStatus:AddField("Angle to DN", { Return Round(rdvs:AngleToDN(), 4). }).
+
+Local timeStart to Time:Seconds.
+Local hoursToSeek to 2.
+Local timeStop to timeStart + (SECONDS_PER_HOUR * hoursToSeek).
+Local timeStepSeconds to 2.
+Local closestApproach to rdvs:ClosestApproach(timeStart, timeStop, timeStepSeconds).
+
+flightStatus:Update("Done Stage 1 Approach Seeking").
+flightStatus:AddField("Closest Approach", Round(closestApproach:MinDist / 1000, 2) + "km").
+flightStatus:AddField("Closest Approach Time", Timestamp(closestApproach:Time):Full).
+flightStatus:RemoveTempFields().
+
+flightStatus:Update("AN DN").
+
+// todo: eta to the AN/DN
+// todo: determine if rel. inc. is up or down -> normal/antinormal
+
+
+// flightStatus:AddField("REL. INC.", rdvs:RelativeInclination@).
+// flightStatus:AddField("ANGLE TO LAN", rdvs:AngleToLAN@).
+
 // rdvsModel:CheckClosestApproach().
 
 

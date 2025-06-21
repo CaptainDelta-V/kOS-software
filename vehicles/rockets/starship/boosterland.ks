@@ -314,11 +314,14 @@ Wait Until Altitude < maxBurnStartAltitude.
     // do not start burn stupid early
 
 landingSteering:SetMaxAoa(2).
-landingBurn:SetRadarOffset(420).
+
+Local lastVerticalSpeed to Ship:VerticalSpeed.
 
 Local landingBurnStart to false. 
 Until landingBurnStart {
+    Local vs to Ship:VerticalSpeed.
     Set landingBurnStart to landingBurn:TrueRadar() < landingBurn:GetStopDistance() + suicideMargin.
+    Set lastVerticalSpeed to vs.
     Wait 0.001.
 }        
 

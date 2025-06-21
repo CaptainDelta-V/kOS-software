@@ -76,8 +76,9 @@ Function DeOrbitBurnController {
 
         Local seek to Seeker(flightStatus).
         seek:To(acceptableTargetError, getActualError, adjuster, true, terminator).        
-        flightStatus:Update("DEORBIT TIME SET").    
-        Wait 2. 
+        flightStatus:Update("DEORBIT TIME SET").            
+
+        GetLaunchConfirmation("Accept Deorbit time?").
 
         manueverNodeController:WarpToAlignment(alignmentTimeMargin).
         manueverNodeController:Engage(finalizationThrottle, finalizationPercentage).
