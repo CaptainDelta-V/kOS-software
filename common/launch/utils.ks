@@ -72,7 +72,7 @@ Function GetRangeViolations {
 
             Set violationInfo["Name"] to otherVessel:Name.
             Set violationInfo["Distance"] to Round(otherVesselDistance, 1).
-            Set violationInfo["type"] to otherVessel:Type.
+            Set violationInfo["Type"] to otherVessel:Type.
             rangeViolations:Add(violationInfo).            
         }
     }

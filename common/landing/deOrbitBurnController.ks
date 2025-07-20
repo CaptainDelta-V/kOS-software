@@ -20,7 +20,7 @@ Function DeOrbitBurnController {
         Add deorbitNode.
 
         Local targetDeOrbitPeriapsis to 20_000.
-        Local acceptableTargetError to 50_000. // within 100km of target        
+        Local acceptableTargetError to 70_000. // within 100km of target        
 
         Local getActualError to { 
             Return deorbitNode:Orbit:Periapsis.

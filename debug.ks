@@ -32,9 +32,9 @@ DeletePath(LogFilepath).
 // print "send: " + sendit.
 
 Local physicsRangeController to PhysicsRangeModel(). 
-Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
-physicsRangeController:ResetPhysicsRanges().        
-// physicsRangeController:SetPhysicsRangesForRecoveryLaunch(true).
+// Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
+// physicsRangeController:ResetPhysicsRanges().        
+physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
 
 

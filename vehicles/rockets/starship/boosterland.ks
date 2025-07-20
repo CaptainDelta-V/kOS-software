@@ -50,12 +50,11 @@ Local landingSite to olmLandRefGeoPosition.
 Local approachOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(overshootMeters):GetLandingSite().
 Local rollReferenceOvershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(500):GetLandingSite().
 Local approachSlightUndershootRefSite is LandingStatusModel(towerBaseGeoPosition, altitudePositionTarget):Overshoot(-60):GetLandingSite().
-Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-3_000):GetLandingSite().
+Local approachUndershootSite is LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(-2_000):GetLandingSite().
 Local landingStatus to LandingStatusModel(approachOvershootSite, altitudePositionTarget):Overshoot(undershootMeters).
 Local landingSteering to LandingSteeringModel(landingStatus).
 
-// Local landingStatusPositional to LandingStatusModel(olmGeoPosition, altitudePositionTarget).
-// Local landingSteeringPositional to LandingSteeringModel().
+Local boostbackRequirementErrorThreshold to 5_000.
 
 Local boostbackPitch to 0.
 Local targetRoll to -70.
@@ -87,6 +86,7 @@ engineController:SetEngineMode(ENG_MODE_SH_MID_INR).
 landingStatus:SetLandingSite(approachUndershootSite).
 Local TargetVessel to Vessel(TOWER_VESSEL_NAME).
 
+flightStatus:AddField("Steering", "Retrograde").
 Lock Steering to Heading(landingStatus:RetrogradeHeading(), boostbackPitch, targetRoll). 
 
 Wait 0.5.
@@ -242,28 +242,31 @@ If Debug {
 }
 
 
-// flightStatus:Update("Waiting Until Descent").
-// Wait Until Ship:VerticalSpeed < 0.
+Local boostbackRequired to landingStatus:TrajectoryErrorMeters() > boostbackRequirementErrorThreshold.
 
-If Not SkipBoostback { 
+If Not SkipBoostback and boostbackRequired { 
     flightStatus:Update("BOOSTBACK ORIENTATION").        
     WaitUntilOriented(30, 20).
 
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
-    Local boostbackAbortAltitude to 50_000. // 64_000 for 6 engines
+    Local boostbackAbortAltitude to 45_000. // 64_000 for 6 engines
 
     flightStatus:Update("BOOSTBACK ITERATION: 1").
-    boostback:Engage(boostbackPitch, 5_000, 1, boostbackAbortAltitude, 0.3, 60, 850).
+    boostback:Engage(boostbackPitch, 2_000, 1, boostbackAbortAltitude, 0.3, 60, 850).
 
     Local iteration2RequiredError to 500.
-    if landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
+    If landingStatus:TrajectoryErrorMeters() > iteration2RequiredError { 
         flightStatus:Update("BOOSTBACK ITERATION: 2").
         boostback:Engage(boostbackPitch, iteration2RequiredError, 0.00005, boostbackAbortAltitude, 0.3).
     }
 }
 
-Lock Steering to landingSteering:SteeringVector().
+flightStatus:AddField("Steering", "Steering Vector").
+Lock Steering to landingSteering:SteeringVector(). // todo: should roll
+
 flightStatus:AddField("Max AoA", landingSteering:GetMaxAoA@).
+flightStatus:AddField("Target AoA Raw", landingSteering:GetTargetAoARaw@).
+flightStatus:AddField("Retrograde pitch", { Return PitchOfVector(-Ship:Velocity:Surface). }).
 
 flightStatus:Update("POST BOOSTBACK COAST").
 RCS ON.
@@ -302,10 +305,10 @@ Wait Until Altitude < 25_000.
     engineController:SetEngineMode(ENG_MODE_SH_MID_INR).        
 
 Wait Until Altitude < 20_000.    
-landingSteering:SetMaxAoa(22).
+landingSteering:SetMaxAoa(16).
 
 Wait Until Altitude < 12_000. 
-    landingSteering:SetMaxAoA(18).
+    landingSteering:SetMaxAoA(14).
 
 Wait Until Altitude < 8_000. 
     landingSteering:SetMaxAoA(12).
@@ -326,12 +329,11 @@ Until landingBurnStart {
 }        
 
 landingStatus:SetLandingSite(olmLandRefGeoPosition).    
-Lock Steering to LookDirup(landingSteering:SteeringVector(),  rollReferenceOvershootSite:Position).            
+
 ResetTorque().
 landingSteering:SetErrorScaling(4).
-
-Lock Steering to -Ship:Velocity:Surface.
-// Lock Steering to LookDirUp(landingSteering:SteeringVectorReferenceRadialOut(),  rollReferenceOvershootSite:Position).
+flightStatus:AddField("Steering", "Vector, Rel. Radial Out").
+Lock Steering to LookDirUp(landingSteering:SteeringVectorReferenceRadialOut(),  rollReferenceOvershootSite:Position).
 Lock Throttle to 1.    
 landingSteering:SetMaxAoA(-2).      
 landingBurn:SetRadarOffset(boosterRadarOffset).
@@ -394,7 +396,7 @@ Until verticalSpeedHoldStart {
     Local landingVSpeedStage1Set to false.
     Local landingVSpeedStage2Set to false.
 
-    Local finalHoverRadarAltitude to 67.5.
+    Local finalHoverRadarAltitude to 64.5.
 
     flightStatus:Update("VERTICAL SPEED HOLD").
     RunVerticalSpeedHold({             
@@ -434,10 +436,11 @@ Until verticalSpeedHoldStart {
             flightStatus:Update("REQUESTING CATCH").                            
         }
 
-        If not landingVSpeedStage2Set and landingBurn:TrueRadar() < 10 {             
+        If not landingVSpeedStage2Set and landingBurn:TrueRadar() < 15 {                         
             Set landingVSpeedStage2Set to true.                      
-            flightStatus:Update("LANDING VS STAGE 2 SET").
-            landingSteering:SetMaxAoA(-1).  
+            flightStatus:Update("LANDING VS STAGE 2 SET. Horizontal Kill Active").
+            landingSteering:SetMaxAoA(-1.5).  
+            Lock Steering to LookDirUp(landingSteering:SteeringVectorHorizontalKill(),  rollReferenceOvershootSite:Position).
             Set vsTarget to -0.25.
         }
 
@@ -484,7 +487,7 @@ Until verticalSpeedHoldStart {
         Return Ship:VerticalSpeed. 
     },
     {        
-        Return Alt:Radar < finalHoverRadarAltitude + 2.5.
+        Return Alt:Radar < finalHoverRadarAltitude + 0.25.
         // Return landingBurn:TrueRadar() < 8.        
     }).     
 

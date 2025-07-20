@@ -6,6 +6,8 @@ RUNPATH("0:common/constants").
 
 ClearScreen.
 
+Shutdown.
+
 Local flightStatus to FlightStatusModel("AVIONICS SYSTEM", "AWAITING INITIATION").
 Local ccatController to CCATManager().
 

@@ -31,18 +31,18 @@ flightStatus:AddField("Relative Inc.", { Return Round(rdvs:RelativeInclination()
 flightStatus:AddField("Angle to AN", { Return Round(rdvs:AngleToAN(), 4). }).
 flightStatus:AddField("Angle to DN", { Return Round(rdvs:AngleToDN(), 4). }).
 
-Local timeStart to Time:Seconds.
-Local hoursToSeek to 2.
-Local timeStop to timeStart + (SECONDS_PER_HOUR * hoursToSeek).
-Local timeStepSeconds to 2.
-Local closestApproach to rdvs:ClosestApproach(timeStart, timeStop, timeStepSeconds).
+// Local timeStart to Time:Seconds.
+// Local hoursToSeek to 2.
+// Local timeStop to timeStart + (SECONDS_PER_HOUR * hoursToSeek).
+// Local timeStepSeconds to 2.
+// Local closestApproach to rdvs:ClosestApproach(timeStart, timeStop, timeStepSeconds).
 
-flightStatus:Update("Done Stage 1 Approach Seeking").
-flightStatus:AddField("Closest Approach", Round(closestApproach:MinDist / 1000, 2) + "km").
-flightStatus:AddField("Closest Approach Time", Timestamp(closestApproach:Time):Full).
-flightStatus:RemoveTempFields().
+// flightStatus:Update("Done Stage 1 Approach Seeking").
+// flightStatus:AddField("Closest Approach", Round(closestApproach:MinDist / 1000, 2) + "km").
+// flightStatus:AddField("Closest Approach Time", Timestamp(closestApproach:Time):Full).
+// flightStatus:RemoveTempFields().
 
-flightStatus:Update("AN DN").
+// flightStatus:Update("AN DN").
 
 // todo: eta to the AN/DN
 // todo: determine if rel. inc. is up or down -> normal/antinormal

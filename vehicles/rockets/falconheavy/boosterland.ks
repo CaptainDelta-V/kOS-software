@@ -43,8 +43,8 @@ Local engineController to EngineManager(merlinEngines, VESSEL_TYPE_FALCON_BOOSTE
 Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
 
 Local boosterRadarOffset to 25. 
-Local suicideMargin to 200.
-Local maxBurnStartAltitude to 4_500.
+Local suicideMargin to -100.
+Local maxBurnStartAltitude to 3_500.
 Local overshootMeters to 100. 
 Local boostbackPitch to 0.
 Local targetRoll to 0.

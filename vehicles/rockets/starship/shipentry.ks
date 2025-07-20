@@ -33,8 +33,8 @@ RunFlightStatusScreen(flightStatus, 0.1).
 Local landingSite to LatLng(-0.123942125673094,-74.4642469768736). // OLM
 Local landingOvershootMeters to 1_000. 
 
-Local pitchMax to 70. 
-Local pitchMin to 12. 
+Local pitchMax to 62. 
+Local pitchMin to 16. 
 
 Local parkingOrbitTolerance to 4_000.
 Local parkingOrbitIdeal to Body:Atm:Height + parkingOrbitTolerance. 
@@ -153,12 +153,12 @@ Until finalDescentStart {
 
         flightStatus:AddField("Yaw Error Right?", yawErrorIsRight).
 
-        If yawErrorIsRight {             
-            Lock correctiveHeading to targetHeading + (-1 * yawRange * errorPct).
-            Lock correctiveRoll to 25.
-        } Else { 
+        If not yawErrorIsRight {             
             Lock correctiveHeading to targetHeading + (yawRange * errorPct).
             Lock correctiveRoll to -25.
+        } Else { 
+            Lock correctiveHeading to targetHeading + (-1 * yawRange * errorPct).
+            Lock correctiveRoll to 25.
         }       
     } Else { 
         Lock correctiveHeading to targetHeading.

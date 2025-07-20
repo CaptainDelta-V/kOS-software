@@ -56,23 +56,12 @@ Function LandingSteeringModel {
         Return _errorScaling.
     }
 
-    Function SteeringVector { 
+   Function SteeringVector {
         Local referenceVector is -Ship:Velocity:Surface.
         Local errorVector is LandingModel:ErrorVector().        
-        Local result is referenceVector + errorVector * _errorScaling.
-        Set _targetAoARaw to VectorAngle(result, referenceVector).
-
-        If Abs(_targetAoARaw) > Abs(_maxAoA)
-        {
-            Set result to referenceVector:Normalized
-                            + Tan(_maxAoA) * errorVector:Normalized.
-        }        
-        If (Abs(_targetAoARaw) < Abs(_minAoA)) {
-            Set result to referenceVector:Normalized
-                            + Tan(_minAoA) * errorVector:Normalized.
-        }
-
-        Set _targetAoACapped to VectorAngle(result, referenceVector).
+        Set _targetAoARaw to VectorAngle(errorVector, referenceVector).        
+        Set result to getResultCappedToAoA(errorVector, referenceVector).
+        Set _targetAoACapped to VectorAngle(result, referenceVector).    
 
         return result.
     }
@@ -81,27 +70,20 @@ Function LandingSteeringModel {
         
         Local referenceVector to RadialOutVectorNormalized().        
         Local errorVector is LandingModel:ErrorVector().        
-        Local result is referenceVector + errorVector * _errorScaling.        
+        Set _targetAoARaw to VectorAngle(errorVector, referenceVector).        
+        Set result to getResultCappedToAoA(errorVector, referenceVector).
+        Set _targetAoACapped to VectorAngle(result, referenceVector).    
 
-        Set _targetAoARaw to VectorAngle(errorVector, referenceVector).
+        return result.
+    }
 
-        If Abs(_targetAoARaw) > Abs(_maxAoA)
-        {
-            Set result to referenceVector:Normalized
-                            + Tan(_maxAoA) * errorVector:Normalized.
-        }        
-        If (Abs(_targetAoARaw) < Abs(_minAoA)) {
-            Set result to referenceVector:Normalized
-                            + Tan(_minAoA) * errorVector:Normalized.
-        }
+     Function SteeringVectorHorizontalKill {
 
+        Local referenceVector to RadialOutVectorNormalized().
+        Local errorVector is -Ship:Velocity:Surface.
+        Set _targetAoARaw to VectorAngle(errorVector, referenceVector).        
+        Set result to getResultCappedToAoA(errorVector, referenceVector).
         Set _targetAoACapped to VectorAngle(result, referenceVector).        
-
-        // Local rotate to AngleAxis(-180, Ship:Facing:UpVector).
-        // Set result to result * rotate.
-        // flip horizontally
-        // Set result To V(-result:x, result:y, result:z).
-        // vectorCrossProduct(ship:facing, ship:up)
 
         return result.
     }
@@ -113,7 +95,6 @@ Function LandingSteeringModel {
         Local projectionOntoRadialOut to (VectorDotProduct(targetDirection, radialOut)) * radialOut.
         Return (targetDirection - projectionOntoRadialOut):Normalized.
     }
-
 
     Function MaxAoADynamic { 
         Parameter minA.
@@ -129,6 +110,25 @@ Function LandingSteeringModel {
         Return ret.
     }
 
+    Function getResultCappedToAoA {
+        Parameter errorVector, referenceVector.
+
+        Local res to referenceVector + errorVector * _errorScaling.
+        Set _targetAoARaw to VectorAngle(errorVector, referenceVector).
+
+        If Abs(_targetAoARaw) > Abs(_maxAoA)
+        {
+            Set res to referenceVector:Normalized
+                            + Tan(_maxAoA) * errorVector:Normalized.
+        }
+        If (Abs(_targetAoARaw) < Abs(_minAoA)) {
+            Set res to referenceVector:Normalized
+                            + Tan(_minAoA) * errorVector:Normalized.
+        }
+
+        return res.
+    }
+
 
     Return Lexicon(
         "SetErrorScaling", SetErrorScaling@,
@@ -136,6 +136,7 @@ Function LandingSteeringModel {
         "SteeringVector", SteeringVector@,
         "SteeringRadialOutCrossVector", SteeringRadialOutCrossVector@,
         "SteeringVectorReferenceRadialOut", SteeringVectorReferenceRadialOut@,
+        "SteeringVectorHorizontalKill", SteeringVectorHorizontalKill@,
         "GetSteeringDirectionPitch", GetSteeringDirectionPitch@,
         "GetSteeringDirectionHeading", GetSteeringDirectionHeading@,
         "SetMaxAoa", SetMaxAoa@,
