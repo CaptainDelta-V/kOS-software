@@ -24,7 +24,7 @@ ClearScreen.
 Local receivedPayloadMass to false.
 Local flightStatus to FlightStatusModel("FALCON UPPER STAGE LAUNCH CONTROL","AWAITING PAYLOAD MASS").
 
-RunFlightStatusScreen(flightStatus, 0.5). 
+RunFlightStatusScreen(flightStatus). 
 
 Local vesselType to VESSEL_TYPE_FALCON_9.
 If Ship:Name:Contains("Heavy") { 

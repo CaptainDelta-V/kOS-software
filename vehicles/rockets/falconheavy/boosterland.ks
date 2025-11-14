@@ -32,6 +32,8 @@ If Params[KEY_EXPEND_OPTION] = BOOSTER_EXPEND_SIGNAL {
     Shutdown.
 }
 
+Wait 2.
+
 Set Ship:Name to ACTIVE_FALCON_BOOSTER_VESSEL_NAME + boosterSide.
 
 Local partsTaggedNoCore to Ship:PartsTagged(ENGINES_MERLIN_9).
@@ -45,7 +47,7 @@ Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
 Local boosterRadarOffset to 25. 
 Local suicideMargin to -100.
 Local maxBurnStartAltitude to 3_500.
-Local overshootMeters to 100. 
+Local overshootMeters to 800. 
 Local boostbackPitch to 0.
 Local targetRoll to 0.
 Local landingSiteAltitude to 60.
@@ -97,7 +99,7 @@ flightStatus:AddField("Position Error (m)", landingStatus:PositionErrorMeters@).
 flightStatus:AddField("Eccentricity", landingStatus:Eccentricity@).
 flightStatus:AddField("Max Thrust", { Return Ship:AvailableThrust. }).
 
-RunFlightStatusScreen(flightStatus, 0.25).
+RunFlightStatusScreen(flightStatus).
 ResetTorque().
 
 flightStatus:AddField("Target AoA CAPPED", landingSteering:GetTargetAoA@).
@@ -240,12 +242,12 @@ Wait Until Altitude < 40_000.
 RCS OFF.
 
 // Entry burn
-Wait Until Altitude < 28_000.
-Lock Throttle to 1. 
-flightStatus:Update("Entry Burn Start").
-Wait Until Ship:VerticalSpeed < 250.
-Lock Throttle to 0.
-flightStatus:Update("Entry Burn Complete").
+// Wait Until Altitude < 28_000.
+// Lock Throttle to 1. 
+// flightStatus:Update("Entry Burn Start").
+// Wait Until Abs(Ship:VerticalSpeed) < 350.
+// Lock Throttle to 0.
+// flightStatus:Update("Entry Burn Complete").
 
 Wait Until Altitude < 20_000. 
 landingSteering:SetMaxAoA(11). 
@@ -316,27 +318,27 @@ When landingBurn:TrueRadar() < 10 Then {
     flightStatus:Update("LANDING").   
 }
 
-When landingBurn:TrueRadar() < 5 Then { 
+When landingBurn:TrueRadar() < 80 Then { 
     // landingStatus:SetLandingSite(landingStatus:GetImpact()).
     landingStatus:SetLandingSite(Ship:GeoPosition).
 }
 
 RunVerticalSpeedHold({
-        If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 300 {             
+        If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 120 {             
             Set vsSpeedTargetStage0Set to true. 
-            landingSteering:SetMaxAoA(-2.5). 
+            landingSteering:SetMaxAoA(-4.5). 
         }
 
         If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 100 { 
             Set vsTarget to -18.
             Set vsSpeedTargetStage1Set to true.
-            landingSteering:SetMaxAoA(-1.5).  
+            landingSteering:SetMaxAoA(-3.5).  
         }
 
         If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 50 { 
             Set vsTarget to -10.
             Set vsSpeedTargetStage1Set to true.
-            landingSteering:SetMaxAoA(-1.5).  
+            // landingSteering:SetMaxAoA(-1.5).  
         }
 
         If not vsSpeedTargetStage2Set and landingBurn:TrueRadar() < 25 { 

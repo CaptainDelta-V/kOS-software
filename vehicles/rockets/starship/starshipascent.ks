@@ -39,22 +39,42 @@ Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNO
 flightStatus:AddField("ETA APOAPSIS", { Return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
-Local targetPitch to 15.5. // no need for the payload model causes issues
+Local isHeavier to Ship:Mass > 240.
+Local isHeaviest to Ship:Mass > 270.
+
+// Local targetPitch to Choose 35 If isTanker Else 15.5.
+Local targetPitch to 15.5.
+
+If isHeavier { 
+    Set targetPitch to 35.
+} Else If isHeaviest { 
+    Set targetPitch to 55.
+}
+
+
 Local targetRoll to 180.
 
 When Apoapsis > 85_100 Then { 
-    Set targetPitch to 0.
+    If isHeaviest { 
+        Set targetPitch to 20.
+    }  Else { 
+        Set targetPitch to 0.
+    }
 }
 
 When Apoapsis > 89_000 Then { 
-    Set targetPitch to -4.
+    If isHeaviest { 
+        Set targetPitch to 0.
+    } Else { 
+        Set targetPitch to -4.
+    }
 }
 
 // When Apoapsis > 90_000 Then { 
 //     Set targetPitch to -8.
 // }
 
-RunFlightStatusScreen(flightStatus, 0.75).
+RunFlightStatusScreen(flightStatus).
 
 If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {    
     flightStatus:Update("Orbit: IDLE").
@@ -89,6 +109,7 @@ Function AscendToOrbit {
     Local Booster to Vessel(ACTIVE_STARSHIP_BOOSTER_VESSEL_NAME).         
 
     flightStatus:AddField("Booster Connection", { Return Booster:Connection:IsConnected. }).
+    flightStatus:AddField("TargetPitch", { Return targetPitch. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
     // flightStatus:AddField()
@@ -99,9 +120,10 @@ Function AscendToOrbit {
     //     Booster:Connection:SendMessage(INITIATE_LANDING_SEQUENCE_MESSAGE).
     //     flightStatus:Update("Orbit: SENDING Booster LAND MESSAGE").
     // }
+    
+    // and (Ship:Oribit:ETA:Apoapsis < Ship:Orbit:ETA:Periapsis)
 
-    //ascent:TimeToApoapsis()
-    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000 Then {         
+    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000  Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
         

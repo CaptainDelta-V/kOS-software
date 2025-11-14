@@ -50,11 +50,11 @@ flightStatus:AddField("ETA Apoapsis", ascent:TimeToApoapsis@).
 Local targetPitch to ascentPitch.
 Local targetRoll to 180.
 
-When Apoapsis > 85_100 Then { 
+When Apoapsis > 87_100 Then { 
     Set targetPitch to 0.
 }
 
-When Apoapsis > 87_128 Then { 
+When Apoapsis > 92_128 Then { 
     Set targetPitch to -2.
 }
 

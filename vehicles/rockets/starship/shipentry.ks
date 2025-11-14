@@ -1,6 +1,7 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
 RUNONCEPATH("0:vehicles/rockets/starship/constants").
+RUNONCEPATH("0:vehicles/rockets/starship/shipSystemsManager").
 RUNONCEPATH("0:common/booting/bootUtils").
 RUNONCEPATH("0:common/landing/sites").
 RUNONCEPATH("0:common/landing/sites").
@@ -20,41 +21,65 @@ RUNONCEPATH("0:common/flight/hover").
 RUNONCEPATH("0:common/seeking/pidModel").
 RUNONCEPATH("0:common/math").
 
+// TODO: Ship fuel balance to header tank. deploy fins, control rcs
+
 ClearScreen.
 ClearVecDraws(). 
 
-Local flightStatus to FlightStatusModel("ENTRY GUIDANCE", "AWAITING INITIATION").
+Local flightStatus to FlightStatusModel("ENTRY GUIDANCE v1", "AWAITING INITIATION").
 
 flightStatus:AddField("ETA APOAPSIS", { return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("ETA PERIAPSIS", { return Ship:Orbit:ETA:Periapsis. }).
 
-RunFlightStatusScreen(flightStatus, 0.1).
+RunFlightStatusScreen(flightStatus).
 
-Local landingSite to LatLng(-0.123942125673094,-74.4642469768736). // OLM
-Local landingOvershootMeters to 1_000. 
+Local frontLeftFlap to Ship:PartsTagged("FL_FLAP")[0].
+Local frontRightFlap to Ship:PartsTagged("FR_FLAP")[0].
+Local rearLeftFlap to Ship:PartsTagged("RL_FLAP")[0].
+Local rearRightFlap to Ship:PartsTagged("RR_FLAP")[0].
+Local shipSystemsController to ShipSystemsManager(List(frontLeftFlap, frontRightFlap), List(rearLeftFlap, rearRightFlap)).
 
-Local pitchMax to 62. 
-Local pitchMin to 16. 
+shipSystemsController:SetFrontFlapsControlActive(false).
+shipSystemsController:SetRearFlapsControlActive(false).
 
-Local parkingOrbitTolerance to 4_000.
+shipSystemsController:SetFrontFlapsDeployAngle(SS_FLAP_MAX_ANGLE).
+shipSystemsController:SetRearFlapsDeployAngle(SS_FLAP_MAX_ANGLE).
+
+Wait 0.
+
+shipSystemsController:DeployFrontFlaps(false).
+shipSystemsController:DeployRearFlaps(true).
+
+Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
+
+SetTrajectoriesForDescent(70).
+Addons:TR:SetTarget(landingSite).
+
+Local pitchMax to 47. 
+Local pitchMin to 43. 
+
+Local parkingOrbitTolerance to 1_000.
 Local parkingOrbitIdeal to Body:Atm:Height + parkingOrbitTolerance. 
 Local parkingOrbitMinPeriapsis to parkingOrbitIdeal - parkingOrbitTolerance. 
 Local parkingOrbitMaxApoapsis to parkingOrbitIdeal + parkingOrbitTolerance.
 
 If Ship:Orbit:Periapsis > Body:Atm:Height { 
-    If Ship:Orbit:Periapsis > parkingOrbitMinPeriapsis and Ship:Orbit:Apoapsis > parkingOrbitMaxApoapsis { 
-        flightStatus:Update("ESTABLISH PARKING ORBIT").
-        Local hohmannTransfer to HohmannTransferController(flightStatus, parkingOrbitIdeal).
-        hohmannTransfer:Engage(0.2, 0.1, 0.35, 30). // burnThrottle, finalizationThrottle, finalizationPercentage, alignmentMargin,        
-    } Else { 
-        flightStatus:Update("ACCEPT CURRENT ORBIT AS PARKING").
-    }
 
+    // shipSystemsController:EngageVacEngines(true).
+    // shipSystemsController:EngageSeaEngines(false).
+
+    // If Ship:Orbit:Periapsis > parkingOrbitMinPeriapsis and Ship:Orbit:Apoapsis > parkingOrbitMaxApoapsis { 
+    //     flightStatus:Update("ESTABLISH PARKING ORBIT").
+    //     Local hohmannTransfer to HohmannTransferController(flightStatus, parkingOrbitIdeal).
+    //     hohmannTransfer:Engage(0.2, 0.1, 0.35, 30). // burnThrottle, finalizationThrottle, finalizationPercentage, alignmentMargin,        
+    // } Else { 
+    //     flightStatus:Update("ACCEPT CURRENT ORBIT AS PARKING").
+    // }
 
     flightStatus:Update("CREATE DEORBIT MNV.").
 
     Local deorbit to DeOrbitBurnController(flightStatus, 1, 0.4, 0.05, 42).    
-    deorbit:DeOrbit(landingSite).
+    deorbit:DeOrbit(landingSite, 15_000).
     // If Ship:Orbit:Periapsis < Body:Atm:Height { 
       
     // }
@@ -67,17 +92,18 @@ If Ship:Orbit:Periapsis > Body:Atm:Height {
 RemoveAllNodes().
 flightStatus:Update("DESCENT").
 
+// shipSystemsController:EngageVacEngines(false).
+// shipSystemsController:EngageSeaEngines(true).
+
 flightStatus:RemoveField("ETA APOAPSIS").
 flightStatus:RemoveField("ETA PERIAPSIS").
 Wait 1.
-
-Local landingStatus to 
 
 flightStatus:Update("PREPARING FOR THE HEAT").
 // RCS ON.
 AG6 ON.
 
-Local landingStatus to LandingStatusModel(landingSite):Overshoot(landingOvershootMeters).
+Local landingStatus to LandingStatusModel(landingSite):Overshoot(0).
 Lock isOvershooting to IsGeoPosWestOf(landingStatus:GetLandingSite(), landingStatus:GetImpact()).
 Lock pitchError to landingStatus:ErrorVector():X.
 Lock yawError to landingStatus:ErrorVector():Y. 
@@ -88,16 +114,6 @@ Lock zError to landingStatus:ErrorVector():Z.
 flightStatus:AddField("Is Overshooting", { Return isOvershooting. }).
 flightStatus:AddField("Trajectory Error", { Return Round(landingStatus:TrajectoryErrorMeters(), 1) + "m". }).
 
-Local maximumReasonableRangeError to 1_000. // The highest error expected to start after deorbit
-Local maximumReasonableYawError to 1_000.
-
-Local maxPitchErrorTolerance to 1_000.
-Local maxYawErrorTolerance to 1_000.
-
-Local maxYawErrorTolerance to 500.
-Local defaultPitch to 35.
-Local yawRange to 18.
-
 flightStatus:AddField("Pitch Min", pitchMin).
 flightStatus:AddField("Pitch Max", pitchMax).
 flightStatus:AddField("Error (Pitch)", { Return Round(pitchError, 1). }).
@@ -105,75 +121,93 @@ flightStatus:AddField("Error (Yaw)", { Return Round(yawError, 1). }).
 flightStatus:AddField("Error (Z)", { Return Round(zError, 1). }).
 flightStatus:AddField("Current Pitch", { Return Round(PitchOFVessel(), 2). }).
 flightStatus:AddField("Current Heading", { Return Round(HeadingOfVessel(), 2). }).
+flightStatus:AddField("Pitch of Retrograde", { Return PitchOfVector(-Ship:Velocity:Surface). }).
 
 Lock targetHeading to HeadingOfVector(landingSite:Position - Ship:Geoposition:Position).
 
-Local targetPitch to 0.
-Lock correctiveHeading to 0.
-Lock correctiveRoll to 0.
+// Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
+Lock Steering to Addons:TR:PlannedVec.
 
-Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
+Local bellyFlopStart to false. 
+Until bellyFlopStart { 
 
-Local finalDescentStart to false. 
-Until finalDescentStart { 
+    Local correctedVector to Addons:TR:CorrectedVec.
+    Local plannedVector to Addons:TR:PlannedVec.
 
-    Local pitchUpperRange to pitchMax - defaultPitch.
-    Local pitchLowerRange to defaultPitch - pitchMin.
+    flightStatus:AddField("Pitch of planned vector", PitchOfVector(plannedVector)).
+    flightStatus:AddField("Heading of planned vector", PitchOfVector(plannedVector)).
+    flightStatus:AddField("Pitch of corrected vector", PitchOfVector(correctedVector)).
+    flightStatus:AddField("Heading of corrected vector", PitchOfVector(correctedVector)).
 
-    flightStatus:AddField("Pitch Upper Range", pitchUpperRange).
-    flightStatus:AddField("Pitch Lower Range", pitchLowerRange).
-    
-    If Abs(pitchError) > maxPitchErrorTolerance { 
+    Set bellyFlopStart to Ship:Velocity:Surface:Mag < 300.
+    Wait 0.01.
+}
 
-        Local errorPct to Abs(pitchError / maximumReasonableRangeError).
-        flightStatus:AddField("Pitch (Range) Error", errorPct + "% of " + maximumReasonableRangeError).
-        Set errorPct to Min(1, errorPct).
-        Local correctivePitch to 0.
 
-        if isOvershooting {         
-            Set correctivePitch to pitchUpperRange * errorPct.
-        }
-        Else { 
-            Set correctivePitch to pitchLowerRange * errorPct * -1.
-        }    
-        
-        Set targetPitch to defaultPitch + correctivePitch.
-    } Else { 
-        Set targetPitch to defaultPitch.        
+flightStatus:Update("Belly Flopping").
+Lock Steering to Heading(targetHeading, 0, 0).
+
+// Local fuelTransferStart to false. 
+// Until fuelTransferStart  { 
+//     Set fuelTransferStart to Alt:Radar < 980.
+// }
+
+// // shipSystemsController:FuelToRear().
+
+Local landingBurnStart to false. 
+Until landingBurnStart { 
+
+    Set landingBurnStart to Alt:Radar < 900.
+    Wait 0.01.
+}
+
+shipSystemsController:DeployFrontFlaps(true).
+shipSystemsController:DeployRearFlaps(false).
+
+shipSystemsController:SetRearFlapsDeployAngle(45).
+
+Lock Steering to RadialOutVectorNormalized().
+Lock Throttle to 1.
+
+Local reduceThrottle to false.
+
+Local landed to false. 
+Until landed { 
+
+    If (not reduceThrottle and PitchOfVector(-Ship:Velocity:Surface) > 80) {
+        flightStatus:Update("VS Hold").
+        Set reduceThrottle to true.         
     }
-    
-    If Abs(yawError) > maxYawErrorTolerance {         
-
-        Local errorPct to Abs(yawError / maximumReasonableYawError).
-        // flightStatus:LogMessage("yaw error pct: " + errorPct + " of " + maximumReasonableYawError).
-
-        flightStatus:AddField("Yaw Error", Round(errorPct, 2) + "% of " + maximumReasonableYawError).
-        Set errorPct to Min(1, errorPct).
-        Lock correctiveHeading to 0.
-
-        flightStatus:AddField("Yaw Error Right?", yawErrorIsRight).
-
-        If not yawErrorIsRight {             
-            Lock correctiveHeading to targetHeading + (yawRange * errorPct).
-            Lock correctiveRoll to -25.
-        } Else { 
-            Lock correctiveHeading to targetHeading + (-1 * yawRange * errorPct).
-            Lock correctiveRoll to 25.
-        }       
-    } Else { 
-        Lock correctiveHeading to targetHeading.
-        Lock correctiveRoll to 0.
-    }
-
-    flightStatus:AddField("Corrective Pitch", Round(targetPitch, 2)).
-    flightStatus:AddField("Corrective Heading", Round(correctiveHeading, 2)).
-    flightStatus:AddField("Heading to Target", Round(targetHeading, 2)).        
 
     Wait 0.01.
 }
 
-Wait Until Ship:Velocity:Surface:Mag < 700. 
-Lock Steering to Heading(targetHeading, -20, 0).
+
+RunVerticalSpeedHold({             
+        Local vsTarget to -4.
+
+        Return vsTarget.                
+    },
+    60, // arbitrary max duration
+    0.1, 0.02, 0.0, // PID
+    0.35, { // min/max
+
+        Local maxOutput to 1.
+        
+        Return maxOutput.
+    }, 
+    { 
+        
+        // Get actual
+        Return Ship:VerticalSpeed. 
+    },
+    {        
+        Return Ship:Status = "LANDED" or Ship:Status = "SPLASHED".
+    }).     
+
+
+
+// Lock Steering to RadialOutVectorNormalized().
 
 
 

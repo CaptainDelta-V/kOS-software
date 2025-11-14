@@ -12,6 +12,7 @@ Function DeOrbitBurnController {
 
     Function DeOrbit { 
         Parameter landingSite.
+        Parameter acceptableTargetError to 70_000.
 
         RemoveAllNodes().
         Wait 0. 
@@ -19,8 +20,7 @@ Function DeOrbitBurnController {
         Local deorbitNode to Node(Time:Seconds + 100, 0,0,0).
         Add deorbitNode.
 
-        Local targetDeOrbitPeriapsis to 20_000.
-        Local acceptableTargetError to 70_000. // within 100km of target        
+        Local targetDeOrbitPeriapsis to 20_000.    
 
         Local getActualError to { 
             Return deorbitNode:Orbit:Periapsis.
@@ -67,8 +67,16 @@ Function DeOrbitBurnController {
             Set deorbitNode:Time to deorbitNode:Time + step.
         }.
 
+        // Local minimumError to 999_999.
         Local terminator to { 
-            Return getActualError() < acceptableTargetError.
+            Local actualError to getActualError().
+
+            return getActualError() < acceptableTargetError.
+            // Local shouldTerminate to  actualError < acceptableTargetError or (actualError > minimumError).
+            // If actualError < minimumError { 
+            //     Set minimumError to actualError.
+            // }
+            // return shouldTerminate.
         }.
 
         flightStatus:Update("ADJUST DEORBIT TIME").
@@ -78,10 +86,13 @@ Function DeOrbitBurnController {
         seek:To(acceptableTargetError, getActualError, adjuster, true, terminator).        
         flightStatus:Update("DEORBIT TIME SET").            
 
+
+        StopRunFlightStatusScreen().
         GetLaunchConfirmation("Accept Deorbit time?").
+        RunFlightStatusScreen(flightStatus).
 
         manueverNodeController:WarpToAlignment(alignmentTimeMargin).
-        manueverNodeController:Engage(finalizationThrottle, finalizationPercentage).
+        manueverNodeController:Engage(finalizationThrottle, finalizationPercentage, 1).
         manueverNodeController:CleanUp().           
     }
 

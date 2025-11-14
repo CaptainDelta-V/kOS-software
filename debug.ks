@@ -18,12 +18,16 @@ Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
 
-// Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
-// Set radialOutArrow:VecUpdater to { Return Target:Position. }.
+// // Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
+// // Set radialOutArrow:VecUpdater to { Return Target:Position. }.
+Local part to Ship:PartsTagged("RL_FLAP")[0].
+DescribePartItemToFile(part).
 
 
-
-
+// For p in Ship:Parts {
+//     DescribePartItemToFile(p, LogFilepath).
+//     break.
+// }
 
 
 
@@ -34,7 +38,7 @@ DeletePath(LogFilepath).
 Local physicsRangeController to PhysicsRangeModel(). 
 // Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
 // physicsRangeController:ResetPhysicsRanges().        
-physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
+// physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
 
 

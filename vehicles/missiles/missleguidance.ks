@@ -7,7 +7,7 @@ Local TARGET_VESSEL_NAME to "KBN-DS Just Add Moar Boosters".
 Lock WHERE_IT_IS to Ship:GeoPosition.  
 
 Local flightStatus to FlightStatusModel("MISSILE GUIDANCE COMPUTER SCENARIO").
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus).
 
 flightStatus:AddField("WHERE IT is", { Return WHERE_IT_IS. }).
 

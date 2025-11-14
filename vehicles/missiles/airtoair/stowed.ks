@@ -16,7 +16,7 @@ Local flightStatus to FlightStatusModel("AIM-8 MISSILE Control", "STOWED").
 flightStatus:AddField("Ready", "YEP").
 
 GetLaunchConfirmation(flightStatus:GetTitle()).
-RunFlightStatusScreen(flightStatus, 0.25).
+RunFlightStatusScreen(flightStatus).
 
 flightStatus:Update("MISSLE LAUNCH INITIATED").
 Set BEEPER to GETVOICE(1).

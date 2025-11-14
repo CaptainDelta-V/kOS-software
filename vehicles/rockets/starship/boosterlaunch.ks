@@ -15,6 +15,7 @@ RUNONCEPATH("../../../common/launch/payloadModel").
 RUNONCEPATH("../../../common/launch/utils").
 RUNONCEPATH("../../../common/utils/listutils").
 RUNONCEPATH("../../../common/exceptions").
+RUNONCEPATH("../../../common/utils/physicsRangeModel").
 RUNONCEPATH("constants").
 
 ClearScreen. 
@@ -42,6 +43,9 @@ Local stageSeparationAtFuelAmount to 12_000.
 
 Local landingSite to Ship:Position.
 
+Local physicsRangeController to PhysicsRangeModel(). 
+physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
+
 Local flightStatus to FlightStatusModel("SUPER HEAVY BOOSTER LAUNCH CONTROL", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
@@ -53,7 +57,7 @@ Local sendSuccess to starshipCpu:Connection:SendMessage(Lexicon(
 
 flightStatus:AddField("LaunchHeadingSentToShip", sendSuccess + " " + launchHeading).
 GetLaunchConfirmation(flightStatus:GetTitle()).
-RunFlightStatusScreen(flightStatus, 0.75).
+RunFlightStatusScreen(flightStatus).
 
 Wait 1.
 RCS OFF.

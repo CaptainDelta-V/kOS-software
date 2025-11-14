@@ -7,12 +7,12 @@ Function FlightStatusModel {
     Parameter FlightStatus to "UNKNOWN".    
     Parameter RecordLogs to true.
 
-    Local _logFilePath is "0:logs/flight_" + ScreenTitle.
+    Local _logFilePath is "1:logs/flight_" + ScreenTitle.
     Local _tempFields to List().
 
     If (RecordLogs) { 
         DeletePath(_logFilePath).    
-        Log "[" + Timestamp(Time:Seconds):Full + "] " + "INIT: " + ScreenTitle To LogFilePath.
+        Log "[" + Timestamp(Time:Seconds):Full + "] " + "INIT: " + ScreenTitle To _logFilePath.
     }
 
     Local _flightStatusFields to Lexicon().
@@ -35,7 +35,7 @@ Function FlightStatusModel {
         Set FlightStatus to newStatus.
 
         If (RecordLogs) { 
-            Log "[" + Timestamp(Time:Seconds):Full + "] " + FlightStatus To LogFilePath.
+            Log "[" + Timestamp(Time:Seconds):Full + "] " + FlightStatus To _logFilePath.
         }
     }    
 
@@ -77,7 +77,7 @@ Function FlightStatusModel {
     Function LogMessage { 
         Parameter msg. 
  
-        Log "[" + Timestamp(Time:Seconds):Full + "] (LOG) " + msg To LogFilePath.
+        Log "[" + Timestamp(Time:Seconds):Full + "] (LOG) " + msg to _logFilePath.
     }
 
     Function RemoveField { 
@@ -92,7 +92,7 @@ Function FlightStatusModel {
 
         Set _flightStatusFields[fieldName] to fieldValue.
         If (RecordLogs) { 
-            Log "[" + Time:Seconds + "] " + fieldName + " updated to " + fieldValue To LogFilePath.
+            Log "[" + Time:Seconds + "] " + fieldName + " updated to " + fieldValue to _logFilePath.
         }
     }
 
@@ -141,7 +141,6 @@ Local stopRunningFlightStatusScreen to false.
 
 Global Function RunFlightStatusScreen { 
     Parameter flightStatus.
-    Parameter delay to 0.05. // deprecated, remove
 
     Set stopRunningFlightStatusScreen to false.  // this has  MASSIVE PERF IMPACT, but the faster the screen goes, the faster it prints
 

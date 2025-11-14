@@ -23,7 +23,7 @@ flightStatus:AddField("ETA Periapsis", { return Round(Ship:Orbit:ETA:Periapsis, 
 flightStatus:AddField("OBT True Anomaly", { Return Round(Ship:Orbit:TrueAnomaly, 2). }).
 flightStatus:AddField("PER", { Return Round(Ship:Orbit:Period, 1) + "s". }).
 
-RunFlightStatusScreen(flightStatus, 0.2).
+RunFlightStatusScreen(flightStatus).
 
 Local rdvs to RendezvousModel(flightStatus).
 

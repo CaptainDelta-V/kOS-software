@@ -1,6 +1,7 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
 RUNONCEPATH("constants").
+RUNONCEPATH("0:common/constants").
 RUNONCEPATH("0:common/landing/sites").
 RUNONCEPATH("0:common/infos").
 RUNONCEPATH("0:common/control").
@@ -22,7 +23,7 @@ Local launchHeading to 90.
 // payload:WritePayloadConfigToDisk().
 // payload:AddFlightStatus().
 
-RunFlightStatusScreen(flightStatus, 0.75).
+RunFlightStatusScreen(flightStatus).
 
 When not Core:Messages:Empty Then { 
     Local message to Core:Messages:Pop:Content.

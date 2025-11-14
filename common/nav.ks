@@ -4,7 +4,7 @@ Function HeadingOfVector {
 
 	Local East is VectorCrossProduct(Ship:Up:Vector, Ship:North:Vector).
 
-	Local trigX is VectorDotProduct(Ship:NORTH:Vector, inputVector).
+	Local trigX is VectorDotProduct(Ship:North:Vector, inputVector).
 	Local trigY is VectorDotProduct(East, inputVector).
 
 	Local result is ArcTan2(trigY, trigX).
@@ -18,7 +18,7 @@ Function PitchOfVector {
 	Return 90 - VectorAngle(Ship:Up:Vector, vect).
 }
 
-Function HorizontalVelocityVecto { 
+Function HorizontalVelocityVector { 
 	Local velocityVector is Ship:Velocity:Surface.
   	Local upVector is Up:Vector.
 	
@@ -35,6 +35,14 @@ Function CurrentRoll {
 	Local shipForward to Ship:Facing:Forevector.
 
 	// Local projection to (shipUp - (shipUp))
+}
+
+Function SetTrajectoriesForDescent {
+    Parameter horizonPitch.
+
+    Set Addons:TR:Prograde to true.
+    Set Addons:TR:DescentModes to List(false, false, false, false). // Horizon all
+    Set Addons:TR:DescentAngles to List(horizonPitch, horizonPitch, horizonPitch / 2, horizonPitch / 3).    
 }
 
 // function  { 

@@ -6,7 +6,7 @@ Function ManueverNodeManager {
     Parameter mnvNode.
     Parameter burnThrottle.
 
-    Local _burnDuration to 1. // subject to change, calculate once and use value here. 
+    Local _burnDuration to 1.
 
     Function AdjustToTarget { 
         Parameter targetVal.
@@ -54,10 +54,10 @@ Function ManueverNodeManager {
     }
 
     Function CalculateBurnDuration { 
-        setBurnDuration(GetBurnDuration()).
+        SetBurnDuration(GetBurnDuration()).
     }
 
-    Function setBurnDuration {
+    Function SetBurnDuration {
         Parameter burnDuration.
         Set _burnDuration to burnDuration.
     }

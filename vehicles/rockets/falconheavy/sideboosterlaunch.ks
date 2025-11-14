@@ -16,7 +16,7 @@ RUNONCEPATH("../../../common/exceptions").
 
 Local boosterIndicator to "UNKNOWN".
 Local flightStatus to FlightStatusModel("FALCON HEAVY SIDE BOOSTER ", "AWAITING IDENTIFICATION").
-RunFlightStatusScreen(flightStatus, 0.5).
+RunFlightStatusScreen(flightStatus).
 
 Local expend to BOOSTER_PRESERVE_SIGNAL.
 

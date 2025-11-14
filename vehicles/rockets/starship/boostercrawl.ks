@@ -63,7 +63,7 @@ landingSteering:SetMaxAoa(-42).
 // Local BOOSTBACK_PITCH to 45. // tanker weight
 // Local BOOSTBACK_PITCH to 14. // base systems weight
 
-RunFlightStatusScreen(flightStatus, 1).
+RunFlightStatusScreen(flightStatus).
 ResetTorque().
 ClearVecDraws().
 
