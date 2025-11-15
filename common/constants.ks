@@ -16,6 +16,7 @@ Declare Global VESSEL_TYPE_FALCON_9 TO "FALCON_9_ASSEMBLY".
 Declare Global VESSEL_TYPE_FALCON_HEAVY TO "FALCON_HEAVY".
     VESSEL_TYPES:Add(VESSEL_TYPE_FALCON_HEAVY).
 
+Declare Global RESOURCE_LH2 to "LqdHydrogen".
 Declare Global RESOURCE_LIQUID_FUEL to "LiquidFuel".
 Declare Global RESOURCE_LIQUID_METHANE to "LqdMethane".
 Declare Global RESOURCE_OXIDIZER to "Oxidizer".

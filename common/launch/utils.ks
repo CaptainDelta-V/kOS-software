@@ -2,7 +2,7 @@ RUNONCEPATH("0:common/exceptions").
 RUNONCEPATH("0:common/utils/listutils").
 RUNONCEPATH("0:common/utils/colorPrintUtils").
 
-Function GetLaunchConfirmation { 
+Function GetConfirmation { 
     Parameter title.
     Parameter checkRangeViolations to false.
 

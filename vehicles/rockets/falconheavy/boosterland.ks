@@ -308,8 +308,7 @@ When landingBurn:TrueRadar() < 120 Then {
     GEAR ON.
     flightStatus:AddField("GEAR DEPLOYED AT", landingBurn:TrueRadar(), true).
     
-    // landingSteering:SetErrorScaling(0.1).
-    
+    // landingSteering:SetErrorScaling(0.1).    
 }
 
 When landingBurn:TrueRadar() < 10 Then { 

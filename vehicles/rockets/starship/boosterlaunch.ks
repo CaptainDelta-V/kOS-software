@@ -56,7 +56,7 @@ Local sendSuccess to starshipCpu:Connection:SendMessage(Lexicon(
 )).
 
 flightStatus:AddField("LaunchHeadingSentToShip", sendSuccess + " " + launchHeading).
-GetLaunchConfirmation(flightStatus:GetTitle()).
+GetConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus).
 
 Wait 1.

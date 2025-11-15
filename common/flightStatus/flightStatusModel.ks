@@ -149,11 +149,20 @@ Global Function RunFlightStatusScreen {
 
         // DropPriority().
         
-        // Wait delay. // this was a bad idea
-        Preserve.        
+        // Wait delay. // this was REALLY a bad idea
+        
+        If not stopRunningFlightStatusScreen { 
+            Preserve.        
+        }
     }
 }
 
 Global Function StopRunFlightStatusScreen { 
     Set stopRunningFlightStatusScreen to true.
+}
+
+Global Function Scrub { 
+    StopRunFlightStatusScreen().
+    Print("Scrubbed!").
+    Shutdown.
 }

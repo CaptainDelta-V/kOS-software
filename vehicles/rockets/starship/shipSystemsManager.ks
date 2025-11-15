@@ -97,10 +97,14 @@ Function ShipSystemsManager {
     }
 
     Function FuelToRear { 
-        Local sourceParts to Ship:PartsNamed("Procedural Liquid Tank").
+        Local sourceParts to Ship:PartsDubbed("Procedural Liquid Tank").
         Local destinationParts to Ship:PartsTagged("SHIP_BODY_TANK").
-        Local fuelTransfer to TransferAll(RESOURCE_OXIDIZER, sourceParts, destinationParts).
-        Set fuelTransfer:active to true.
+        Print "source parts: " + sourceParts:length + " destination parts: " + destinationParts:length.
+        
+        Local oxiTransfer to TransferAll("OXIDIZER", sourceParts, destinationParts).
+        Local methaneTransfer to TransferAll(RESOURCE_LIQUID_METHANE, sourceParts, destinationParts).
+        Set oxiTransfer:Active to true.
+        Set methaneTransfer:Active to true.
     }
 
     Return Lexicon(

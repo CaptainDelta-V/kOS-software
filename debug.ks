@@ -3,6 +3,7 @@ RUNONCEPATH("common/infos").
 RUNONCEPATH("common/utils/physicsRangeModel").
 RUNONCEPATH("common/landing/sites").
 RUNONCEPATH("common/nav").
+RUNONCEPATH("0:vehicles/rockets/starship/shipSystemsManager").
 
 // RUNONCEPATH("common/engineManager").
 // // RUNONCEPATH("common/flightStatus/flightStatusModel").
@@ -18,10 +19,14 @@ Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
 
+Local part to Ship:PartsDubbed("Shuttle Tower Arm: Intertank Access")[0].
+DescribePartItemToFile(part, LogFilepath).
+
+
 // // Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
 // // Set radialOutArrow:VecUpdater to { Return Target:Position. }.
-Local part to Ship:PartsTagged("RL_FLAP")[0].
-DescribePartItemToFile(part).
+// Local part to Ship:PartsTagged("RL_FLAP")[0].
+// DescribePartItemToFile(part).
 
 
 // For p in Ship:Parts {

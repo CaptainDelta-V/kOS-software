@@ -35,6 +35,9 @@ Global Function DescribePartItemToFile {
             LOG "    Field: " + fieldName + " " + MODULE:GETFIELD(fieldName) to FILENAME.
         }
         For ACTION_NAME In MODULE:ALLACTIONNAMES { 
+            LOG "    ActionName: " + ACTION_NAME to FILENAME.
+        }
+        For ACTION_NAME In MODULE:ALLACTIONS { 
             LOG "    Action: " + ACTION_NAME to FILENAME.
         }
         For EVENT_NAME In MODULE:ALLEVENTNAMES { 

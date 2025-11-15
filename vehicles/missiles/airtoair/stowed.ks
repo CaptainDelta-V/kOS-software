@@ -15,7 +15,7 @@ ClearScreen.
 Local flightStatus to FlightStatusModel("AIM-8 MISSILE Control", "STOWED").
 flightStatus:AddField("Ready", "YEP").
 
-GetLaunchConfirmation(flightStatus:GetTitle()).
+GetConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus).
 
 flightStatus:Update("MISSLE LAUNCH INITIATED").

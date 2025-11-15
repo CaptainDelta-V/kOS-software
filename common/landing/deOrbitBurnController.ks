@@ -88,7 +88,7 @@ Function DeOrbitBurnController {
 
 
         StopRunFlightStatusScreen().
-        GetLaunchConfirmation("Accept Deorbit time?").
+        GetConfirmation("Accept Deorbit time?").
         RunFlightStatusScreen(flightStatus).
 
         manueverNodeController:WarpToAlignment(alignmentTimeMargin).

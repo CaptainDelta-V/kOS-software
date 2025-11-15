@@ -131,7 +131,7 @@ Local physicsRangeController to PhysicsRangeModel().
 physicsRangeController:SetPhysicsRangesForRecoveryLaunch().
 physicsRangeController:GetLoadDistanceDescriptions().
 
-GetLaunchConfirmation(flightStatus:GetTitle()).
+GetConfirmation(flightStatus:GetTitle()).
 RunFlightStatusScreen(flightStatus).
 
 flightStatus:Update("LAUNCH SEQUENCE INITIATED").

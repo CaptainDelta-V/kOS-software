@@ -143,61 +143,104 @@ Until bellyFlopStart {
     Wait 0.01.
 }
 
+shipSystemsController:DeployFrontFlaps(false).
+shipSystemsController:DeployRearFlaps(false).
+
 
 flightStatus:Update("Belly Flopping").
 Lock Steering to Heading(targetHeading, 0, 0).
 
-// Local fuelTransferStart to false. 
-// Until fuelTransferStart  { 
-//     Set fuelTransferStart to Alt:Radar < 980.
-// }
+Local fuelTransferStart to false. 
+Until fuelTransferStart  { 
+    Set fuelTransferStart to Alt:Radar < 620.
+}
+flightStatus:Update("Fuel Transfer").
 
-// // shipSystemsController:FuelToRear().
+shipSystemsController:FuelToRear().
 
 Local landingBurnStart to false. 
 Until landingBurnStart { 
 
-    Set landingBurnStart to Alt:Radar < 900.
+    Set landingBurnStart to Alt:Radar < 560.
     Wait 0.01.
 }
 
 shipSystemsController:DeployFrontFlaps(true).
 shipSystemsController:DeployRearFlaps(false).
 
-shipSystemsController:SetRearFlapsDeployAngle(45).
 
 Lock Steering to RadialOutVectorNormalized().
 Lock Throttle to 1.
 
-Local reduceThrottle to false.
+Local startVsHold to false.
 
-Local landed to false. 
-Until landed { 
+Local startVsHold to false. 
+Until startVsHold { 
 
-    If (not reduceThrottle and PitchOfVector(-Ship:Velocity:Surface) > 80) {
+    If (not startVsHold and PitchOfVector(-Ship:Velocity:Surface) > 60) {
         flightStatus:Update("VS Hold").
-        Set reduceThrottle to true.         
+        Set startVsHold to true.         
     }
 
     Wait 0.01.
 }
 
+Set landingStatus to LandingStatusModel(Ship:GeoPosition, 2).
+Local landingSteering to LandingSteeringModel(landingStatus).
+Local landingBurn to LandingBurnModel(42).  
 
+When landingBurn:TrueRadar() < 300 Then { 
+    landingStatus:SetLandingSite(Ship:GeoPosition).
+}
+
+When landingBurn:TrueRadar() < 100 Then { 
+    landingStatus:SetLandingSite(Ship:GeoPosition).
+}
+
+When landingBurn:TrueRadar() < 100 Then { 
+    landingStatus:SetLandingSite(Ship:GeoPosition).
+}
+
+When landingBurn:TrueRadar() < 50 Then { 
+    landingStatus:SetLandingSite(Ship:GeoPosition).
+}
+
+
+landingSteering:SetMaxAoA(-35).
+Lock Steering to landingSteering:SteeringVectorHorizontalKill().
+
+
+flightStatus:AddField("Vertical Speed", { Return Ship:VerticalSpeed. }).
+
+flightStatus:Update("VS Hold").
 RunVerticalSpeedHold({             
-        Local vsTarget to -4.
+        Local vsTarget to -20.
+
+        If landingBurn:TrueRadar() < 100 { 
+            landingSteering:SetMaxAoa(-12).
+            Set vsTarget to -10.
+        }
+
+        If landingBurn:TrueRadar() < 50 { 
+            landingSteering:SetMaxAoa(-8).
+            Set vsTarget to -5.
+        }
+
+        If landingBurn:TrueRadar() < 10 { 
+            landingSteering:SetMaxAoa(-4).
+            Set vsTarget to -2.
+        }
 
         Return vsTarget.                
     },
     60, // arbitrary max duration
     0.1, 0.02, 0.0, // PID
     0.35, { // min/max
-
         Local maxOutput to 1.
         
         Return maxOutput.
     }, 
     { 
-        
         // Get actual
         Return Ship:VerticalSpeed. 
     },
@@ -206,9 +249,9 @@ RunVerticalSpeedHold({
     }).     
 
 
-
 // Lock Steering to RadialOutVectorNormalized().
 
+Set Ship:Control:PilotMainThrottle to 0.
 
 
-Wait Until False.
+// Wait Until False.
