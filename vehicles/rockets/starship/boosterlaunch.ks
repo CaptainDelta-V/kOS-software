@@ -101,15 +101,15 @@ Wait 1.
 flightStatus:Update("LIFTOFF").
 Wait 2.5.
 
-Lock PitchTarget to launchProfile:PitchTarget().
+Lock pitchTarget to launchProfile:PitchTarget().
 When Altitude > launchProfileTransitionAltitude Then { 
     Set launchProfile to launchProfileSecondary.
     flightStatus:Update("SECONDARY PROFILE").
 }
 
-Lock Steering to Heading(launchHeading, PitchTarget - 2, targetRoll).
+Lock Steering to Heading(launchHeading, pitchTarget - 2, targetRoll).
 Wait Until Altitude > 400.
-Lock Steering to Heading(launchHeading, PitchTarget, targetRoll). 
+Lock Steering to Heading(launchHeading, pitchTarget, targetRoll). 
 
 flightStatus:Update("ASCENT").
 

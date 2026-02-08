@@ -31,6 +31,12 @@ Local flightStatus to FlightStatusModel("ENTRY GUIDANCE v1", "AWAITING INITIATIO
 flightStatus:AddField("ETA APOAPSIS", { return Ship:Orbit:ETA:Apoapsis. }).
 flightStatus:AddField("ETA PERIAPSIS", { return Ship:Orbit:ETA:Periapsis. }).
 
+Local cargoHull to Ship:PartsTagged("SHIP_CARGO_HULL")[0]:GetModule("ModuleCommand").
+// Local port to Ship:PartsDubbed("Clamp-O-Tron Shielded Docking Port")[0]:GetModule("ModuleDockingNode").
+// Local port to Ship:PartsDubbed("Advanced Grabbing Unit Jr.")[0]:GetModule("ModuleGrappleNode").
+
+// TODO: Fix file to include tags for cargo hull, flaps, grabbing unit check
+
 RunFlightStatusScreen(flightStatus).
 
 Local frontLeftFlap to Ship:PartsTagged("FL_FLAP")[0].
@@ -39,8 +45,11 @@ Local rearLeftFlap to Ship:PartsTagged("RL_FLAP")[0].
 Local rearRightFlap to Ship:PartsTagged("RR_FLAP")[0].
 Local shipSystemsController to ShipSystemsManager(List(frontLeftFlap, frontRightFlap), List(rearLeftFlap, rearRightFlap)).
 
-shipSystemsController:SetFrontFlapsControlActive(false).
-shipSystemsController:SetRearFlapsControlActive(false).
+// shipSystemsController:FuelToBalance().
+shipSystemsController:FuelToRear().
+
+// shipSystemsController:SetFrontFlapsControlActive(false).
+// shipSystemsController:SetRearFlapsControlActive(false).
 
 shipSystemsController:SetFrontFlapsDeployAngle(SS_FLAP_MAX_ANGLE).
 shipSystemsController:SetRearFlapsDeployAngle(SS_FLAP_MAX_ANGLE).
@@ -103,7 +112,7 @@ flightStatus:Update("PREPARING FOR THE HEAT").
 // RCS ON.
 AG6 ON.
 
-Local landingStatus to LandingStatusModel(landingSite):Overshoot(0).
+Local landingStatus to LandingStatusModel(landingSite):Overshoot(0). // Based on 87km deorbit
 Lock isOvershooting to IsGeoPosWestOf(landingStatus:GetLandingSite(), landingStatus:GetImpact()).
 Lock pitchError to landingStatus:ErrorVector():X.
 Lock yawError to landingStatus:ErrorVector():Y. 
@@ -123,10 +132,12 @@ flightStatus:AddField("Current Pitch", { Return Round(PitchOFVessel(), 2). }).
 flightStatus:AddField("Current Heading", { Return Round(HeadingOfVessel(), 2). }).
 flightStatus:AddField("Pitch of Retrograde", { Return PitchOfVector(-Ship:Velocity:Surface). }).
 
-Lock targetHeading to HeadingOfVector(landingSite:Position - Ship:Geoposition:Position).
-
 // Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
 Lock Steering to Addons:TR:PlannedVec.
+
+When Ship:Velocity:Surface:Mag < 100 Then { 
+    landingStatus:SetLandingSite(LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH]).
+}
 
 Local bellyFlopStart to false. 
 Until bellyFlopStart { 
@@ -139,20 +150,28 @@ Until bellyFlopStart {
     flightStatus:AddField("Pitch of corrected vector", PitchOfVector(correctedVector)).
     flightStatus:AddField("Heading of corrected vector", PitchOfVector(correctedVector)).
 
-    Set bellyFlopStart to Ship:Velocity:Surface:Mag < 300.
+    Set bellyFlopStart to Ship:Velocity:Surface:Mag < 200.
     Wait 0.01.
 }
 
 shipSystemsController:DeployFrontFlaps(false).
 shipSystemsController:DeployRearFlaps(false).
 
+flightStatus:AddField("Control point", "Port").
+// port:DoEvent("control from here"). Wait 0.
+Local landingSteering to LandingSteeringModel(landingStatus).
+landingSteering:SetMaxAoa(12).
+Local landingOvershootPosition to LandingStatusModel(landingSite):Overshoot(100):GetLandingSite().
+Lock Steering to LookDirUp(landingSteering:SteeringVectorReferenceRadialOut(), landingOvershootPosition:Position).
+// Lock Steering to RadialOutVectorNormalized().
 
 flightStatus:Update("Belly Flopping").
-Lock Steering to Heading(targetHeading, 0, 0).
+
+Local landingBurnStartAlt to 650.
 
 Local fuelTransferStart to false. 
 Until fuelTransferStart  { 
-    Set fuelTransferStart to Alt:Radar < 620.
+    Set fuelTransferStart to Alt:Radar < landingBurnStartAlt + (landingBurnStartAlt * 0.10).
 }
 flightStatus:Update("Fuel Transfer").
 
@@ -161,15 +180,16 @@ shipSystemsController:FuelToRear().
 Local landingBurnStart to false. 
 Until landingBurnStart { 
 
-    Set landingBurnStart to Alt:Radar < 560.
+    Set landingBurnStart to Alt:Radar < landingBurnStartAlt.
     Wait 0.01.
 }
 
 shipSystemsController:DeployFrontFlaps(true).
 shipSystemsController:DeployRearFlaps(false).
 
-
-Lock Steering to RadialOutVectorNormalized().
+flightStatus:AddField("Control point", "Main").
+cargoHull:DoEvent("control from here").
+Lock Steering to -Ship:Velocity:Surface.
 Lock Throttle to 1.
 
 Local startVsHold to false.
@@ -177,7 +197,7 @@ Local startVsHold to false.
 Local startVsHold to false. 
 Until startVsHold { 
 
-    If (not startVsHold and PitchOfVector(-Ship:Velocity:Surface) > 60) {
+    If (not startVsHold and Abs(PitchOfVector(-Ship:Velocity:Surface)) > 45) {
         flightStatus:Update("VS Hold").
         Set startVsHold to true.         
     }
@@ -185,24 +205,25 @@ Until startVsHold {
     Wait 0.01.
 }
 
+Lock Steering to RadialOutVectorNormalized().
 Set landingStatus to LandingStatusModel(Ship:GeoPosition, 2).
-Local landingSteering to LandingSteeringModel(landingStatus).
 Local landingBurn to LandingBurnModel(42).  
 
-When landingBurn:TrueRadar() < 300 Then { 
-    landingStatus:SetLandingSite(Ship:GeoPosition).
-}
+// When landingBurn:TrueRadar() < 300 Then { 
+//     landingStatus:SetLandingSite(Ship:GeoPosition).
+// }
 
-When landingBurn:TrueRadar() < 100 Then { 
-    landingStatus:SetLandingSite(Ship:GeoPosition).
-}
+// When landingBurn:TrueRadar() < 100 Then { 
+//     landingStatus:SetLandingSite(Ship:GeoPosition).
+// }
 
-When landingBurn:TrueRadar() < 100 Then { 
-    landingStatus:SetLandingSite(Ship:GeoPosition).
-}
+// When landingBurn:TrueRadar() < 100 Then { 
+//     landingStatus:SetLandingSite(Ship:GeoPosition).
+// }
 
 When landingBurn:TrueRadar() < 50 Then { 
     landingStatus:SetLandingSite(Ship:GeoPosition).
+    GEAR ON.
 }
 
 
@@ -219,12 +240,12 @@ RunVerticalSpeedHold({
         If landingBurn:TrueRadar() < 100 { 
             landingSteering:SetMaxAoa(-12).
             Set vsTarget to -10.
-        }
+        }    
 
-        If landingBurn:TrueRadar() < 50 { 
-            landingSteering:SetMaxAoa(-8).
-            Set vsTarget to -5.
-        }
+        // If landingBurn:TrueRadar() < 50 { 
+        //     landingSteering:SetMaxAoa(-8).
+        //     Set vsTarget to -5.
+        // }
 
         If landingBurn:TrueRadar() < 10 { 
             landingSteering:SetMaxAoa(-4).

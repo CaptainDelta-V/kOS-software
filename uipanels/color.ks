@@ -1,2 +1,4 @@
-ClearScreen.
-Print "[#FFFFFF] testtesing [#0FFFFF] MORE TESTING [#FF0029] WARNING".
+RUNONCEPATH("0:common/utils/colorPrintUtils").
+
+Global COLOR_KEY_RED to "[" + COLOR_RED + "]".
+Global COLOR_KEY_RED to "[" + COLOR_WHITE + "]".

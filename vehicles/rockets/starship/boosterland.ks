@@ -333,7 +333,6 @@ Until landingBurnStart {
 
     landingSteering:SetMaxAoA((proportion * aeroMaxAoA) + minAoA).    
 
-
     If Altitude < maxBurnStartAltitude { 
         Local vs to Ship:VerticalSpeed.
         Set landingBurnStart to landingBurn:TrueRadar() < landingBurn:GetStopDistance() + suicideMargin.
@@ -495,7 +494,7 @@ Until verticalSpeedHoldStart {
             flightStatus:AddField("Alignment", "Done.").            
         }
 
-        If (not catchMessageSent and landingBurn:TrueRadar() < 10) { 
+        If (not catchMessageSent and landingBurn:TrueRadar() < 15) { 
             towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
             Set throttleCutTimeSeconds to Time:Seconds + 4.
             flightStatus:Update("REQUESTING CATCH").            

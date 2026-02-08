@@ -18,9 +18,19 @@ ClearVecDraws().
 Set LogFilepath to "logs/out.txt".
 DeletePath(LogFilepath).
 
+// Local part to Ship:PartsTagged("STA_HY_VENT")[0].
+// DescribePartItemToFile(part, LogFilepath).
 
-Local part to Ship:PartsDubbed("Shuttle Tower Arm: Intertank Access")[0].
-DescribePartItemToFile(part, LogFilepath).
+
+// Local cargoHull to Ship:PartsTagged("SHIP_CARGO_HULL")[0]:GetModule("ModuleCommand").
+// cargoHull:DoEvent("control from here").
+// Local port to Ship:PartsDubbed("Clamp-O-Tron Shielded Docking Port")[0]:GetModule("ModuleDockingNode").
+// port:DoEvent("control from here").
+
+// DescribePartItemToFile(port, LogFilepath).
+// DescribePartItemToFile(cargoHull, LogFilepath).
+
+
 
 
 // // Set radialOutArrow:StartUpdater to { Return Ship:Position. }.
@@ -43,7 +53,7 @@ DescribePartItemToFile(part, LogFilepath).
 Local physicsRangeController to PhysicsRangeModel(). 
 // Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
 // physicsRangeController:ResetPhysicsRanges().        
-// physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
+physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
 
 

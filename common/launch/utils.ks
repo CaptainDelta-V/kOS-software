@@ -1,6 +1,7 @@
 RUNONCEPATH("0:common/exceptions"). 
 RUNONCEPATH("0:common/utils/listutils").
 RUNONCEPATH("0:common/utils/colorPrintUtils").
+RUNONCEPATH("0:uipanels/utilities").
 
 Function GetConfirmation { 
     Parameter title.
@@ -84,4 +85,29 @@ Function RangeIsClear {
     Parameter rangeLimitKm.
     
     return GetRangeViolations(rangeLimitKm):Length() = 0.
+}
+
+Global MESSAGE_PRIORITY_EMERGENCY to "EMERG".
+Global MESSAGE_PRIORITY_HIGH to "HIGH".
+Function PlayPriorityMessage { 
+    Parameter message.
+    Parameter priority to MESSAGE_PRIORITY_HIGH.
+
+    Local numFlashes to 20.
+    Local showTime to 0.25.
+    local hideTime to 0.25.
+
+    Local alarm is GETVOICE(1).
+
+    Local flashIdx to 0.
+    Until flashIdx > numFlashes { 
+
+        UiPrint(COLOR_KEY_RED + message, UI_ALIGN_HOR_CTR).
+        alarm:Play( Note(650, 0.10) ).
+        Wait showTime.
+        Clearscreen. 
+        Wait hideTime.
+        
+        Set flashIdx to flashIdx + 1.
+    }
 }

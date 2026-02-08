@@ -49,7 +49,9 @@ Function DeOrbitBurnController {
             Return errorMeters.
         }.
 
-        Set deorbitNode:Time to deorbitNode:Time + Ship:Orbit:Period. 
+
+        // Set deorbitNode:Time to deorbitNode:Time + Ship:Orbit:Period. // Wait 1 orbit
+        Set deorbitNode:Time to deorbitNode:Time + (Ship:Orbit:Period / 4). 
 
         Local adjuster to { 
             Local step to 10.
@@ -87,9 +89,9 @@ Function DeOrbitBurnController {
         flightStatus:Update("DEORBIT TIME SET").            
 
 
-        StopRunFlightStatusScreen().
+        SuspendRunningFlightStatusScreen().
         GetConfirmation("Accept Deorbit time?").
-        RunFlightStatusScreen(flightStatus).
+        ResumeRunningFlightStatusScreen().
 
         manueverNodeController:WarpToAlignment(alignmentTimeMargin).
         manueverNodeController:Engage(finalizationThrottle, finalizationPercentage, 1).

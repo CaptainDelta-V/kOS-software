@@ -44,6 +44,7 @@ Global Function DescribePartItemToFile {
             LOG  "    Event: " + EVENT_NAME to FILENAME.
         }
     }
+
 }
 
 Global Function DescribeModuleToFile { 

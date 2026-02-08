@@ -21,10 +21,12 @@ ClearVecDraws().
 ResetTorque().
 
 Local RequiredApoapsisEtaMargin to 60 * 2.25.
+Local isTanker to Ship:Name:Contains("Tanker").
 Set Ship:Name to ACTIVE_STARSHIP_VESSEL_NAME.
 
 Local vesselType to Params[KEY_VESSEL_TYPE].
 Local flightStatus to FlightStatusModel("STARSHIP ORBITAL ASCENT CONTROL","UNKNOWN").
+
 
 // Local payload to PayloadModel(flightStatus, vesselType).  
 // payload:ReadPayloadConfigFromDisk().
@@ -41,6 +43,7 @@ flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 
 Local isHeavier to Ship:Mass > 240.
 Local isHeaviest to Ship:Mass > 270.
+
 
 // Local targetPitch to Choose 35 If isTanker Else 15.5.
 Local targetPitch to 15.5.

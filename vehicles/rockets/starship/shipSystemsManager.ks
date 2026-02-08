@@ -96,6 +96,18 @@ Function ShipSystemsManager {
         }
     }
 
+    Function FuelToBalance { 
+        Local sourceParts to Ship:PartsDubbed("Procedural Liquid Tank").
+        sourceParts:Add(Ship:PartsTagged("SHIP_BODY_TANK")).
+
+        Local destinationParts to Ship:PartsTagged("BALANCE_TANK").
+
+        Local oxiTransfer to TransferAll("OXIDIZER", sourceParts, destinationParts).
+        Local methaneTransfer to TransferAll(RESOURCE_LIQUID_METHANE, sourceParts, destinationParts).
+        Set oxiTransfer:Active to true.
+        Set methaneTransfer:Active to true.
+    }
+
     Function FuelToRear { 
         Local sourceParts to Ship:PartsDubbed("Procedural Liquid Tank").
         Local destinationParts to Ship:PartsTagged("SHIP_BODY_TANK").
@@ -116,6 +128,7 @@ Function ShipSystemsManager {
         "SetRearFlapsControlActive", SetRearFlapsControlActive@,
         "EngageVacEngines", EngageVacEngines@,
         "EngageSeaEngines", EngageSeaEngines@, 
+        "FuelToBalance", FuelToBalance@,
         "FuelToRear", FuelToRear@
     ).
 }

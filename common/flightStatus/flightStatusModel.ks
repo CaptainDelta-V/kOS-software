@@ -138,23 +138,31 @@ Function FlightStatusModel {
 }
 
 Local stopRunningFlightStatusScreen to false.
+Local pauseRunningFlightStatusScreen to false.
 
 Global Function RunFlightStatusScreen { 
     Parameter flightStatus.
 
-    Set stopRunningFlightStatusScreen to false.  // this has  MASSIVE PERF IMPACT, but the faster the screen goes, the faster it prints
+    Set stopRunningFlightStatusScreen to false. 
+    Set pauseRunningFlightStatusScreen to false.
 
     When not stopRunningFlightStatusScreen Then {         
-        flightStatus:PrintStatusScreen().
+        If not pauseRunningFlightStatusScreen { 
+            flightStatus:PrintStatusScreen().
+        }
 
         // DropPriority().
         
-        // Wait delay. // this was REALLY a bad idea
-        
-        If not stopRunningFlightStatusScreen { 
-            Preserve.        
-        }
+        Preserve.        
     }
+}
+
+Global Function SuspendRunningFlightStatusScreen { 
+    Set pauseRunningFlightStatusScreen to true.
+}
+
+Global Function ResumeRunningFlightStatusScreen { 
+    Set pauseRunningFlightStatusScreen to false.
 }
 
 Global Function StopRunFlightStatusScreen { 
