@@ -52,7 +52,7 @@ DeletePath(LogFilepath).
 
 Local physicsRangeController to PhysicsRangeModel(). 
 // Log physicsRangeController:GetLoadDistanceDescriptions() to LogFilepath.        
-// physicsRangeController:ResetPhysicsRanges().        
+physicsRangeController:ResetPhysicsRanges().        
 physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
 

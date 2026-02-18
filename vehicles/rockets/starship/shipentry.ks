@@ -45,8 +45,8 @@ Local rearLeftFlap to Ship:PartsTagged("RL_FLAP")[0].
 Local rearRightFlap to Ship:PartsTagged("RR_FLAP")[0].
 Local shipSystemsController to ShipSystemsManager(List(frontLeftFlap, frontRightFlap), List(rearLeftFlap, rearRightFlap)).
 
-// shipSystemsController:FuelToBalance().
-shipSystemsController:FuelToRear().
+shipSystemsController:FuelToBalance().
+// shipSystemsController:FuelToRear().
 
 // shipSystemsController:SetFrontFlapsControlActive(false).
 // shipSystemsController:SetRearFlapsControlActive(false).
@@ -112,14 +112,16 @@ flightStatus:Update("PREPARING FOR THE HEAT").
 // RCS ON.
 AG6 ON.
 
-Local landingStatus to LandingStatusModel(landingSite):Overshoot(0). // Based on 87km deorbit
+Local landingStatus to LandingStatusModel(landingSite):Overshoot(5_000). // Based on 85km deorbit
 Lock isOvershooting to IsGeoPosWestOf(landingStatus:GetLandingSite(), landingStatus:GetImpact()).
 Lock pitchError to landingStatus:ErrorVector():X.
 Lock yawError to landingStatus:ErrorVector():Y. 
 Lock yawErrorIsRight to yawError < 0.
+Lock headingToTarget to HeadingOfVector(landingSite:Position - Ship:GeoPosition:Position).
 
 Lock zError to landingStatus:ErrorVector():Z.
 
+flightStatus:AddField("Heading To Target", { Return headingToTarget. }).
 flightStatus:AddField("Is Overshooting", { Return isOvershooting. }).
 flightStatus:AddField("Trajectory Error", { Return Round(landingStatus:TrajectoryErrorMeters(), 1) + "m". }).
 
@@ -135,9 +137,15 @@ flightStatus:AddField("Pitch of Retrograde", { Return PitchOfVector(-Ship:Veloci
 // Lock Steering to Heading(correctiveHeading, targetPitch, correctiveRoll).
 Lock Steering to Addons:TR:PlannedVec.
 
-When Ship:Velocity:Surface:Mag < 100 Then { 
-    landingStatus:SetLandingSite(LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH]).
+Local targetingGlideStart to false. 
+Until targetingGlideStart { 
+
+    Set targetingGlideStart to Ship:Velocity:Surface:Mag < 1_400.
+    Wait 0.01.
 }
+
+flightStatus:Update("Targeting Glide").
+Lock Steering to Heading(headingToTarget, 0).
 
 Local bellyFlopStart to false. 
 Until bellyFlopStart { 
@@ -154,6 +162,8 @@ Until bellyFlopStart {
     Wait 0.01.
 }
 
+flightStatus:Update("Belly Flopping").
+
 shipSystemsController:DeployFrontFlaps(false).
 shipSystemsController:DeployRearFlaps(false).
 
@@ -167,7 +177,7 @@ Lock Steering to LookDirUp(landingSteering:SteeringVectorReferenceRadialOut(), l
 
 flightStatus:Update("Belly Flopping").
 
-Local landingBurnStartAlt to 650.
+Local landingBurnStartAlt to 950.
 
 Local fuelTransferStart to false. 
 Until fuelTransferStart  { 
@@ -189,6 +199,7 @@ shipSystemsController:DeployRearFlaps(false).
 
 flightStatus:AddField("Control point", "Main").
 cargoHull:DoEvent("control from here").
+Wait 0.
 Lock Steering to -Ship:Velocity:Surface.
 Lock Throttle to 1.
 
@@ -205,30 +216,16 @@ Until startVsHold {
     Wait 0.01.
 }
 
-Lock Steering to RadialOutVectorNormalized().
-Set landingStatus to LandingStatusModel(Ship:GeoPosition, 2).
+landingSteering:SetMaxAoA(-35).
+Lock Steering to landingSteering:SteeringVectorHorizontalKill().
+
 Local landingBurn to LandingBurnModel(42).  
 
-// When landingBurn:TrueRadar() < 300 Then { 
-//     landingStatus:SetLandingSite(Ship:GeoPosition).
-// }
 
-// When landingBurn:TrueRadar() < 100 Then { 
-//     landingStatus:SetLandingSite(Ship:GeoPosition).
-// }
-
-// When landingBurn:TrueRadar() < 100 Then { 
-//     landingStatus:SetLandingSite(Ship:GeoPosition).
-// }
-
-When landingBurn:TrueRadar() < 50 Then { 
+When landingBurn:TrueRadar() < 200 Then { 
     landingStatus:SetLandingSite(Ship:GeoPosition).
     GEAR ON.
 }
-
-
-landingSteering:SetMaxAoA(-35).
-Lock Steering to landingSteering:SteeringVectorHorizontalKill().
 
 
 flightStatus:AddField("Vertical Speed", { Return Ship:VerticalSpeed. }).

@@ -39,7 +39,7 @@ Local maxBurnStartAltitude to 3_300.
 Local undershootMeters to -80.
 Local overshootMeters to 25. // 160 is very steep
 Local towerStatus to "NOT CONNECTED".
-Local olmTowerBaseOffsetMeters to -10.
+Local olmTowerBaseOffsetMeters to -7.
 
 Local towerVessel to Vessel(TOWER_CPU_NAME).
 Local towerBaseGeoPosition to towerVessel:GeoPosition.
@@ -242,7 +242,7 @@ If Debug {
 }
 
 
-Local boostbackRequired to landingStatus:TrajectoryErrorMeters() > boostbackRequirementErrorThreshold.
+Local boostbackRe/quired to landingStatus:TrajectoryErrorMeters() > boostbackRequirementErrorThreshold.
 
 If Not SkipBoostback and boostbackRequired { 
     flightStatus:Update("BOOSTBACK ORIENTATION").        
@@ -488,11 +488,11 @@ Until verticalSpeedHoldStart {
         // }              
 
         // landingBurn:TrueRadar() > 40
-        If (Time:Second > timeNextAlignment) { 
-            towerVessel:Connection:SendMessage(TOWER_ARMS_ALIGN_MESSAGE).            
-            Set timeNextAlignment to Time:Second + timeBetweenAlignments.
-            flightStatus:AddField("Alignment", "Done.").            
-        }
+        // If (landingBurn:TrueRadar() < 30 and Time:Second > timeNextAlignment) { 
+        //     towerVessel:Connection:SendMessage(TOWER_ARMS_ALIGN_MESSAGE).            
+        //     Set timeNextAlignment to Time:Second + timeBetweenAlignments.
+        //     flightStatus:AddField("Alignment", "Done.").            
+        // }
 
         If (not catchMessageSent and landingBurn:TrueRadar() < 15) { 
             towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  

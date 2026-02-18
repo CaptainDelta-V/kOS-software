@@ -58,7 +58,7 @@ When Apoapsis > 92_128 Then {
     Set targetPitch to -2.
 }
 
-RunFlightStatusScreen(flightStatus, 0.3).
+RunFlightStatusScreen(flightStatus).
 
 If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {    
     flightStatus:Update("ORBITING").

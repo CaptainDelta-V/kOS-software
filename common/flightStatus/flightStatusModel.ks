@@ -77,7 +77,7 @@ Function FlightStatusModel {
     Function LogMessage { 
         Parameter msg. 
  
-        Log "[" + Timestamp(Time:Seconds):Full + "] (LOG) " + msg to _logFilePath.
+        // Log "[" + Timestamp(Time:Seconds):Full + "] (LOG) " + msg to _logFilePath.
     }
 
     Function RemoveField { 

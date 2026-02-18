@@ -36,33 +36,55 @@ Function RendezvousModel {
 
     Function ClosestApproach { 
         Parameter timeStart to Time:Seconds.
-        Parameter timeStop to Time:Seconds + Ship:Orbit:Period.   
-        Parameter timeStepSeconds to 1.        
+        Parameter timeStop to Time:Seconds + Ship:Orbit:Period.
+        Parameter timeStepSeconds to 0.
+
+        If timeStop <= timeStart {
+            Set timeStop to timeStart + Ship:Orbit:Period.
+        }.
+
+        Local span to timeStop - timeStart.
+        Local minStep to 0.5.
+        Local maxSamples to 160.
+        Local step to span / maxSamples.
+
+        If timeStepSeconds > 0 {
+            Set minStep to timeStepSeconds.
+        }.
+
+        If step < minStep { Set step to minStep * 5. }.
+
+        Local searchStart to timeStart.
+        Local searchStop to timeStop.
 
         Local minDist to 99_9999.
-        Local minDistTimeSeconds to Time:Seconds.
-        
-        Local currentTime to timeStart.    
-        flightStatus:Update("Seeking Closest Approach").
+        Local minDistTimeSeconds to timeStart.
+        Local pass to 0.
 
-        Until currentTime > timeStop { 
-            flightStatus:AddTempField("Time curr", Timestamp(currentTime):Full).
-            flightStatus:AddTempField("Seek Timestamp", Round(currentTime, 2)).
-            
-            Local shipPosition to PositionAt(ship, currentTime).
-            Local targetPosition to PositionAt(target, currentTime).
-            Local dist to (targetPosition - shipPosition):Mag.
-            flightStatus:AddTempField("Dist", { Return Round(dist, 1). }).            
+        Until step <= minStep or pass >= 4 {
+            Set minDist to 99_9999.
+            Set minDistTimeSeconds to searchStart.
 
-            If dist < minDist { 
-                Set minDist to dist.                
-                Set minDistTimeSeconds to currentTime.
-            }
+            Local currentTime to searchStart.
+            Until currentTime > searchStop {
+                Local shipPosition to PositionAt(ship, currentTime).
+                Local targetPosition to PositionAt(target, currentTime).
+                Local dist to (targetPosition - shipPosition):Mag.
 
-            flightStatus:AddTempField("Min. Dist", Round(minDist, 2)).
-            flightStatus:AddTempField("Min. Dist Time", Timestamp(minDistTimeSeconds):Full).
+                If dist < minDist { 
+                    Set minDist to dist.                
+                    Set minDistTimeSeconds to currentTime.
+                }.
 
-            Set currentTime to currentTime + timeStepSeconds.
+                Set currentTime to currentTime + step.
+            }.
+
+            // Narrow search window around the best time and refine step for accuracy
+            Local window to step * 2.
+            Set searchStart to Max(timeStart, minDistTimeSeconds - window).
+            Set searchStop to Min(timeStop, minDistTimeSeconds + window).
+            Set step to step / 4.
+            Set pass to pass + 1.
         }        
 
         Return Lexicon(

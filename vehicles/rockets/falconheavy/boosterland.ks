@@ -15,6 +15,7 @@ RUNONCEPATH("../../../common/infos").
 RUNONCEPATH("../../../common/control").
 RUNONCEPATH("../../../common/nav").
 RUNONCEPATH("../../../common/booting/bootUtils").
+RUNONCEPATH("../../../common/systems/drainValveManager").
 
 Parameter Params to Lexicon(
     KEY_BOOSTERSIDE, INDICATOR_BOOSTER_CORE,
@@ -28,7 +29,7 @@ Local boosterSide to Params[KEY_BOOSTERSIDE].
 
 If Params[KEY_EXPEND_OPTION] = BOOSTER_EXPEND_SIGNAL { 
     Clearscreen. 
-    Print "Thank you for your service".
+    Print "It's been an honor serving the Fleet.".
     Shutdown.
 }
 
@@ -43,6 +44,9 @@ Local merlinEngines to Choose partsTaggedCore[0] If partsTaggedCore:Length > 0 E
 Local gridFins to Ship:PartsTagged("GRID_FIN").
 Local engineController to EngineManager(merlinEngines, VESSEL_TYPE_FALCON_BOOSTER).
 Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_FALCON_BOOSTER).
+
+Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
+Local drainValveController to DrainValveManager(drainValves).
 
 Local boosterRadarOffset to 25. 
 Local suicideMargin to -100.
@@ -60,7 +64,8 @@ Local altitudePositionTarget to landingSiteAltitude.
 // }
 
 Local avionicsCpuName to LEFT_BOOSTER_AVIONICS_CPU_NAME.
-Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
+// Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
+Local landingSite to LANDING_SITES[KEY_DS_OCEAN_SHORT].
 If boosterSide = INDICATOR_BOOSTER_RIGHT { 
     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
     Set avionicsCpuName to RIGHT_BOOSTER_AVIONICS_CPU_NAME.
@@ -235,7 +240,7 @@ landingSteering:SetMaxAoa(14).
 flightStatus:Update("TRAJECTORY COAST").
 BRAKES ON.
 
-landingSteering:SetMaxAoa(14).    
+landingSteering:SetMaxAoa(35).    
 Lock Steering to landingSteering:SteeringVector().
 
 Wait Until Altitude < 40_000. 
@@ -250,13 +255,13 @@ RCS OFF.
 // flightStatus:Update("Entry Burn Complete").
 
 Wait Until Altitude < 20_000. 
-landingSteering:SetMaxAoA(11). 
+landingSteering:SetMaxAoA(22). 
 
 Wait Until Altitude < 12_000. 
-landingSteering:SetMaxAoA(5).
+landingSteering:SetMaxAoA(14).
 
 Wait Until Altitude < 4_000. 
-landingSteering:SetMaxAoA(2).
+landingSteering:SetMaxAoA(7).
 
 Local padSiteSet to false. 
 Until padSiteSet { 
