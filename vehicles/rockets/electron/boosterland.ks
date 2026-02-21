@@ -57,7 +57,7 @@ Local targetRoll to 0.
 
 Lock Steering to Heading(landingStatus:RetrogradeHeading(), boostbackPitch, targetRoll).
 
-WaitUntilOriented(1.5,10). 
+WaitUntilOriented(2,10). 
 flightStatus:Update("BOOSTBACK ORIENTATION").        
          
 Local boostback to BoostbackBurnController(landingStatus, landingSteering).
@@ -81,14 +81,15 @@ flightStatus:AddField("Retrograde pitch", { Return PitchOfVector(-Ship:Velocity:
 
 flightStatus:Update("Landing").
 
-When altitude < 4_000 then {
+When altitude < 3_000 then {
     AG4 on.
 }
 
-When altitude < 2_200 then {
+When altitude < 1_000 then {
     AG5 on.
     Wait 1.
     AG6 on.
+    RCS Off.
 }
 
 
