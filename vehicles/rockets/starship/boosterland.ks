@@ -25,9 +25,9 @@ Parameter Debug to false.
 
 Local engines to Ship:PartsTagged("BOOSTER_RAPTORS")[0].
 Local gridFins to Ship:PartsTagged("GRID_FIN").
+Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
 
 Local engineController to EngineManager(engines, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
-Local gridFinController to GridFinManager(gridFins, VESSEL_TYPE_SUPER_HEAVY_BOOSTER).
 Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
 Local drainValveController to DrainValveManager(drainValves).
 
