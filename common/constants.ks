@@ -15,6 +15,9 @@ Declare Global VESSEL_TYPE_FALCON_9 TO "FALCON_9_ASSEMBLY".
 // TODO: falcon 9 cargo/crew/fairing
 Declare Global VESSEL_TYPE_FALCON_HEAVY TO "FALCON_HEAVY".
     VESSEL_TYPES:Add(VESSEL_TYPE_FALCON_HEAVY).
+    
+Declare Global VESSEL_TYPE_NEWGLENN to "NEWGLENN". 
+    VESSEL_TYPES:ADD(VESSEL_TYPE_NEWGLENN).
 
 Declare Global RESOURCE_LH2 to "LqdHydrogen".
 Declare Global RESOURCE_LIQUID_FUEL to "LiquidFuel".
