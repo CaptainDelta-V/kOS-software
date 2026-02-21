@@ -242,7 +242,7 @@ If Debug {
 }
 
 
-Local boostbackRe/quired to landingStatus:TrajectoryErrorMeters() > boostbackRequirementErrorThreshold.
+Local boostbackRequired to landingStatus:TrajectoryErrorMeters() > boostbackRequirementErrorThreshold.
 
 If Not SkipBoostback and boostbackRequired { 
     flightStatus:Update("BOOSTBACK ORIENTATION").        
