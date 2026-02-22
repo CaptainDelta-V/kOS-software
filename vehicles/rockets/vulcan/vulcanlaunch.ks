@@ -20,7 +20,7 @@ RUNONCEPATH("constants").
 
 ClearScreen.
 
-Local BoosterMaxPitchOver to 70.
+Local BoosterMaxPitchOver to 65.
 Local CENTAURCpu to Processor(VULCAN_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(3, 6, 3, BoosterMaxPitchOver).
@@ -64,7 +64,7 @@ Lock Throttle to 1.
 Wait 0.5.
 Stage.
 flightStatus:Update("IGNITION").
-Wait 1.
+Wait 1.5.
 Stage.
 flightStatus:Update("LIFTOFF").
 Wait 2.5.

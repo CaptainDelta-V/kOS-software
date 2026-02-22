@@ -23,32 +23,31 @@ Local flightStatus to FlightStatusModel("VULCAN SMART LANDING GUIDANCE").
 
 RunFlightStatusScreen(flightStatus).
 
-WAIT 7.
+Wait 10.
+flightStatus:Update("SMART SEP"). 
+AG1 on.
 AG3 on.
 RCS on.
 
+Wait 10.
 Lock Steering to prograde.
-
 flightStatus:Update("SMART DEPLOY").        
-
 AG4 on.
 
-Wait until altitude < 3_000.
-AG5 on.
-flightStatus:Update("CHUTE DEPLOY"). 
-RCS Off.
+Wait until altitude < 30_000.
+RCS off.
 
-
+When altitude < 3_000 then {
+    AG5 on.
+    flightStatus:Update("DROUGE DEPLOY"). 
+}
+   
 When altitude < 1_000 then {
     AG6 on.
+    flightStatus:Update("CHUTE DEPLOY").
     Wait 1.
     AG9 on.
 }
-
-When altitude < 3 then {
-    flightStatus:Update("SPLASHDOWN"). 
-}
-
 
 Wait until altitude < 2.
 Set Ship:Control:PilotMainThrottle to 0.

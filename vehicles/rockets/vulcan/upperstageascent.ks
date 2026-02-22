@@ -20,7 +20,7 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 150.
+Local RequiredApoapsisEtaMargin to 175.
 Set Ship:Name to ACTIVE_VULCAN_VESSEL_NAME.
 
 Local vesselType to VESSEL_TYPE_ELECTRON.
@@ -40,7 +40,7 @@ flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 // Local targetPitch to Choose 35 If isTanker Else 15.5.
 Local targetPitch to 45.
 
-Local targetRoll to 180.
+Local targetRoll to 0.
 
 
 When Apoapsis > 89_000 Then { Set targetPitch to 20.}.

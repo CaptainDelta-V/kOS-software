@@ -66,7 +66,7 @@ Local targetRoll to 0.
 
 Lock Steering to Heading(landingStatus:RetrogradeHeading(), boostbackPitch, targetRoll).
 
-WaitUntilOriented(5,10). 
+WaitUntilOriented(2,10). 
 flightStatus:Update("BOOSTBACK ORIENTATION").        
          
 Local boostback to BoostbackBurnController(landingStatus, landingSteering).

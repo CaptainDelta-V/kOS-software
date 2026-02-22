@@ -72,7 +72,7 @@ Function AscendToOrbit {
     
     flightStatus:Update("ASCENT").        
 
-    Wait 3.
+    Wait 0.3.
     AG3 on.
     
     flightStatus:AddField("TargetPitch", { Return targetPitch. }).

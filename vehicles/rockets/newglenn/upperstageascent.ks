@@ -72,7 +72,7 @@ Function AscendToOrbit {
     
     flightStatus:Update("ASCENT").        
 
-    Wait 3.
+    Wait 2.
     AG5 on.
     
     flightStatus:AddField("TargetPitch", { Return targetPitch. }).
