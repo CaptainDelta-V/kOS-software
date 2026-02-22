@@ -83,7 +83,7 @@ Lock Steering to Heading(launchHeading, pitchTarget, targetRoll).
 flightStatus:Update("ASCENT").
 
 
-Local stageSeparationAtFuelAmount to 35.
+Local stageSeparationAtFuelAmount to 0.
 
 Local boosterFuelResource to FindInList(boosterTank:Resources, { Parameter it. return it:Name = RESOURCE_OXIDIZER. }).
 flightStatus:AddField("BOOSTER FUEL", { return boosterFuelResource:Amount. }).
@@ -92,7 +92,7 @@ Local stageSeparation to false.
 Until stageSeparation { 
 
     If Addons:TR:HasImpact { 
-      Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount. 
+      Set stageSeparation to boosterFuelResource:Amount = stageSeparationAtFuelAmount. 
     }
     Wait 0.01.
 }

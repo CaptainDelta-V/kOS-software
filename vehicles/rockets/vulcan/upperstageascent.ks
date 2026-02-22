@@ -45,6 +45,8 @@ Local targetRoll to 0.
 
 When Apoapsis > 89_000 Then { Set targetPitch to 20.}.
 
+When Apoapsis > 98_000 Then { Set targetPitch to 5.}.
+
 RunFlightStatusScreen(flightStatus).
 
 If Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin {    
