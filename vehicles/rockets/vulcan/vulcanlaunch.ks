@@ -24,9 +24,9 @@ Local BoosterMaxPitchOver to 65.
 Local CENTAURCpu to Processor(VULCAN_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(3, 6, 3, BoosterMaxPitchOver).
-Local launchProfileSecondary to LaunchProfileModel(4, 9, 4, BoosterMaxPitchOver).
+Local launchProfileSecondary to LaunchProfileModel(3, 12, 4, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
-Local launchProfileTransitionAltitude to 4_000.
+Local launchProfileTransitionAltitude to 3_500.
 
 Local launchHeading to 90.
 Local targetRoll to 0.
@@ -57,6 +57,7 @@ Lock Throttle to 0.
 flightStatus:Update("GO VULCAN GO CENTUAR").
 AG10 on.
 Wait 4.
+
 RCS OFF.
 SAS OFF.
 

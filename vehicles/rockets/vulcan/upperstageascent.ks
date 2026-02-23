@@ -20,15 +20,11 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 175.
+Local RequiredApoapsisEtaMargin to 200.
 Set Ship:Name to ACTIVE_VULCAN_VESSEL_NAME.
 
 Local vesselType to VESSEL_TYPE_ELECTRON.
 Local flightStatus to FlightStatusModel("CENTAUR V ORBITAL ASCENT CONTROL").
-
-When altitude > 75_000 Then{
-    AG3 on.
-}
 
 
 
@@ -72,16 +68,14 @@ Function AscendToOrbit {
     Local targetHeading to Params[KEY_LAUNCH_HEADING].
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
-    flightStatus:Update("ASCENT").        
-
+    flightStatus:Update("ASCENT").            
     Wait 2.
     AG2 on.
-    
     flightStatus:AddField("TargetPitch", { Return targetPitch. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
    
-    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000  Then {         
+    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 100_000  Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
 

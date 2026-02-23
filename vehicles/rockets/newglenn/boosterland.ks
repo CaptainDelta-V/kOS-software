@@ -149,7 +149,7 @@ Until landingBurnStart {
     Local minAoA to 5.
     
     Local maxBurnStartAltitude to 6_000.
-    Local suicideMargin to 25.
+    Local suicideMargin to 20.
 
     landingSteering:SetMaxAoA((proportion * aeroMaxAoA) + minAoA).    
 
