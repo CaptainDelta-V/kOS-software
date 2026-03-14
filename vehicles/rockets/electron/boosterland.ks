@@ -1,0 +1,65 @@
+@LAZYGLOBAL OFF.
+Wait Until Ship:Unpacked.
+RUNONCEPATH("constants").
+RUNONCEPATH("../../../common/exceptions").
+RUNONCEPATH("../../../common/constants").
+RUNONCEPATH("../../../common/landing/sites").
+RUNONCEPATH("../../../common/engineManager").
+RUNONCEPATH("../../../common/flightStatus/flightStatusModel").
+RUNONCEPATH("../../../common/landing/landingStatusModel").
+RUNONCEPATH("../../../common/landing/landingSteeringModel").
+RUNONCEPATH("../../../common/landing/landingBurnModel").
+RUNONCEPATH("../../../common/landing/gridFinManager").
+RUNONCEPATH("../../../common/landing/boostbackBurnController").
+RUNONCEPATH("../../../common/flight/hover").
+RUNONCEPATH("../../../common/infos").
+RUNONCEPATH("../../../common/control").
+RUNONCEPATH("../../../common/nav").
+RUNONCEPATH("../../../common/booting/bootUtils").
+RUNONCEPATH("../../../common/systems/drainValveManager").
+
+
+Local flightStatus to FlightStatusModel("ELECTRON BOOSTER LANDING GUIDANCE").
+Local boosterRadarOffset to 34.3.
+Local overshootMeters to 100.
+Local landingSiteAltitude to 5.
+Local altitudePositionTarget to landingSiteAltitude.                                      
+Local truelandingSite to LANDING_SITES[KEY_DS_OCEAN_SHORT].
+Local landingsite to LandingStatusModel(truelandingsite, altitudePositionTarget):Overshoot(200):GetLandingSite(). 
+Local rollReferenceOvershootSite is LandingStatusModel(truelandingSite, altitudePositionTarget):Overshoot(10000):GetLandingSite().
+
+Local landingStatus to LandingStatusModel(landingSite, altitudePositionTarget, false):Overshoot(overshootMeters).
+Local landingSteering to LandingSteeringModel(landingStatus).
+Local landingBurn to LandingBurnModel(boosterRadarOffset) .
+
+flightStatus:AddField("TARGET COORDS", { 
+    Local site to landingStatus:GetLandingSite().
+    Return site:lat + "," + site:lng.
+}).
+flightStatus:AddField("LATITUDE ERROR", landingStatus:LatitudeError@).
+flightStatus:AddField("LONGITUDE ERROR", landingStatus:LongitudeError@).
+flightStatus:AddField("TRAJECTORY ERROR (m)", landingStatus:TrajectoryErrorMeters@).
+flightStatus:AddField("POSITION ERROR (m)", landingStatus:PositionErrorMeters@).
+
+
+RunFlightStatusScreen(flightStatus).
+
+
+RCS on.
+Lock steering to retrograde.
+
+When altitude < 3_000 then {
+    AG4 on.
+}
+
+When altitude < 1_000 then {
+    AG5 on.
+    Wait 1.
+    AG6 on.
+    RCS Off.
+}
+
+
+
+
+Wait Until false.

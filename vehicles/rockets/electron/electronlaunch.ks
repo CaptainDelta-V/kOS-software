@@ -21,29 +21,29 @@ RUNONCEPATH("constants").
 ClearScreen.
 
 Local BoosterMaxPitchOver to 75.
-Local GS2Cpu to Processor(NEWGLENN_CPU_NAME).
+Local ES2Cpu to Processor(ELECTRON_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(3, 6, 3, BoosterMaxPitchOver).
 Local launchProfileSecondary to LaunchProfileModel(3.75, 7.5, 4, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
-Local launchProfileTransitionAltitude to 4_000.
+Local launchProfileTransitionAltitude to 2_500.
 
 Local launchHeading to 90.
 Local targetRoll to 0.
 
-Local vesselType to VESSEL_TYPE_NEWGLENN.
+Local vesselType to VESSEL_TYPE_ELECTRON.
 Local boosterTank to Ship:PartsTagged("BOOSTER_TANK")[0].
-Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
+Local landingSite to LANDING_SITES[KEY_DS_OCEAN_SHORT].
 
 Local physicsRangeController to PhysicsRangeModel(). 
 physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
-Local flightStatus to FlightStatusModel("NEW GLENN LAUNCH", "PRELAUNCH").
+Local flightStatus to FlightStatusModel("ELECTRON LAUNCH", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt Scaled", launchProfileInitial:AltitudeScaled@).
 
-Local sendSuccess to GS2Cpu:Connection:SendMessage(Lexicon(
+Local sendSuccess to ES2Cpu:Connection:SendMessage(Lexicon(
     KEY_LAUNCH_HEADING, launchHeading
 )).
 
@@ -54,13 +54,9 @@ RunFlightStatusScreen(flightStatus).
 
 Wait 0.01.
 Lock Throttle to 0.
-flightStatus:Update("APU STARTUP").
-AG10 on.
-AG1 ON.
-
-Wait 6.
-
-AG4 on.
+flightStatus:Update("TOWER RETRACT").
+AG1 on.
+Wait 5.
 RCS OFF.
 SAS OFF.
 
@@ -87,7 +83,7 @@ Lock Steering to Heading(launchHeading, pitchTarget, targetRoll).
 flightStatus:Update("ASCENT").
 
 
-Local stageSeparationAtFuelAmount to 8_500.
+Local stageSeparationAtFuelAmount to 0.
 
 Local boosterFuelResource to FindInList(boosterTank:Resources, { Parameter it. return it:Name = RESOURCE_OXIDIZER. }).
 flightStatus:AddField("BOOSTER FUEL", { return boosterFuelResource:Amount. }).
@@ -96,9 +92,7 @@ Local stageSeparation to false.
 Until stageSeparation { 
 
     If Addons:TR:HasImpact { 
-      Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount 
-      or (Addons:TR:ImpactPos:Position - landingSite:Position):Mag > 200_000.
-.
+      Set stageSeparation to boosterFuelResource:Amount = stageSeparationAtFuelAmount. 
     }
     Wait 0.01.
 }
@@ -108,7 +102,7 @@ Wait 0.
 Lock throttle to 0.
 
 Wait 0.5.        
-GS2Cpu:Connection:SendMessage(NEWGLENN_ASCENT_HANDOFF_MESSAGE).
+ES2Cpu:Connection:SendMessage(ELECTRON_ASCENT_HANDOFF_MESSAGE).
 
 
 

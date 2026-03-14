@@ -66,7 +66,7 @@ Local targetRoll to 0.
 
 Lock Steering to Heading(landingStatus:RetrogradeHeading(), boostbackPitch, targetRoll).
 
-WaitUntilOriented(5,10). 
+WaitUntilOriented(2,10). 
 flightStatus:Update("BOOSTBACK ORIENTATION").        
          
 Local boostback to BoostbackBurnController(landingStatus, landingSteering).
@@ -149,7 +149,7 @@ Until landingBurnStart {
     Local minAoA to 5.
     
     Local maxBurnStartAltitude to 6_000.
-    Local suicideMargin to 25.
+    Local suicideMargin to 20.
 
     landingSteering:SetMaxAoA((proportion * aeroMaxAoA) + minAoA).    
 

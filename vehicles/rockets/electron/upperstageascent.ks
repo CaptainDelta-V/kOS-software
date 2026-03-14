@@ -20,14 +20,14 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 150.
-Set Ship:Name to ACTIVE_NEW_GLENN_VESSEL_NAME.
+Local RequiredApoapsisEtaMargin to 130.
+Set Ship:Name to ACTIVE_ELECTRON_VESSEL_NAME.
 
-Local vesselType to VESSEL_TYPE_NEWGLENN.
-Local flightStatus to FlightStatusModel("GS2 ORBITAL ASCENT CONTROL").
+Local vesselType to VESSEL_TYPE_ELECTRON.
+Local flightStatus to FlightStatusModel("ES2 ORBITAL ASCENT CONTROL").
 
 When altitude > 75_000 Then{
-    AG6 on.
+    AG2 on.
 }
 
 
@@ -72,8 +72,8 @@ Function AscendToOrbit {
     
     flightStatus:Update("ASCENT").        
 
-    Wait 2.
-    AG5 on.
+    Wait 0.3.
+    AG3 on.
     
     flightStatus:AddField("TargetPitch", { Return targetPitch. }).
     
@@ -84,9 +84,8 @@ Function AscendToOrbit {
         flightStatus:Update("COAST TO APOAPSIS").  
 
         
-        Set Ship:Name to "GS2 COASTING".
+        Set Ship:Name to "ES2 COASTING".
         Wait 1.
-        AG9 on.
         Shutdown.                           
     }
 
