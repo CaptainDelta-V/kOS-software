@@ -20,15 +20,11 @@ ClearScreen.
 ClearVecDraws().
 ResetTorque().
 
-Local RequiredApoapsisEtaMargin to 150.
-Set Ship:Name to ACTIVE_NEW_GLENN_VESSEL_NAME.
+Local RequiredApoapsisEtaMargin to 200.
+Set Ship:Name to ACTIVE_VULCAN_VESSEL_NAME.
 
-Local vesselType to VESSEL_TYPE_NEWGLENN.
-Local flightStatus to FlightStatusModel("GS2 ORBITAL ASCENT CONTROL").
-
-When altitude > 75_000 Then{
-    AG6 on.
-}
+Local vesselType to VESSEL_TYPE_ELECTRON.
+Local flightStatus to FlightStatusModel("CENTAUR V ORBITAL ASCENT CONTROL").
 
 
 
@@ -40,10 +36,12 @@ flightStatus:AddField("REQUIRED Time MARGIN", RequiredApoapsisEtaMargin).
 // Local targetPitch to Choose 35 If isTanker Else 15.5.
 Local targetPitch to 45.
 
-Local targetRoll to 180.
+Local targetRoll to 0.
 
 
 When Apoapsis > 89_000 Then { Set targetPitch to 20.}.
+
+When Apoapsis > 98_000 Then { Set targetPitch to 5.}.
 
 RunFlightStatusScreen(flightStatus).
 
@@ -70,23 +68,20 @@ Function AscendToOrbit {
     Local targetHeading to Params[KEY_LAUNCH_HEADING].
     Lock Steering to Heading(targetHeading, targetPitch, targetRoll).        
     
-    flightStatus:Update("ASCENT").        
-
+    flightStatus:Update("ASCENT").            
     Wait 2.
-    AG5 on.
-    
+    AG2 on.
     flightStatus:AddField("TargetPitch", { Return targetPitch. }).
     
     flightStatus:Update("UPPER ASCENT APOAPSIS TARGETING"). 
    
-    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 85_000  Then {         
+    When Ship:Orbit:ETA:Apoapsis > RequiredApoapsisEtaMargin and Ship:Apoapsis > 100_000  Then {         
         Lock Throttle to 0.
         flightStatus:Update("COAST TO APOAPSIS").  
 
         
-        Set Ship:Name to "GS2 COASTING".
+        Set Ship:Name to "CENTAUR V COASTING".
         Wait 1.
-        AG9 on.
         Shutdown.                           
     }
 
