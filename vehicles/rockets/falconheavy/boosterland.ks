@@ -49,7 +49,7 @@ Local drainValves to Ship:PartsTagged("BOOSTER_DRAIN_VALVE").
 Local drainValveController to DrainValveManager(drainValves).
 
 Local boosterRadarOffset to 25. 
-Local suicideMargin to -100.
+Local suicideMargin to 25.
 Local maxBurnStartAltitude to 3_500.
 Local overshootMeters to 800. 
 Local boostbackPitch to 0.
@@ -64,8 +64,11 @@ Local altitudePositionTarget to landingSiteAltitude.
 // }
 
 Local avionicsCpuName to LEFT_BOOSTER_AVIONICS_CPU_NAME.
-// Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_SOUTH].
-Local landingSite to LANDING_SITES[KEY_DS_OCEAN_SHORT].
+
+Local trueLandingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
+Local landingSite to LandingStatusModel(trueLandingSite, altitudePositionTarget):Overshoot(200):GetLandingSite().
+Local rollReferenceOvershootSite to LandingStatusModel(landingSite, altitudePositionTarget):Overshoot(10_000):GetLandingSite().
+
 If boosterSide = INDICATOR_BOOSTER_RIGHT { 
     Set landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
     Set avionicsCpuName to RIGHT_BOOSTER_AVIONICS_CPU_NAME.
@@ -200,22 +203,8 @@ If Not SkipBoostback and boostbackRequired {
         Wait 2.
     }
 
-    // flightStatus:Update("AWAITING TWIN ALIGNMENT").
-
-    // Local otherBoosterIsOriented to false. 
-    // Until otherBoosterIsOriented { 
-    //     If not Ship:Messages:Empty { 
-    //         If Ship:Messages:Pop:Content = TWIN_BOOSTER_ALIGNMENT_MESSAGE { 
-    //             Set otherBoosterIsOriented to true.
-    //             flightStatus:Update("TWIN ALIGNMENT CONFIRMED").
-    //         }
-    //     }
-
-    //     Wait 0.01.
-    // }
-
     Local boostback to BoostbackBurnController(landingStatus, landingSteering).
-    Local boostbackAbortAltitude to 36_000.    
+    Local boostbackAbortAltitude to 22_000.    
 
     flightStatus:AddField("Trajectory at boostback start", landingStatus:GetImpact(), true).
     flightStatus:Update("BOOSTBACK BURN").
@@ -226,14 +215,18 @@ If Not SkipBoostback and boostbackRequired {
     flightStatus:Update("Boostback complete").
 }
 
-Lock Steering to Up. 
-Wait Until Ship:VerticalSpeed < -10. 
+Lock Steering to -Ship:Velocity:Surface.
+Wait Until Ship:VerticalSpeed < -1. 
 Lock Steering to landingSteering:SteeringVector().
 landingStatus:SetLandingSite(landingSite).
 
 // When IsGeoPosWestOf(Ship:GeoPosition, approachSlightUndershootRefSite) Then { 
     // landingStatus:SetLandingSite(landingSite).
 // }
+
+flightStatus:Update("FUEL VENTING").
+drainValveController:DrainToAmount(1_500, RESOURCE_OXIDIZER).
+flightStatus:Update("VENTING COMPLETE").
 
 landingSteering:SetMaxAoa(14).
 
@@ -258,7 +251,8 @@ Wait Until Altitude < 20_000.
 landingSteering:SetMaxAoA(22). 
 
 Wait Until Altitude < 12_000. 
-landingSteering:SetMaxAoA(14).
+    landingSteering:SetMaxAoA(14).
+    landingStatus:SetLandingSite(trueLandingSite).
 
 Wait Until Altitude < 4_000. 
 landingSteering:SetMaxAoA(7).
@@ -280,8 +274,6 @@ Until landingBurnStart {
         and Altitude < maxBurnStartAltitude.
     Wait 0.001.
 }
-
-landingStatus:SetLandingSite(landingSite).
 
 Lock Throttle to 1. 
 Local vsTarget to -25.
@@ -305,20 +297,12 @@ Lock Steering to landingSteering:SteeringVectorReferenceRadialOut().
 // Wait 0.
 engineController:SetEngineMode(ENG_MODE_FN_CTR).
 
-Local vsSpeedTargetStage0Set to false.
-Local vsSpeedTargetStage1Set to false.
-Local vsSpeedTargetStage2Set to false. 
-
 When landingBurn:TrueRadar() < 120 Then { 
     GEAR ON.
     flightStatus:AddField("GEAR DEPLOYED AT", landingBurn:TrueRadar(), true).
-    
-    // landingSteering:SetErrorScaling(0.1).    
 }
 
 When landingBurn:TrueRadar() < 10 Then { 
-    // landingStatus:SetUsePositionOverTrajectory(true).    
-    // avionicsCpu:Connection:SendMessage(AVIONICS_CPU_STOP).
     flightStatus:Update("LANDING").   
 }
 
@@ -327,28 +311,25 @@ When landingBurn:TrueRadar() < 80 Then {
     landingStatus:SetLandingSite(Ship:GeoPosition).
 }
 
+Local horizontalKillStart to false.
+
 RunVerticalSpeedHold({
-        If not vsSpeedTargetStage0Set and landingBurn:TrueRadar() < 120 {             
-            Set vsSpeedTargetStage0Set to true. 
-            landingSteering:SetMaxAoA(-4.5). 
+        If landingBurn:TrueRadar() < 150 { 
+            Set vsTarget to -10.        
         }
 
-        If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 100 { 
-            Set vsTarget to -18.
-            Set vsSpeedTargetStage1Set to true.
-            landingSteering:SetMaxAoA(-3.5).  
+        If landingBurn:TrueRadar() < 50 { 
+            Set vsTarget to -5.        
+            
         }
 
-        If not vsSpeedTargetStage1Set and landingBurn:TrueRadar() < 50 { 
-            Set vsTarget to -10.
-            Set vsSpeedTargetStage1Set to true.
-            // landingSteering:SetMaxAoA(-1.5).  
+        If landingBurn:TrueRadar() < 10 { 
+            Set vsTarget to -1.        
         }
 
-        If not vsSpeedTargetStage2Set and landingBurn:TrueRadar() < 25 { 
-            Set vsTarget to -1.
-            Set vsSpeedTargetStage2Set to true.
-            // landingSteering:SetMaxAoA(-1.5).  
+        If not horizontalKillStart and landingBurn:TrueRadar() < 15 { 
+            Lock Steering to LookDirUp(landingSteering:SteeringVectorHorizontalKill(),  rollReferenceOvershootSite:Position).
+            Set horizontalKillStart to true.
         }
 
         Return vsTarget.

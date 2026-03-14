@@ -416,12 +416,7 @@ Until verticalSpeedHoldStart {
     flightStatus:Update("VERTICAL SPEED HOLD").
     RunVerticalSpeedHold({             
 
-        // If not traverseCoastVsSet and traverseCoastStart { 
-        //     Set traverseCoastVsSet to true.            
-        //     // Set vsTarget to -16.
-        //     // landingSteering:SetMaxAoA(-2.5).
-        //     // flightStatus:Update("AoA -2.5").            
-        // }        
+
         If not landingVSpeedStage1Set and landingBurn:TrueRadar() < 280 { 
             landingSteering:SetMaxAoA(-4).              
             Set landingVSpeedStage1Set to true.
@@ -481,18 +476,6 @@ Until verticalSpeedHoldStart {
             Set precatchMessageSent to towerVessel:Connection:SendMessage(TOWER_PRECATCH_MESSAGE).  
             flightStatus:Update("REQUESTING PRECATCH").            
         }
-
-        // If (not catchMessageSent and landingBurn:TrueRadar() < boosterRadarOffset * 0.6) {
-        //     Set catchMessageSent to towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
-        //     flightStatus:Update("REQUESTING CATCH").                            
-        // }              
-
-        // landingBurn:TrueRadar() > 40
-        // If (landingBurn:TrueRadar() < 30 and Time:Second > timeNextAlignment) { 
-        //     towerVessel:Connection:SendMessage(TOWER_ARMS_ALIGN_MESSAGE).            
-        //     Set timeNextAlignment to Time:Second + timeBetweenAlignments.
-        //     flightStatus:AddField("Alignment", "Done.").            
-        // }
 
         If (not catchMessageSent and landingBurn:TrueRadar() < 15) { 
             towerVessel:Connection:SendMessage(TOWER_CATCH_MESSAGE).  
