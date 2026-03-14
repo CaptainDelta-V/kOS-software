@@ -20,30 +20,30 @@ RUNONCEPATH("constants").
 
 ClearScreen.
 
-Local BoosterMaxPitchOver to 75.
-Local GS2Cpu to Processor(NEWGLENN_CPU_NAME).
+Local BoosterMaxPitchOver to 65.
+Local CENTAURCpu to Processor(VULCAN_CPU_NAME).
 
 Local launchProfileInitial to LaunchProfileModel(3, 6, 3, BoosterMaxPitchOver).
-Local launchProfileSecondary to LaunchProfileModel(4, 9, 4, BoosterMaxPitchOver).
+Local launchProfileSecondary to LaunchProfileModel(3, 12, 4, BoosterMaxPitchOver).
 Local launchProfile to launchProfileInitial.
-Local launchProfileTransitionAltitude to 5_000.
+Local launchProfileTransitionAltitude to 3_500.
 
 Local launchHeading to 90.
 Local targetRoll to 0.
 
-Local vesselType to VESSEL_TYPE_NEWGLENN.
+Local vesselType to VESSEL_TYPE_ELECTRON.
 Local boosterTank to Ship:PartsTagged("BOOSTER_TANK")[0].
-Local landingSite to LANDING_SITES[KEY_KSC_LNDG_ZONE_NORTH].
+Local landingSite to LANDING_SITES[KEY_DS_OCEAN_LONG].
 
 Local physicsRangeController to PhysicsRangeModel(). 
 physicsRangeController:SetPhysicsRangesForRecoveryLaunch(false).
 
-Local flightStatus to FlightStatusModel("NEW GLENN LAUNCH", "PRELAUNCH").
+Local flightStatus to FlightStatusModel("VULCAN LAUNCH", "PRELAUNCH").
 flightStatus:AddField("TARGET Pitch", launchProfileInitial:PitchTarget@).
 flightStatus:AddField("DYNAMIC PRESSURE", launchProfileInitial:DynamicPressue@).
 flightStatus:AddField("Alt Scaled", launchProfileInitial:AltitudeScaled@).
 
-Local sendSuccess to GS2Cpu:Connection:SendMessage(Lexicon(
+Local sendSuccess to CENTAURCpu:Connection:SendMessage(Lexicon(
     KEY_LAUNCH_HEADING, launchHeading
 )).
 
@@ -54,13 +54,10 @@ RunFlightStatusScreen(flightStatus).
 
 Wait 0.01.
 Lock Throttle to 0.
-flightStatus:Update("APU STARTUP").
+flightStatus:Update("GO VULCAN GO CENTUAR").
 AG10 on.
-AG1 ON.
+Wait 4.
 
-Wait 6.
-
-AG4 on.
 RCS OFF.
 SAS OFF.
 
@@ -69,7 +66,7 @@ Lock Throttle to 1.
 Wait 0.5.
 Stage.
 flightStatus:Update("IGNITION").
-Wait 1.
+Wait 1.5.
 Stage.
 flightStatus:Update("LIFTOFF").
 Wait 2.5.
@@ -87,7 +84,7 @@ Lock Steering to Heading(launchHeading, pitchTarget, targetRoll).
 flightStatus:Update("ASCENT").
 
 
-Local stageSeparationAtFuelAmount to 8_500.
+Local stageSeparationAtFuelAmount to 0.
 
 Local boosterFuelResource to FindInList(boosterTank:Resources, { Parameter it. return it:Name = RESOURCE_OXIDIZER. }).
 flightStatus:AddField("BOOSTER FUEL", { return boosterFuelResource:Amount. }).
@@ -96,20 +93,19 @@ Local stageSeparation to false.
 Until stageSeparation { 
 
     If Addons:TR:HasImpact { 
-      Set stageSeparation to boosterFuelResource:Amount < stageSeparationAtFuelAmount 
-      or (Addons:TR:ImpactPos:Position - landingSite:Position):Mag > 200_000.
-.
+      Set stageSeparation to boosterFuelResource:Amount = stageSeparationAtFuelAmount. 
     }
     Wait 0.01.
 }
 
 Unlock steering.
 Wait 0.
+AG8 on.
+Wait 2.
 Lock throttle to 0.
 
 Wait 0.5.        
-GS2Cpu:Connection:SendMessage(NEWGLENN_ASCENT_HANDOFF_MESSAGE).
-
+CENTAURCpu:Connection:SendMessage(VULCAN_ASCENT_HANDOFF_MESSAGE).
 
 
 SetAlternateBootFile("boosterland").  

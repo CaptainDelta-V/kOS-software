@@ -26,9 +26,6 @@ Set Ship:Name to ACTIVE_NEW_GLENN_VESSEL_NAME.
 Local vesselType to VESSEL_TYPE_NEWGLENN.
 Local flightStatus to FlightStatusModel("GS2 ORBITAL ASCENT CONTROL").
 
-When altitude > 75_000 Then{
-    AG6 on.
-}
 
 
 
@@ -86,7 +83,6 @@ Function AscendToOrbit {
         
         Set Ship:Name to "GS2 COASTING".
         Wait 1.
-        AG9 on.
         Shutdown.                           
     }
 
