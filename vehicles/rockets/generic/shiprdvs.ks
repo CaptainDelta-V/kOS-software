@@ -1,67 +1,49 @@
 @LAZYGLOBAL OFF.
 Wait Until Ship:Unpacked.
+
 RUNONCEPATH("0:common/constants").
-RUNONCEPATH("0:common/landing/sites").
 RUNONCEPATH("0:common/infos").
-RUNONCEPATH("0:common/engineManager").
 RUNONCEPATH("0:common/flightStatus/flightStatusModel").
-RUNONCEPATH("0:common/control").
-RUNONCEPATH("0:common/launch/utils").
-RUNONCEPATH("0:common/nav").
-RUNONCEPATH("0:common/booting/bootUtils").
-RUNONCEPATH("0:common/orbit/hohmannTransferController").
 RUNONCEPATH("0:common/orbit/rendezvousModel").
 
-
 ClearScreen.
-ClearVecDraws(). 
+ClearVecDraws().
 
-Local flightStatus to FlightStatusModel("ORBITAL RENDEZVOUS", "AWAITING INITIATION").
+Local flightStatus to FlightStatusModel("ORBITAL RENDEZVOUS", "PLANNING HOHMANN INTERCEPT").
 
-flightStatus:AddField("ETA Apoapsis", { return Round(Ship:Orbit:ETA:Apoapsis, 2). }).
-flightStatus:AddField("ETA Periapsis", { return Round(Ship:Orbit:ETA:Periapsis, 2). }).
-flightStatus:AddField("OBT True Anomaly", { Return Round(Ship:Orbit:TrueAnomaly, 2). }).
-flightStatus:AddField("PER", { Return Round(Ship:Orbit:Period, 1) + "s". }).
+flightStatus:AddField("ETA Apoapsis",   { Return Round(Ship:Orbit:ETA:Apoapsis, 2). }).
+flightStatus:AddField("ETA Periapsis",  { Return Round(Ship:Orbit:ETA:Periapsis, 2). }).
+flightStatus:AddField("OBT True Anom.", { Return Round(Ship:Orbit:TrueAnomaly, 2). }).
+flightStatus:AddField("PER",            { Return Round(Ship:Orbit:Period, 1) + "s". }).
 
 RunFlightStatusScreen(flightStatus).
 
 Local rdvs to RendezvousModel(flightStatus).
 
 flightStatus:AddField("Relative Inc.", { Return Round(rdvs:RelativeInclination(), 4). }).
-flightStatus:AddField("Angle to AN", { Return Round(rdvs:AngleToAN(), 4). }).
-flightStatus:AddField("Angle to DN", { Return Round(rdvs:AngleToDN(), 4). }).
+flightStatus:AddField("Angle to AN",   { Return Round(rdvs:AngleToAN(), 4). }).
+flightStatus:AddField("Angle to DN",   { Return Round(rdvs:AngleToDN(), 4). }).
 
-// Local timeStart to Time:Seconds.
-// Local hoursToSeek to 2.
-// Local timeStop to timeStart + (SECONDS_PER_HOUR * hoursToSeek).
-// Local timeStepSeconds to 2.
-// Local closestApproach to rdvs:ClosestApproach(timeStart, timeStop, timeStepSeconds).
+Local plan to CreateHohmannInterceptNode().
 
-// flightStatus:Update("Done Stage 1 Approach Seeking").
-// flightStatus:AddField("Closest Approach", Round(closestApproach:MinDist / 1000, 2) + "km").
-// flightStatus:AddField("Closest Approach Time", Timestamp(closestApproach:Time):Full).
-// flightStatus:RemoveTempFields().
+If not plan:ok {
+    flightStatus:Update("PLAN FAILED: " + plan:error).
+    Wait Until False.
+}
 
-// flightStatus:Update("AN DN").
+flightStatus:AddField("r1 (m)",          Round(plan:r1, 1)).
+flightStatus:AddField("r2 (m)",          Round(plan:r2, 1)).
+flightStatus:AddField("Phase now (deg)", Round(plan:phaseNowDeg, 2)).
+flightStatus:AddField("Phase req (deg)", Round(plan:phaseReqDeg, 2)).
+flightStatus:AddField("Synodic (s)",     Round(plan:synodicPeriod, 1)).
+flightStatus:AddField("Wait to burn (s)", Round(plan:wait, 1)).
+flightStatus:AddField("Burn UT",         Round(plan:burnTime, 1)).
+flightStatus:AddField("TOF (s)",         Round(plan:tof, 1)).
+flightStatus:AddField("Plan dv (m/s)",   Round(plan:deltaV, 3)).
 
-// todo: eta to the AN/DN
-// todo: determine if rel. inc. is up or down -> normal/antinormal
+flightStatus:AddField("ETA Node",  { If HasNode { Return Round(NextNode:Eta, 1). } Else { Return "n/a". } }).
+flightStatus:AddField("Node dv",   { If HasNode { Return Round(NextNode:DeltaV:Mag, 3). } Else { Return "n/a". } }).
 
+flightStatus:Update("NODE PLACED — REVIEW & EXECUTE").
 
-// flightStatus:AddField("REL. INC.", rdvs:RelativeInclination@).
-// flightStatus:AddField("ANGLE TO LAN", rdvs:AngleToLAN@).
-
-// rdvsModel:CheckClosestApproach().
-
-
-
-// Until false { 
-//     // rdvsModel:TimeToANDN().
-//     // rdvsModel:GetInfo().
-    
-//     Wait 1.
-// }
-
-
-
-Wait Until False. 
+Wait Until False.
