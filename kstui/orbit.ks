@@ -124,7 +124,8 @@ Local Function RunStationKeepingLoop {
         Set headerId to "#" + port:UID.
     }
     TuiPrintAt("Port: " + headerId, 3).
-    TuiPrintAt("[Enter] stop and return", 4).
+    TuiPrintAt("[Enter] exit                            ", 4).
+    TuiPrintAt("H/N: axial dist 1m", 5).
 
     Terminal:Input:Clear().
     Local stopRequested to False.
@@ -132,16 +133,21 @@ Local Function RunStationKeepingLoop {
     Until stopRequested {
         sk:Update().
 
-        Local s to sk:GetStatus().
-        TuiPrintAt(("Range:   " + Round(s:rangeToPort, 2) + " m"):PadRight(TUI_WIDTH), 7).
-        TuiPrintAt(("Axial:   " + Round(s:axial, 2) + " / " + Round(s:axialSetpoint, 2) + " m"):PadRight(TUI_WIDTH), 8).
-        TuiPrintAt(("Lateral: " + Round(s:lateralMag, 2) + " m (set " + Round(s:lateralSetpointMag, 2) + ")"):PadRight(TUI_WIDTH), 9).
-        TuiPrintAt(("LatV:    " + Round(s:latVelMag, 2) + " / " + Round(s:lateralVelMax, 2) + " m/s"):PadRight(TUI_WIDTH), 10).
+        Local stat to sk:GetStatus().
+        TuiPrintAt(("Range:   " + Round(stat:rangeToPort, 2) + " m"):PadRight(TUI_WIDTH), 7).
+        TuiPrintAt(("Axial:   " + Round(Abs(stat:axial), 2) + " / " + Round(Abs(stat:axialSetpoint), 2) + " m"):PadRight(TUI_WIDTH), 8).
+        TuiPrintAt(("AxV:     " + Round(stat:axVelMag, 2) + " / " + Round(stat:axialVelMax, 2) + " m/s"):PadRight(TUI_WIDTH), 9).
+        TuiPrintAt(("Lateral: " + Round(stat:lateralMag, 2) + " / " + Round(stat:lateralSetpointMag, 2) + " m"):PadRight(TUI_WIDTH), 10).
+        TuiPrintAt(("LatV:    " + Round(stat:latVelMag, 2) + " / " + Round(stat:lateralVelMax, 2) + " m/s"):PadRight(TUI_WIDTH), 11).
 
         If Terminal:Input:HasChar {
             Local ch to Terminal:Input:GetChar().
             If ch = Terminal:Input:Enter Or ch = Terminal:Input:Return {
                 Set stopRequested to True.
+            } Else If ch = "h" Or ch = "H" {
+                sk:SetAxialDistance(Max(0.5, Abs(stat:axialSetpoint) - 1)).
+            } Else If ch = "n" Or ch = "N" {
+                sk:SetAxialDistance(Abs(stat:axialSetpoint) + 1).
             }
         }
 

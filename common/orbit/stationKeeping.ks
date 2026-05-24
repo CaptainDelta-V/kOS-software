@@ -15,24 +15,26 @@ Global Function StationKeepingModel {
 
     Local aligning to False.
     Local lateralVelMaxLocal to 1.0.
+    Local axialVelMaxLocal to 1.0.
 
-    // Axial: positional PID with derivative damping.
-    Local forePid to PidModel(0.4, 0, 0.6, -1, 1).
-    // Lateral (hold mode): positional PID — fine for small drifts.
-    Local starPid to PidModel(0.4, 0, 0.6, -1, 1).
-    Local topPid  to PidModel(0.4, 0, 0.6, -1, 1).
-    // Lateral (align mode): inner velocity PID. kP=1 → 1 m/s error saturates translation.
+    // Lateral hold-mode positional PIDs — fine for small drifts off the captured lateral offset.
+    Local starPid to PidModel(0.7, 0, 0.6, -1, 1).
+    Local topPid  to PidModel(0.7, 0, 0.6, -1, 1).
+    // Velocity-loop PIDs (axial always, lateral in align mode).
+    // kP=1.0 → 1 m/s velocity error saturates translation; smaller errors ramp proportionally.
+    Local foreVelPid to PidModel(1.0, 0, 0, -1, 1).
     Local starVelPid to PidModel(1.0, 0, 0, -1, 1).
     Local topVelPid  to PidModel(1.0, 0, 0, -1, 1).
 
     Local enabled to False.
 
     // alignToAxis=True drops the lateral setpoint to zero so the ship slides onto the port's
-    // approach axis and holds there. lateralVelMax (m/s) caps the desired lateral closing speed
-    // in align mode to prevent overshoot.
+    // approach axis. lateralVelMax / axialVelMax (m/s) cap the cascaded closing speeds so the
+    // controller doesn't overshoot when the offset is large.
     Function Start {
         Parameter alignToAxis is False.
         Parameter lateralVelMax is 1.0.
+        Parameter axialVelMax is 1.0.
 
         Local portFwd to targetPort:PortFacing:Vector:Normalized.
         Local portUp  to targetPort:PortFacing:TopVector:Normalized.
@@ -49,6 +51,7 @@ Global Function StationKeepingModel {
         }
         Set aligning to alignToAxis.
         Set lateralVelMaxLocal to lateralVelMax.
+        Set axialVelMaxLocal to axialVelMax.
 
         RCS on.
         // Both LookDirUp inputs are live so steering tracks the target's actual orientation
@@ -61,10 +64,16 @@ Global Function StationKeepingModel {
     Function Stop {
         Set enabled to False.
         Unlock Steering.
+        // Per-axis 0 is the documented per-axis release ("To free any single control, set it
+        // back to zero"). Neutralize then releases everything as a safety net.
         Set Ship:Control:Fore to 0.
         Set Ship:Control:Starboard to 0.
         Set Ship:Control:Top to 0.
         Set Ship:Control:Neutralize to True.
+        // Force a tick boundary so the engine processes the release before Stop returns —
+        // otherwise the previous Update()'s Fore claim can persist through the script's
+        // return into the menu loop, locking pilot H/N translation.
+        Wait 0.
     }
 
     // Caller must invoke each tick (or in a WHEN/UPDATE trigger) while active.
@@ -79,32 +88,39 @@ Global Function StationKeepingModel {
         // Reconstruct desired offset in world frame from port-local setpoints.
         Local desiredOffset to axialSetpoint * portFwd + topSetpoint * portUp + starSetpoint * portRt.
         Local currentOffset to targetPort:NodePosition.
-        // shipOffset = me - me_setpoint, in world. PIDs drive this to zero.
+        // shipOffset = me - me_setpoint, in world. Controllers drive this to zero.
         // (currentOffset = port - me; desiredOffset = port - me_setpoint; so shipOffset = desiredOffset - currentOffset.)
         Local shipOffset to desiredOffset - currentOffset.
 
-        // Axial: positional control on the fore axis.
-        Local foreErr to VDOT(shipOffset, Ship:Facing:Vector).
-        forePid:Update(foreErr).
-        Set Ship:Control:Fore to forePid:GetCalcOut().
+        // Relative velocity of ship w.r.t. the target vessel — d(shipOffset)/dt to first order.
+        Local relVel to Ship:Velocity:Orbit - targetPort:Ship:Velocity:Orbit.
+
+        // Axial: cascaded position → desired velocity (capped by axialVelMax) → velocity PID.
+        // Always-on (both hold and align modes) since the cap is generally useful.
+        Local foreOffset to VDOT(shipOffset, Ship:Facing:Vector).
+        Local desiredFwdVel to 0.
+        If Abs(foreOffset) > 0.001 {
+            Local desiredFwdSpeed to Min(Abs(foreOffset) * 0.5, axialVelMaxLocal).
+            // Move opposite the offset to return to setpoint.
+            Set desiredFwdVel to -(foreOffset / Abs(foreOffset)) * desiredFwdSpeed.
+        }
+        Local foreVelActual to VDOT(relVel, Ship:Facing:Vector).
+        Local foreVelErr to foreVelActual - desiredFwdVel.
+        foreVelPid:Update(foreVelErr).
+        Set Ship:Control:Fore to foreVelPid:GetCalcOut().
 
         If aligning {
             // Cascaded lateral control: position → desired velocity (capped) → velocity PID.
             Local lateralOffset to shipOffset - VDOT(shipOffset, portFwd) * portFwd.
             Local lateralOffsetMag to lateralOffset:Mag.
 
-            // desiredLatVel points back toward setpoint (opposite lateralOffset).
-            // Outer P=0.5 → ramp-down within ~2 m of axis when lateralVelMax=1 m/s.
             Local desiredLatVel to V(0, 0, 0).
             If lateralOffsetMag > 0.001 {
                 Local desiredSpeed to Min(lateralOffsetMag * 0.5, lateralVelMaxLocal).
                 Set desiredLatVel to -lateralOffset:Normalized * desiredSpeed.
             }
 
-            // d(shipOffset)/dt ≈ relVel = vel_ship - vel_targetShip; project onto lateral plane.
-            Local relVel to Ship:Velocity:Orbit - targetPort:Ship:Velocity:Orbit.
             Local latVelActual to relVel - VDOT(relVel, portFwd) * portFwd.
-
             Local latVelErr to latVelActual - desiredLatVel.
 
             Local starErr to VDOT(latVelErr, Ship:Facing:StarVector).
@@ -130,6 +146,25 @@ Global Function StationKeepingModel {
         Return enabled.
     }
 
+    // distance is a positive distance from the target port. Internally axialSetpoint is a
+    // signed projection onto PortFacing:Vector (negative when ship is on the outward side).
+    Function SetAxialDistance {
+        Parameter distance.
+        Set axialSetpoint to -Abs(distance).
+    }
+
+    Function SetLateralVelMax {
+        Parameter vmax.
+        If vmax < 0.05 { Return. }
+        Set lateralVelMaxLocal to vmax.
+    }
+
+    Function SetAxialVelMax {
+        Parameter vmax.
+        If vmax < 0.05 { Return. }
+        Set axialVelMaxLocal to vmax.
+    }
+
     Function GetStatus {
         Local portFwd to targetPort:PortFacing:Vector:Normalized.
 
@@ -138,6 +173,7 @@ Global Function StationKeepingModel {
         Local currentLateral to (currentOffset - currentAxial * portFwd):Mag.
 
         Local relVel to Ship:Velocity:Orbit - targetPort:Ship:Velocity:Orbit.
+        Local axVelMag  to Abs(VDOT(relVel, portFwd)).
         Local latVelMag to (relVel - VDOT(relVel, portFwd) * portFwd):Mag.
 
         Local lateralSetMag to Sqrt(topSetpoint^2 + starSetpoint^2).
@@ -148,6 +184,8 @@ Global Function StationKeepingModel {
             "lateralMag", currentLateral,
             "lateralSetpointMag", lateralSetMag,
             "rangeToPort", currentOffset:Mag,
+            "axVelMag", axVelMag,
+            "axialVelMax", axialVelMaxLocal,
             "latVelMag", latVelMag,
             "lateralVelMax", lateralVelMaxLocal,
             "aligning", aligning
@@ -159,6 +197,9 @@ Global Function StationKeepingModel {
         "Stop", Stop@,
         "Update", Update@,
         "IsEnabled", IsEnabled@,
-        "GetStatus", GetStatus@
+        "GetStatus", GetStatus@,
+        "SetAxialDistance", SetAxialDistance@,
+        "SetLateralVelMax", SetLateralVelMax@,
+        "SetAxialVelMax", SetAxialVelMax@
     ).
 }
