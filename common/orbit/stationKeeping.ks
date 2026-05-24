@@ -1,4 +1,5 @@
 RUNONCEPATH("0:common/seeking/pidModel").
+RUNONCEPATH("0:common/utils/dockingPortUtils").
 
 // Holds station relative to a target DockingPort: anti-parallel facing,
 // 3-axis position lock on the port's approach axis, RCS translation.

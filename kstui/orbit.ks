@@ -4,65 +4,39 @@ RUNONCEPATH("0:kstui/menu").
 RUNONCEPATH("0:common/orbit/stationKeeping").
 RUNONCEPATH("0:common/orbit/docking").
 RUNONCEPATH("0:common/orbit/rendezvousModel").
+RUNONCEPATH("0:common/utils/dockingPortUtils").
 
-// TARGET binding sees vessel targets reliably but drops docking-port part targets
-// (see kOS issue #2435). So: read TARGET as the parent vessel, then pick the port from
-// its DockingPorts list. If TARGET is somehow the port itself, use it directly.
-Local Function PickDockingPortOnTarget {
+// Assumes the player has right-clicked a docking port in the KSP UI and chosen
+// "Set as Target". Shows a warning and returns ok=False if no target is set or the
+// target is not a docking port — caller returns to the menu cleanly.
+Local Function GetTargetDockingPort {
+    Parameter title.
+
+    If not HasTarget {
+        TuiClear().
+        TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
+        TuiHRule(1).
+        TuiPrintAt("No target set.", 5, TUI_ALIGN_CENTER).
+        TuiPrintAt("Set a docking port as target in KSP first.", 7, TUI_ALIGN_CENTER).
+        TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
+        TuiWaitAnyKey().
+        Return Lexicon("ok", False).
+    }
+
     Local tgt to Target.
-
-    If tgt:HasSuffix("PortFacing") {
-        Return Lexicon("ok", True, "port", tgt).
-    }
-
-    If not tgt:HasSuffix("DockingPorts") {
+    If not tgt:HasSuffix("PortFacing") {
         TuiClear().
-        TuiPrintAt("Target is not a vessel.", 5, TUI_ALIGN_CENTER).
+        TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
+        TuiHRule(1).
+        TuiPrintAt("Target is not a docking port.", 5, TUI_ALIGN_CENTER).
         TuiPrintAt("(type: " + tgt:TypeName + ")", 6, TUI_ALIGN_CENTER).
-        TuiPrintAt("Press any key.", 9, TUI_ALIGN_CENTER).
+        TuiPrintAt("Right-click a docking port in KSP and 'Set as Target'.", 8, TUI_ALIGN_CENTER).
+        TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
         TuiWaitAnyKey().
         Return Lexicon("ok", False).
     }
 
-    Local ports to tgt:DockingPorts.
-    Local labels to List().
-    Local values to List().
-
-    From {Local i is 0.} Until i = ports:Length Step {Set i to i + 1.} Do {
-        Local prt to ports[i].
-        If prt:State = "Ready" {
-            Local dist to prt:NodePosition:Mag.
-            Local idStr to prt:Tag.
-            If idStr = "" {
-                Set idStr to "#" + prt:UID.
-            }
-            If idStr:Length > 14 {
-                Set idStr to idStr:Substring(0, 14).
-            }
-            Local typeShort to prt:NodeType.
-            If typeShort:Length > 6 {
-                Set typeShort to typeShort:Substring(0, 6).
-            }
-            Local distStr to ("" + Round(dist)):PadLeft(5) + "m".
-            labels:Add(idStr:PadRight(14) + " " + typeShort:PadRight(6) + " " + distStr).
-            values:Add(prt).
-        }
-    }
-
-    If labels:Length = 0 {
-        TuiClear().
-        TuiPrintAt("No Ready ports on target.", 5, TUI_ALIGN_CENTER).
-        TuiPrintAt("Press any key.", 7, TUI_ALIGN_CENTER).
-        TuiWaitAnyKey().
-        Return Lexicon("ok", False).
-    }
-
-    Local pickedPrt to TuiPickFromList("PICK PORT (id  type   dist)", labels, values).
-    If pickedPrt = 0 {
-        Return Lexicon("ok", False).
-    }
-
-    Return Lexicon("ok", True, "port", pickedPrt).
+    Return Lexicon("ok", True, "port", tgt).
 }
 
 // Plans and drops a Hohmann transfer node to TARGET (vessel) using the analytical solver in
@@ -119,27 +93,35 @@ Local Function RunStationKeepingLoop {
 
     TuiClear().
     TuiHRule(1).
-    Local headerId to port:Tag.
-    If headerId = "" {
-        Set headerId to "#" + port:UID.
-    }
-    TuiPrintAt("Port: " + headerId, 3).
+    Local headerId to DockingPortDisplayName(port).
     TuiPrintAt("[Enter] exit", 4).
 
     Terminal:Input:Clear().
     Local stopRequested to False.
     Local docking to False.
+    Local dockedExit to False.
 
     Until stopRequested {
         sk:Update().
 
         Local stat to sk:GetStatus().
         Local dockReady to ReadyToDock(sk).
+        Local portState to port:State.
+
+        // Auto-exit cleanly when the target port reports Docked — magnetic capture has
+        // completed and the parts have fused. sk:Stop() runs after the loop and releases
+        // RCS control claims so the player can fly normally post-dock.
+        If portState = "Docked" {
+            Set stopRequested to True.
+            Set dockedExit to True.
+        }
 
         // Dynamic title — shows [DOCKING] suffix once the approach has been initiated.
         Local displayTitle to title.
         If docking { Set displayTitle to title + " [DOCKING]". }
         TuiPrintAt(displayTitle:PadRight(TUI_WIDTH), 0, TUI_ALIGN_CENTER).
+
+        TuiPrintAt(("Port: " + headerId + " [" + portState + "]"):PadRight(TUI_WIDTH), 3).
 
         // Dynamic help line — reflects current state and docking readiness.
         Local helpLine to "H/N: axial 1m".
@@ -176,16 +158,25 @@ Local Function RunStationKeepingLoop {
     }
 
     sk:Stop().
+
+    If dockedExit {
+        TuiClear().
+        TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
+        TuiHRule(1).
+        TuiPrintAt("DOCKED", 8, TUI_ALIGN_CENTER).
+        TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
+        TuiWaitAnyKey().
+    }
 }
 
 Global Function TuiOrbitStationKeepingAction {
-    Local resolved to PickDockingPortOnTarget().
+    Local resolved to GetTargetDockingPort("STATION KEEPING").
     If not resolved:ok { Return. }
     RunStationKeepingLoop(resolved:port, False, "STATION KEEPING").
 }
 
 Global Function TuiOrbitStationKeepingAlignAction {
-    Local resolved to PickDockingPortOnTarget().
+    Local resolved to GetTargetDockingPort("STATION KEEPING (ALIGN)").
     If not resolved:ok { Return. }
     RunStationKeepingLoop(resolved:port, True, "STATION KEEPING (ALIGN)").
 }
