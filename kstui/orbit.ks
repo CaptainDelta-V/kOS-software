@@ -2,6 +2,7 @@
 RUNONCEPATH("0:kstui/screen").
 RUNONCEPATH("0:kstui/menu").
 RUNONCEPATH("0:common/orbit/stationKeeping").
+RUNONCEPATH("0:common/orbit/docking").
 RUNONCEPATH("0:common/orbit/rendezvousModel").
 
 // TARGET binding sees vessel targets reliably but drops docking-port part targets
@@ -117,23 +118,40 @@ Local Function RunStationKeepingLoop {
     sk:Start(alignToAxis).
 
     TuiClear().
-    TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
     TuiHRule(1).
     Local headerId to port:Tag.
     If headerId = "" {
         Set headerId to "#" + port:UID.
     }
     TuiPrintAt("Port: " + headerId, 3).
-    TuiPrintAt("[Enter] exit                            ", 4).
-    TuiPrintAt("H/N: axial dist 1m", 5).
+    TuiPrintAt("[Enter] exit", 4).
 
     Terminal:Input:Clear().
     Local stopRequested to False.
+    Local docking to False.
 
     Until stopRequested {
         sk:Update().
 
         Local stat to sk:GetStatus().
+        Local dockReady to ReadyToDock(sk).
+
+        // Dynamic title — shows [DOCKING] suffix once the approach has been initiated.
+        Local displayTitle to title.
+        If docking { Set displayTitle to title + " [DOCKING]". }
+        TuiPrintAt(displayTitle:PadRight(TUI_WIDTH), 0, TUI_ALIGN_CENTER).
+
+        // Dynamic help line — reflects current state and docking readiness.
+        Local helpLine to "H/N: axial 1m".
+        If docking {
+            Set helpLine to "DOCKING @ " + DOCKING_APPROACH_VEL + " m/s".
+        } Else If stat:aligning And dockReady {
+            Set helpLine to "H/N: axial 1m   D: DOCK NOW".
+        } Else If stat:aligning {
+            Set helpLine to "H/N: axial 1m   D: dock (need <0.5m)".
+        }
+        TuiPrintAt(helpLine:PadRight(TUI_WIDTH), 5).
+
         TuiPrintAt(("Range:   " + Round(stat:rangeToPort, 2) + " m"):PadRight(TUI_WIDTH), 7).
         TuiPrintAt(("Axial:   " + Round(Abs(stat:axial), 2) + " / " + Round(Abs(stat:axialSetpoint), 2) + " m"):PadRight(TUI_WIDTH), 8).
         TuiPrintAt(("AxV:     " + Round(stat:axVelMag, 2) + " / " + Round(stat:axialVelMax, 2) + " m/s"):PadRight(TUI_WIDTH), 9).
@@ -148,6 +166,9 @@ Local Function RunStationKeepingLoop {
                 sk:SetAxialDistance(Max(0.5, Abs(stat:axialSetpoint) - 1)).
             } Else If ch = "n" Or ch = "N" {
                 sk:SetAxialDistance(Abs(stat:axialSetpoint) + 1).
+            } Else If (ch = "d" Or ch = "D") And dockReady And not docking {
+                BeginDocking(sk).
+                Set docking to True.
             }
         }
 
