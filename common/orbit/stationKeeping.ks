@@ -22,8 +22,11 @@ Global Function StationKeepingModel {
     Local starPid to PidModel(0.7, 0, 0.6, -1, 1).
     Local topPid  to PidModel(0.7, 0, 0.6, -1, 1).
     // Velocity-loop PIDs (axial always, lateral in align mode).
-    // kP=1.0 → 1 m/s velocity error saturates translation; smaller errors ramp proportionally.
-    Local foreVelPid to PidModel(1.0, 0, 0, -1, 1).
+    // Lateral kP=1.0 → 1 m/s velocity error saturates translation; smaller errors ramp
+    // proportionally. Axial kP=4.0 so a 0.15 m/s docking-approach undershoot commands 0.6
+    // instead of 0.15 — keeping axial out of the RCS deadband and competitive when the
+    // lateral/steering loops are also drawing thrust from the same RCS pool.
+    Local foreVelPid to PidModel(4.0, 0, 0, -1, 1).
     Local starVelPid to PidModel(1.0, 0, 0, -1, 1).
     Local topVelPid  to PidModel(1.0, 0, 0, -1, 1).
 

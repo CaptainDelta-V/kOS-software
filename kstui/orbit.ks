@@ -6,9 +6,10 @@ RUNONCEPATH("0:common/orbit/docking").
 RUNONCEPATH("0:common/orbit/rendezvousModel").
 RUNONCEPATH("0:common/utils/dockingPortUtils").
 
-// Assumes the player has right-clicked a docking port in the KSP UI and chosen
-// "Set as Target". Shows a warning and returns ok=False if no target is set or the
-// target is not a docking port — caller returns to the menu cleanly.
+// Resolves the player's KSP target into a docking port. If the target IS a port (player
+// right-clicked one and Set As Target), use it directly. If it's a vessel, show a picker
+// over its Ready ports, labeled by DockingPortDisplayName (tag → parent part friendly
+// name → UID) and distance. If no target / unrecognized target, warn and return cleanly.
 Local Function GetTargetDockingPort {
     Parameter title.
 
@@ -17,26 +18,58 @@ Local Function GetTargetDockingPort {
         TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
         TuiHRule(1).
         TuiPrintAt("No target set.", 5, TUI_ALIGN_CENTER).
-        TuiPrintAt("Set a docking port as target in KSP first.", 7, TUI_ALIGN_CENTER).
+        TuiPrintAt("Set a docking port or vessel as target in KSP first.", 7, TUI_ALIGN_CENTER).
         TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
         TuiWaitAnyKey().
         Return Lexicon("ok", False).
     }
 
     Local tgt to Target.
-    If not tgt:HasSuffix("PortFacing") {
+
+    If tgt:HasSuffix("PortFacing") {
+        Return Lexicon("ok", True, "port", tgt).
+    }
+
+    If not tgt:HasSuffix("DockingPorts") {
         TuiClear().
         TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
         TuiHRule(1).
-        TuiPrintAt("Target is not a docking port.", 5, TUI_ALIGN_CENTER).
+        TuiPrintAt("Target is not a docking port or vessel.", 5, TUI_ALIGN_CENTER).
         TuiPrintAt("(type: " + tgt:TypeName + ")", 6, TUI_ALIGN_CENTER).
-        TuiPrintAt("Right-click a docking port in KSP and 'Set as Target'.", 8, TUI_ALIGN_CENTER).
         TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
         TuiWaitAnyKey().
         Return Lexicon("ok", False).
     }
 
-    Return Lexicon("ok", True, "port", tgt).
+    Local ports to tgt:DockingPorts.
+    Local labels to List().
+    Local values to List().
+
+    From {Local i is 0.} Until i = ports:Length Step {Set i to i + 1.} Do {
+        Local prt to ports[i].
+        If prt:State = "Ready" {
+            Local dist to prt:NodePosition:Mag.
+            Local friendlyName to DockingPortDisplayName(prt).
+            If friendlyName:Length > 22 { Set friendlyName to friendlyName:Substring(0, 22). }
+            Local distStr to ("" + Round(dist)):PadLeft(5) + "m".
+            labels:Add(friendlyName:PadRight(22) + " " + distStr).
+            values:Add(prt).
+        }
+    }
+
+    If labels:Length = 0 {
+        TuiClear().
+        TuiPrintAt(title, 0, TUI_ALIGN_CENTER).
+        TuiHRule(1).
+        TuiPrintAt("No Ready ports on target vessel.", 5, TUI_ALIGN_CENTER).
+        TuiPrintAt("Press any key.", TUI_HEIGHT - 1, TUI_ALIGN_CENTER).
+        TuiWaitAnyKey().
+        Return Lexicon("ok", False).
+    }
+
+    Local pickedPrt to TuiPickFromList("PICK PORT (part           dist)", labels, values).
+    If pickedPrt = 0 { Return Lexicon("ok", False). }
+    Return Lexicon("ok", True, "port", pickedPrt).
 }
 
 // Plans and drops a Hohmann transfer node to TARGET (vessel) using the analytical solver in
@@ -108,10 +141,12 @@ Local Function RunStationKeepingLoop {
         Local dockReady to ReadyToDock(sk).
         Local portState to port:State.
 
-        // Auto-exit cleanly when the target port reports Docked — magnetic capture has
-        // completed and the parts have fused. sk:Stop() runs after the loop and releases
-        // RCS control claims so the player can fly normally post-dock.
-        If portState = "Docked" {
+        // Auto-exit cleanly when the target port reports a Docked state — magnetic capture
+        // has completed and the parts have fused. kOS reports this as either "Docked (docker)"
+        // or "Docked (dockee)" depending on which side initiated, never just "Docked", so
+        // we match by prefix. sk:Stop() runs after the loop and releases RCS control claims
+        // so the player can fly normally post-dock.
+        If portState:StartsWith("Docked") {
             Set stopRequested to True.
             Set dockedExit to True.
         }
@@ -130,7 +165,7 @@ Local Function RunStationKeepingLoop {
         } Else If stat:aligning And dockReady {
             Set helpLine to "H/N: axial 1m   D: DOCK NOW".
         } Else If stat:aligning {
-            Set helpLine to "H/N: axial 1m   D: dock (need <0.5m)".
+            Set helpLine to "H/N: axial 1m   D: dock (need <1m)".
         }
         TuiPrintAt(helpLine:PadRight(TUI_WIDTH), 5).
 

@@ -13,7 +13,7 @@ Global DOCKING_APPROACH_VEL to 0.2.
 Global DOCKING_FINAL_DISTANCE to 0.5.
 
 // Lateral tolerance for "aligned enough to begin docking" (m).
-Global DOCKING_ALIGN_TOLERANCE to 0.5.
+Global DOCKING_ALIGN_TOLERANCE to 1.
 
 // Reconfigure an active StationKeepingModel for docking approach. Caller is responsible
 // for verifying readiness via ReadyToDock first if they want gated behavior.
